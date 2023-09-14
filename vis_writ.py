@@ -164,7 +164,7 @@ class Data:
         plot_width = ( 1.0 - 2*figpad - max(0,self.dim-2)*plotpad ) / (self.dim - 1.)
         plot_height = plot_width
         left = 0.1#figpad + (plot_width + plotpad)
-        bottom = 0.1#figpad + 0.3*(plot_width + plotpad)
+        bottom = 0.05#figpad + 0.3*(plot_width + plotpad)
         
         fig = plt.figure(figsize=(fsize, fsize))
         cmap_vmin = 0.0
@@ -174,14 +174,11 @@ class Data:
         count = 0
         max_count = 3
         ax = fig.add_axes((left, bottom, plot_width, plot_height))
-        rar_var = 0
-        bunn=1
-
+        ax.set_title(f'Total individual distirbution after {0} - {max_count+1} iterations',fontsize=' 6')
         for iter in range(np.size(individuals, axis=0)):
             # Axis ranges
             plt.xlim([1.05*self.x_min, 1.05*self.x_max])
             plt.ylim([1.05*self.x_min, 1.05*self.x_max])
-
             # Axis labels
             plt.ylabel("x_1" , fontsize=fontsize)
             plt.xlabel("x_0" , fontsize=fontsize)
@@ -191,17 +188,12 @@ class Data:
             ax.scatter(individuals[iter, :,0], individuals[iter, :,1], s=markersize)#, c=likelihood,
                                 # s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
             if count > max_count:
-                #Må være litt fiks her
                 left += 0.2 
                 if left > 0.8:
-                    bottom += 0.25
+                    bottom += 0.24
                     left  = 0.1
-                # bottom = bottom+bunn
-                print(left, bottom )
-                print()
                 ax = fig.add_axes((left, bottom , plot_width, plot_height))
-                ax.set_title(f'Total individual distirbution after  {iter} iterations',fontsize=' 8')
-                rar_var +=1 
+                ax.set_title(f'Total individual distirbution after {iter} - {iter+max_count+1} iterations',fontsize=' 6')
                 count = 0
             count +=1
 
