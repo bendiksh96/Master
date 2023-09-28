@@ -113,11 +113,11 @@ class DEVO:
     def eval_likelihood_ind(self, ind):
         func = Problem_Function(self.dim)
         if self.problem_func == "Rosenbrock":
-            score,a = func.Rosenbrock(ind)
+            score = func.Rosenbrock(ind)
         elif self.problem_func == "Eggholder":
-            score,a = func.Eggholder(ind)
+            score = func.Eggholder(ind)
         elif self.problem_func == "Himmelblau":
-            score,a  = func.Himmelblau(ind)
+            score = func.Himmelblau(ind)
         return score
     
     #Velg foreldre iht. antall foreldre, samt likelihood
@@ -225,13 +225,14 @@ class DEVO:
         
         if method == 'jDErpo':
             for pop in range(self.no_pop):
-                NP = int(self.population_size_list[pop] * np.random.uniform(0,1))
+                NP = int(self.population_size_list[pop] * np.random.uniform(0,1)+1)
+                #Må legge til +1 for å ikke ødelegge random int fra lenger ned
                 self.u = np.zeros_like(self.ind[pop])
                 self.v = np.zeros_like(self.ind[pop])
                 klai = np.argsort(self.likely_ind[pop], axis = 0)
                 best_indexes = klai[0:NP]
                 xpbest = self.ind[pop][best_indexes]
-                self.abs_best = self.likely_ind[pop][best_indexes[0]]
+                #self.abs_best = self.likely_ind[pop][best_indexes[0]]
                 population = self.population_size_list[pop]
                 
                 #Mutant vector
@@ -319,6 +320,8 @@ class DEVO:
                             del self.A[np.random.randint(0, population_size)]
                 #Update weights
                 if len(S_CR) != 0:
+                    if self.k_arg>=H:
+                        self.k_arg = 1
                     wk = []
                     mcr = 0
                     mf_nom = 0
@@ -332,8 +335,6 @@ class DEVO:
                     self.M_CR[pop][self.k_arg] = mcr
                     self.M_F[pop][self.k_arg] = mf_nom/mf_denom
                     self.k_arg += 1
-                    if self.k_arg>H:
-                        self.k = 1
         
     def select_offspring(self):
         #Velger random individ og erstatter med barn

@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 #jDE                        - Gjort
 #jDErpo                     - Gjort
 #dynNP-jDE
-#SHADE 
+#SHADE                      -Gjort - Funker dårlig med stor populasjon 
 #SHADE-ILS
 #DDMS
 #================================================================
@@ -28,14 +28,14 @@ import matplotlib.pyplot as plt
 start = perf_counter()
 max_iter = 100
 x_min = -5
-x_max = 5
-dim =   4
-pop =   [20000]
+x_max = 10
+dim =   9
+pop =   [2000]
 n_p =   [0.4 * p for p in pop]
 m_p =   [0.1]
 no_pop = 1
-np.random.seed(4456)
-eval_type = "DE"
+np.random.seed(4452)
+eval_type = "jDErpo"
 
 #End program if global likelihood does not improve by a factor of 
 end_crit = 1e-4
@@ -81,7 +81,7 @@ print(f'Time of evaluation: {end-start:.2f} seconds')
 
 #Visualization
 # klam.visualize_population_evolution(evolution_individuals[0], vary.likely_ind[0])
-klam.visualize_1(vary.ind[0],vary.likely_ind[0], eval_type=eval_type)
+# klam.visualize_1(vary.ind[0],vary.likely_ind[0], eval_type=eval_type)
 # klam.visualize_iter_loss(iter_var[0:k], sum_likelihood[0:k], n_p)
 klam.data_file(vary.ind[0], vary.likely_ind[0], vary.population_size_list[0])
 # klam.visualize_2(max_iter, vary.ind[0], vary.likely_ind[0])
