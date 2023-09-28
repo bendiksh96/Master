@@ -95,19 +95,19 @@ class DEVO:
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score = func.Rosenbrock(self.ind[pop][i])
-                    self.likely_ind[pop][i], self.likely_ind_percieved[pop][i] = score
+                    self.likely_ind[pop][i]= score
             
         elif self.problem_func == "Eggholder":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score = func.Eggholder(self.ind[pop][i])
-                    self.likely_ind[pop][i], self.likely_ind_percieved[pop][i] = score
+                    self.likely_ind[pop][i] = score
 
         elif self.problem_func == "Himmelblau":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score = func.Himmelblau(self.ind[pop][i])
-                    self.likely_ind[pop][i], self.likely_ind_percieved[pop][i] = score
+                    self.likely_ind[pop][i] = score
 
 
     def eval_likelihood_ind(self, ind):
