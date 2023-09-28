@@ -14,7 +14,7 @@ class Data:
     def data_storage(self):
         a = 1
 
-    def visualize_1(self, individuals, likelihood):
+    def visualize_1(self, individuals, likelihood, eval_type):
         sort_ = np.argsort((-1*likelihood), axis=0)
         likelihood = likelihood[sort_]
         individuals = individuals[sort_,:].reshape((len(likelihood), self.dim))
@@ -71,12 +71,12 @@ class Data:
                     cbar = fig.colorbar(scat, cax=axins, orientation="vertical")
                     cbar.set_label("objfunc(x)", fontsize=fontsize)
 
-        summary_string = """Heihei"""
+        summary_string = f"Method: {eval_type}"
         fig = plt.gcf()
         plt.text(0.5, 1.0, summary_string, fontsize=fontsize, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
         # output_dir_name = 'asad.png'
-        plot_file_name = "all_evals.png"
+        plot_file_name = r"C:\Users\Lenovo\Documents\Master\fig.png"
         plt.savefig(plot_file_name)
         plt.show()
 
@@ -154,17 +154,16 @@ class Data:
     def visualize_population_evolution(self, individuals, likelihood):
         # Create figure
         fontsize = 8
-        fsize_per_dim = 5.0
-        fsize = 12
+        fsize = 14
         markersize = 10.0 / (self.dim-1)
         markerborderwidth = 0.25 / (self.dim-1)
         markerbordercolor = '0.3'
-        figpad = 0.9 / fsize  # 0.07
-        plotpad = 0.9 / fsize # 0.07
-        plot_width = ( 1.0 - 2*figpad - max(0,self.dim-2)*plotpad ) / (self.dim - 1.)
+        figpad = 1 #0.9 / fsize  # 0.07
+        plotpad = 1 #0.9 / fsize # 0.07
+        plot_width = fsize/90# 1.0 - 2*figpad - max(0,self.dim-2)*plotpad ) / (self.dim - 1.)
         plot_height = plot_width
         left = 0.1#figpad + (plot_width + plotpad)
-        bottom = 0.05#figpad + 0.3*(plot_width + plotpad)
+        bottom = 0.07#figpad + 0.3*(plot_width + plotpad)
         
         fig = plt.figure(figsize=(fsize, fsize))
         cmap_vmin = 0.0
@@ -173,6 +172,7 @@ class Data:
 
         count = 0
         max_count = 3
+        initial = 0
         ax = fig.add_axes((left, bottom, plot_width, plot_height))
         ax.set_title(f'Total individual distirbution after {0} - {max_count+1} iterations',fontsize=' 6')
         for iter in range(np.size(individuals, axis=0)):
@@ -192,6 +192,13 @@ class Data:
                 if left > 0.8:
                     bottom += 0.24
                     left  = 0.1
+                if bottom >0.8:
+                    plot_name = f'Iter_{initial}_to_{count}.jpg'
+                    fig.savefig(plot_name)
+                    plt.show()
+                    bottom = 0.05
+                    fig = plt.figure(figsize=(fsize, fsize))
+
                 ax = fig.add_axes((left, bottom , plot_width, plot_height))
                 ax.set_title(f'Total individual distirbution after {iter} - {iter+max_count+1} iterations',fontsize=' 6')
                 count = 0
@@ -203,7 +210,7 @@ class Data:
 
     def data_file(self, individuals, likelihood, pop_size):
         path = (r"C:\Users\Lenovo\Documents\Master\data.csv")
-
+        index = 0
         new_list = []
         for i in range(pop_size):
             str1 = []
@@ -211,7 +218,7 @@ class Data:
                 str_ = round(individuals[i,j],4)
                 str1.append(str_)
             str2 = likelihood[i]
-            new_list.append([str1[0:(self.dim)], round(str2[0],2)])
+            new_list.append([str1[0:(self.dim)], round(str2,4)])
         with open(path, 'w', newline='') as csvfile:
             csvfile = csv.writer(csvfile, delimiter=',')
             csvfile.writerow(['Individual' + '       '+'Score'])
