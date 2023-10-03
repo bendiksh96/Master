@@ -40,8 +40,9 @@ class DEVO:
             self.CR_list.append(a)
             self.M_CR.append(0.5*a)
             self.M_F.append(0.5*a)
-        
-    
+            
+        self.func_calls = 0
+
     #Trenger å kunne bestemme dimensjonen på popluasjonen og gi dette som et output
     def initialize_single_pop(self, x_min, x_max, randomize = 'True'):
         self.x_min = x_min
@@ -88,7 +89,7 @@ class DEVO:
                         #Sprettball
                         self.ind[pop][i,j] = self.x_max - (self.ind[pop][i,j] - self.x_max)
                         
-    #Må evalurere iht. testfunksjon
+    #Evaluer en populasjons likelihood
     def eval_likelihood_pop(self):
         func = Problem_Function(self.dim)
         if self.problem_func == "Rosenbrock":
@@ -96,28 +97,36 @@ class DEVO:
                 for i in range(self.population_size_list[pop]):
                     score = func.Rosenbrock(self.ind[pop][i])
                     self.likely_ind[pop][i]= score
-            
+                    self.func_calls += 1
         elif self.problem_func == "Eggholder":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score = func.Eggholder(self.ind[pop][i])
                     self.likely_ind[pop][i] = score
+                    self.func_calls += 1
 
         elif self.problem_func == "Himmelblau":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score = func.Himmelblau(self.ind[pop][i])
                     self.likely_ind[pop][i] = score
+                    self.func_calls += 1
 
-
+    #Evaluer et individs likelihood
     def eval_likelihood_ind(self, ind):
         func = Problem_Function(self.dim)
         if self.problem_func == "Rosenbrock":
             score = func.Rosenbrock(ind)
+            self.func_calls += 1
+
         elif self.problem_func == "Eggholder":
             score = func.Eggholder(ind)
+            self.func_calls += 1
+
         elif self.problem_func == "Himmelblau":
             score = func.Himmelblau(ind)
+            self.func_calls += 1
+
         return score
     
     #Velg foreldre iht. antall foreldre, samt likelihood
@@ -268,6 +277,76 @@ class DEVO:
                             self.u[i,j] = self.v[i,j]
                     if self.eval_likelihood_ind(self.u[i]) < self.likely_ind[pop][i]:
                         self.ind[pop][i] = self.u[i]
+  
+        if method == 'JADE':                
+            S_CR = []
+            S_F = []
+            delta_f = []
+            for pop in range(self.no_pop):
+                self.F_list[pop][:] = 0.1
+                self.CR_list[pop][:] = 0.1
+                population_size = self.population_size_list[pop]
+                p_i = np.random.uniform(2/population_size, 0.2)
+                NP = int(population_size * p_i)        
+                H = population_size
+                
+                #Som i jDE
+                self.u = np.zeros_like(self.ind[pop])
+                self.v = np.zeros_like(self.ind[pop])
+                klai = np.argsort(self.likely_ind[pop], axis = 0)
+                best_indexes = klai[0:NP]
+                xpbest = self.ind[pop][best_indexes]
+                self.abs_best = self.likely_ind[pop][best_indexes[0]]
+                
+                #Mutant vector
+                for i in range(population_size):
+                    r_i = np.random.randint(1,H) 
+                    self.CR_list[pop][i] = np.random.normal(self.M_CR[pop][r_i], 0.1)
+                    #Burde være Cauchy-fordeling
+                    self.F_list[pop][i]  = np.random.normal(self.M_F[pop][r_i], 0.1)
+                    
+                    #Current to pbest/1 
+                    rand1_ = np.random.randint(population_size)
+                    rand2_ = np.random.randint(population_size)
+                    rand3_ = np.random.randint(NP)
+                    self.v[i] = self.ind[pop][i] + self.F_list[pop][i]*(xpbest[rand3_]-self.ind[pop][i]) + self.F_list[pop][i]*(self.ind[pop][rand1_]- self.ind[pop][rand2_])
+                                                    
+                #Crossover
+                for i in range(population_size):
+                    for j in range(self.dim):
+                        randint = np.random.randint(0,1)
+                        if randint < self.CR_list[pop][i]:
+                            self.u[i,j] = self.v[i,j]
+                    if self.eval_likelihood_ind(self.u[i]) <= self.likely_ind[pop][i]:
+                        self.ind[pop][i] = self.u[i]
+                    # if self.eval_likelihood_ind(self.u[i]) < self.likely_ind[pop][i]:
+                        self.A.append(self.ind[pop][i])        
+                        delta_f.append(self.eval_likelihood_ind(self.u[i])-self.likely_ind[pop][i])                
+                        S_CR.append(self.CR_list[pop][i])
+                        S_F.append(self.F_list[pop][i])
+                        self.ind[pop][i] = self.u[i]
+                        if len(self.A) > self.population_size_list[pop]:
+                            del self.A[np.random.randint(0, population_size)]
+                #Update weights
+                if len(S_CR) != 0:
+                    if self.k_arg>=H:
+                        self.k_arg = 1
+                    wk = []
+                    mcr = 0
+                    mf_nom = 0
+                    mf_denom = 0
+                    for arg in range(len(S_CR)):
+                        wk.append(delta_f[arg]/sum(delta_f))
+                    for arg in range(len(S_CR)):
+                        mcr += wk[arg] * S_CR[arg]
+                        mf_nom  += wk[arg]*S_F[arg]**2
+                        mf_denom += wk[arg]*S_F[arg]
+                    self.M_CR[pop][self.k_arg] = mcr
+                    self.M_F[pop][self.k_arg] = mf_nom/mf_denom
+                    self.k_arg += 1
+        
+
+
 
         if method == 'SHADE':                
             S_CR = []
@@ -336,12 +415,7 @@ class DEVO:
                     self.M_F[pop][self.k_arg] = mf_nom/mf_denom
                     self.k_arg += 1
         
-    def select_offspring(self):
-        #Velger random individ og erstatter med barn
-        # for i in range(self.no_parents):
-        #     randint = np.random.randint(0,self.population_size)
-        #     self.ind[randint] = self.offspring[i]
-        
+    def select_offspring(self):        
         #Turnering
         for i in range(int(self.no_parents/2)):
             randint = np.random.randint(0,self.population_size)
