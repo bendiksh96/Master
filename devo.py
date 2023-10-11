@@ -1,6 +1,9 @@
 import numpy as np
+import random as rd
 from problem_func import *
 from scipy.stats import cauchy
+from scipy.stats.qmc import LatinHypercube
+
 
 class DEVO:
     def __init__(self, maxiteration,population_size_list, mut_prob, no_parents, dim, problem_func,  no_pop = 1):
@@ -26,8 +29,13 @@ class DEVO:
         self.CRupp  = 1
         self.Fupp   = 1
         self.A = []
+        
+        self.A_all = [] ; self.A_re = [] ; self.A_ll = []
+        
+        
         self.k_arg = 1
 
+        self.std = 0
         self.M_CR = []
         self.M_F  = []
         
@@ -53,6 +61,7 @@ class DEVO:
                     for j in range(self.dim):
                         rand_ = np.random.uniform(x_min, x_max)
                         self.ind[pop][i,j] = rand_
+                # self.std = np.std(self.likely_ind[pop][:])
             if randomize == False:
                 for i in range(self.population_size_list[pop]):
                     for j in range(self.dim):
@@ -63,7 +72,27 @@ class DEVO:
                             self.ind[pop][i,j] = np.random.normal(x_min, x_max)
                         elif randy == -1:
                             self.ind[pop][i,j] = 1- np.random.normal(x_min, x_max)
- 
+            if pop ==1:
+
+                available_indices = [set(range(self.population_size_list[pop])) for a in range(self.dim)]
+                samples = []
+                for i in range(self.population_size_list[pop]//2):
+                    sample1 = list()
+                    sample2 = list()
+
+                    for idx in available_indices:
+                        k = rd.sample(idx, 1)[0]
+                        sample1.append(k)
+                        sample2.append(self.population_size_list[pop]-1-k)
+                        idx.remove(k)
+                        idx.remove(self.population_size_list[pop]-1-k)
+
+                    samples.append(sample1)
+                    samples.append(sample2)
+
+                samples = np.array(samples)
+                self.A_ll.append(self.ind[pop])
+                
     def multipop_diff_ind_size(self, dim, x_min, x_max, multipop_ind_list, randomize=True):
         self.dim = dim
         self.x_min = x_min
@@ -345,9 +374,77 @@ class DEVO:
                     self.M_F[pop][self.k_arg] = mf_nom/mf_denom
                     self.k_arg += 1
         
+        if method == 'SABLA':
+                        
+            for pop in range(self.no_pop):   
+                if pop == 0:         
+                    #Evolve pop  -> cpop
+                    #Evaluate pop  
+                    #Combine parent (pop) and child (cpop) -> rpop
 
-
-
+                    population = self.population_size_list[pop]
+                    self.F_list[pop][:] = 0.1
+                    self.CR_list[pop][:] = 0.1
+                    self.u = np.zeros_like(self.ind[pop])
+                    self.v = np.zeros_like(self.ind[pop])
+                    klai = np.argsort(self.likely_ind[pop], axis = 0)
+                    best_index = klai[0]
+                    ind_best = self.ind[pop][best_index]
+                    self.abs_best = self.likely_ind[pop][best_index]
+                    
+                    for i in range(population):
+                        rand1_ = np.random.randint(population)
+                        rand2_ = np.random.randint(population)
+                        rand3_ = np.random.randint(population)
+                        
+                        #rand/1 scheme
+                        self.v[i] = self.ind[pop][rand1_] + self.F_list[pop][i] * (self.ind[pop][rand2_]- self.ind[pop][rand3_])
+                    
+                    for i in range(self.population_size_list[pop]):
+                        for j in range(self.dim):
+                            randint = np.random.randint(0,1)
+                            if randint < self.CR_list[pop][i]:
+                                self.u[i,j] = self.v[i,j]
+                        if self.eval_likelihood_ind(self.u[i]) < self.likely_ind[pop][i]:
+                            self.ind[pop][i] = self.u[i]
+                    self.eval_likelihood_pop(self.ind[pop])
+                    self.rpop = np.argsort(self.likely_ind[pop], axis = 0)
+                elif pop == 1:                
+                    population = self.population_size_list[pop]
+                    self.F_list[pop][:] = 0.1
+                    self.CR_list[pop][:] = 0.1
+                    self.u = np.zeros_like(self.ind[pop])
+                    self.v = np.zeros_like(self.ind[pop])
+                    klai = np.argsort(self.likely_ind[pop], axis = 0)
+                    best_index = klai[0]
+                    ind_best = self.ind[pop][best_index]
+                    self.abs_best = self.likely_ind[pop][best_index]
+                    
+                    for i in range(population):
+                        rand1_ = np.random.randint(population)
+                        rand2_ = np.random.randint(population)
+                        rand3_ = np.random.randint(population)
+                        
+                        #rand/1 scheme
+                        self.v[i] = self.ind[pop][rand1_] + self.F_list[pop][i] * (self.ind[pop][rand2_]- self.ind[pop][rand3_])
+                    
+                    for i in range(self.population_size_list[pop]):
+                        for j in range(self.dim):
+                            randint = np.random.randint(0,1)
+                            if randint < self.CR_list[pop][i]:
+                                self.u[i,j] = self.v[i,j]
+                        if self.eval_likelihood_ind(self.u[i]) < self.likely_ind[pop][i]:
+                            self.ind[pop][i] = self.u[i]
+                    
+                    
+                    #Rank rpop -> rpop
+                    #Reduce rpop
+                    #Update archive
+                    #rank(pop, archive) -> pop
+                    #reduce(pop) -> pop
+                    #Update best x_u, x_l, F_u, f_l as best in arhive
+                #return best x_u, x_l, F_u, f_l
+                
         if method == 'SHADE':                
             S_CR = []
             S_F = []
