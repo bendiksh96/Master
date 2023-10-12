@@ -67,6 +67,8 @@ xmin,xmax   = -5,5
 role        = 'island'
 gen         = 0 
 
+role        = np.array((num_pop, pop_size))
+role[:,:]   = 'island'
 mu_initial = np.zeros((num_pop, dim))
 sig_initial = np.zeros((num_pop, dim))
 for pop in range(num_pop-1):
