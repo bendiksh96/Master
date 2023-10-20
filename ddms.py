@@ -1,5 +1,13 @@
 import numpy as np
 
+np.random.seed(12313)
+def Eggholder(x_):
+    func = 0
+    for i in range(dim-1):
+        func -= (x_[i+1]+47)*np.sin(np.sqrt(abs(x_[i+1]+(x_[i]/2)+47)))+ x_[i]*np.sin(np.sqrt(abs(x_[i]-(x_[i+1]+47))))
+    
+    return func
+
 def Rosenbrock(x_):
         func = 0
         for i in range(dim-1):
@@ -54,6 +62,7 @@ k           = 1
 s_cluster   = []
 mu_cluster  = []
 var_cluster = []
+ind_cluster = []
 cluster_record = []
 def pool(ind, k, gen):
     if k == 1:
@@ -62,6 +71,7 @@ def pool(ind, k, gen):
         mu_cluster.append([ind])
         var_cluster.append([0])
         cluster_record.append([k])
+        ind_cluster.append([ind])
         mig = ind
     else:
         if k ==2:
@@ -74,7 +84,7 @@ def pool(ind, k, gen):
             mu_cluster[0].append(mu_12)
             var_cluster[0].append(var_12)
             cluster_record[0].append(k)
-
+            ind_cluster[0].append([ind] + ind_cluster[0][0])
             mig = mu_12
         
         if k>= 3:
@@ -84,6 +94,7 @@ def pool(ind, k, gen):
             for i in range(len(s_cluster)):
                 #Update temporary variables
                 #9
+                print(s_cluster[i][k-2])
                 s_temp = (s_cluster[i][k-2] +1)
                 
                 #10
@@ -98,40 +109,68 @@ def pool(ind, k, gen):
                 reu  =  elip/2
                 
                 #Add individual to cloud
-                m = 3
+                m = 1
+                # print(k)
+                # print(reu, s_temp)
+                # print(s_cluster[i][k-2])
                 if reu <= (m**2+1)/(2*s_temp):
+                    inhabit = True
+                    
                     s_cluster[i].append(s_temp)
                     mu_cluster[i].append(mu_temp)
                     var_cluster[i].append(var_temp)
-                    inhabit = True
                     inhabit_ind.append(i)
                     cluster_record[i].append(k)
                     
+                    ind_cluster[i].append([ind] + ind_cluster[i][k-2])    
+                
                 #Update old cloud 
                 else:
                     s_cluster[i].append(s_cluster[i][k-2])
                     mu_cluster[i].append(mu_cluster[i][k-2])
                     var_cluster[i].append(var_cluster[i][k-2])
-                    cluster_record[i].append(cluster_record[i][k-2])            
-        
+                    cluster_record[i].append(cluster_record[i][k-2])          
+                    ind_cluster[i].append(ind_cluster[i][k-2])
+            """
+            count = 0
+            for i in range(len(s_cluster)):
+                for j in range(len(s_cluster)):
+                    #if s_cluster[i]
+                    a = 0
+                    #Metode for å finne ut hvor mange av samme individ som er i samme cloud
+                    
+            if (len(cluster_record[:])*k) in (a for a in range(cluster_record[:][k-2])) and len(s_cluster) > 1:
+                #Initiate restart
+                for i in range(len(s_cluster)):
+                    for j in range(len(s_cluster[i])):
+                        #Perturbe the individuals in the cluster 
+                        
+                        ind_cluster[i][j] = (np.random.normal(mu_cluster[i][-1],np.sqrt(var_cluster[i][-1])) 
+                                             + np.random.uniform(0,1)*ind
+                                             - np.random.uniform(0,1)*ind_cluster[i][j])
+            """
+                
             #Om individ ikke tilhører noen skyer, lag en ny
             if inhabit != True:
-                #Er det k-2 her?
                 arg_length = [0 for a in range (k-2)]
                 var_cluster.append(arg_length)
-                cluster_record.append(arg_length)
-                cluster_record[-1].append(k)
-                
-                arg_length[-1] = 1
                 s_cluster.append(arg_length)
-                arg_length[-1] = ind
+                cluster_record.append(arg_length)
                 mu_cluster.append(arg_length)
+                cluster_record.append(arg_length)
+                ind_cluster.append(arg_length)
+
                 inhabit_ind.append(i+1)
                 
-                cluster_record.append(arg_length)
-                cluster_record[-1].append(k)
                 
-            
+                cluster_record[-1][-1] = k
+                mu_cluster[-1][-1] = ind
+                ind_cluster[-1][-1] = ind
+                cluster_record[-1][-1] = k                
+                
+                s_cluster[-1][-1] = 1
+                #Her er det en bug og det er balle irriterende
+            """
             for i in range(len(s_cluster)):
                 for j in range(len(s_cluster)):
                     if i != j:
@@ -157,7 +196,7 @@ def pool(ind, k, gen):
                             #15
                             #16
                             #17           
-        
+        """
         #Mean individual fra en cloud der individet er 
             ran = np.random.randint(0, len(inhabit_ind))
             mig = mu_cluster[ran][k-2]    
@@ -166,9 +205,9 @@ def pool(ind, k, gen):
     k += 1 
     return mig, k
 
-num_pop     = 2
+num_pop     = 4
 pop_size    = 100
-NFE_max     = 1e7
+NFE_max     = 1e6
 dim         = 5
 NFE         = 0 
 T           = 1e-3
@@ -195,7 +234,7 @@ for pop in range(num_pop):
             kar[ind,j] = np.random.uniform(xmin, xmax)
             mu_initial[pop,j] = np.mean(kar[:,j])
             sig_initial[pop,j] = sigma_(kar[:,j], mu_initial[pop, j])
-        verdi[ind,0] = Rosenbrock(kar[ind,:])        
+        verdi[ind,0] = Eggholder(kar[ind,:])        
     roly.append(role_pop)
     individual.append(kar)
     likelihood.append(verdi)
@@ -241,8 +280,10 @@ while NFE < NFE_max:
                     randint = np.random.randint(0,1)
                     if randint < CR:
                         u[i,j] = v[i,j]
-                if Rosenbrock(u[i]) < likelihood[pop][i]:
+                argi = Eggholder(u[i])
+                if argi < likelihood[pop][i]:
                     individual[pop][i] = u[i]
+                    likelihood[pop][i] = argi
                     
             for j in range(dim):
                 #Her må du finne ut hva som trenger array og ikke
@@ -277,3 +318,6 @@ while NFE < NFE_max:
             sort = np.argsort(likelihood[pop])
             best_ind = individual[pop][sort][0]
             mig_ind, k = pool(best_ind, k, gen)
+            individual[pop][int(np.random.randint(0,pop_size-1))] = mig_ind
+
+print(individual)
