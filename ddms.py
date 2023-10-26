@@ -94,14 +94,13 @@ def pool(ind, k, gen):
         
         if k>= 3:
             inhabit = False
-            inhabit_ind = []
             for i in range(len(s_cluster)):
                 #Update temporary variables
                 num_in_cloud = inhabit_num[i][-1]
                 
                 #9
                 s_temp = (s_cluster[i][num_in_cloud] +1)
-                print(s_temp)
+                # print(s_temp)
                 #10
                 mu_temp = (s_temp - 1)/s_temp * mu_cluster[i][num_in_cloud] + 1/s_temp * ind
                 
@@ -121,7 +120,6 @@ def pool(ind, k, gen):
                     s_cluster[i].append(s_temp)
                     mu_cluster[i].append(mu_temp)
                     var_cluster[i].append(var_temp)
-                    inhabit_ind.append(i)
                     inhabit_num[i][-1] += 1
                     
                     cluster_record[i].append(k)
@@ -144,7 +142,7 @@ def pool(ind, k, gen):
                 ind_cluster.append([ind])
                 cluster_record.append([k])
                 inhabit_num.append([0])
-                inhabit_ind.append(i+1)
+                
             
             #Restart Mechanism 
             if len(s_cluster) > 1:
@@ -174,10 +172,8 @@ def pool(ind, k, gen):
 
                         intersect = len(merge_index)
                         if 2*intersect > s_cluster[i][-1] or 2*intersect > s_cluster[j][-1]:
-
                             #15
                             s_new   = s_cluster[i][-1] + s_cluster[j][-1] - intersect   
-                            print('new:',s_new)   
                             if s_new > 0:
                                 merge_list.append([i, j])
                                 merge_bool = True
@@ -186,7 +182,7 @@ def pool(ind, k, gen):
                                 #17           
                                 var_new = ((s_cluster[i][-1] - 1)*var_cluster[i][-1] +  (s_cluster[j][-1] - 1)*var_cluster[j][-1])/(s_cluster[i][-1] + s_cluster[j][-1] - 2 ) 
                                 new_list.append([s_new, mu_new,var_new])                      
-
+                            break
             merge_num = len(merge_list)
             if merge_bool:
                 mergers = []
@@ -205,17 +201,22 @@ def pool(ind, k, gen):
                     ind_cluster.append([ind])
                     cluster_record.append([k])
                     inhabit_num.append([0])
-                    inhabit_ind.append([len(s_cluster)-merge_num])
                 
                 #Delete old clouds
                 count = 0 
+                # print('Liste:',mergers)
                 for w in mergers:
                     w -= count
                     del(s_cluster[w]); del(mu_cluster[w]); del(var_cluster[w])
-                    del(ind_cluster[w]); del(cluster_record[w]); del(inhabit_num[w]); del(inhabit_ind[w])
-
+                    # print('Slettes:',w)
+                    # print(len(ind_cluster))
+                    # print(len(cluster_record))
+                    # print(len(inhabit_num))
+                    del(ind_cluster[w]); del(cluster_record[w]); del(inhabit_num[w])
+                    count += 1
+                # print()
         #Mean individual fra en cloud der individet er 
-            ran = np.random.randint(0, len(inhabit_ind))
+            ran = np.random.randint(0, len(mu_cluster))
             mig = mu_cluster[ran][inhabit_num[ran][-1]]    
     
     #Returner k og individet
@@ -224,7 +225,7 @@ def pool(ind, k, gen):
 
 num_pop     = 4
 pop_size    = 100
-NFE_max     = 1e6
+NFE_max     = 1e5
 dim         = 5
 NFE         = 0 
 T           = 1e-3
@@ -299,7 +300,7 @@ while NFE < NFE_max:
                 if argi < likelihood[pop][i]:
                     individual[pop][i] = u[i]
                     likelihood[pop][i] = argi
-                    
+            
             for j in range(dim-1):
                 mu_     = np.mean(individual[pop][:, j])
                 sig_    = sigma_func(individual[pop][:,j], mu_)
@@ -319,26 +320,35 @@ while NFE < NFE_max:
         mu.append(mu_arr)    
         lmd.append(lmd_arr)
         sigma.append(sig_arr)
-
-        NDIV = sum(tau_arr[pop,:])
-        mig, gamma_1, gamma_2, gamma_3 = 0,0,0,0
-        if NDIV==dim:
-            gamma_1 = 1
-        
-        if any(tau_arr[pop,:] == 1) and np.random.uniform(0,1) < 1e-1:
-            gamma_2 = 1
-        
-        if (NDIV/dim) >= (1- NFE/NFE_max):
-            gamma_3 = 1
-        
-        if gamma_1 or gamma_2 or gamma_3:
-            mig = 1
-        
-        #Migrasjonskriterie møtt
-        if mig:
-            sort = np.argsort(likelihood[pop])
-            best_ind = individual[pop][sort][0]
-            mig_ind, k = pool(best_ind, k, gen)
-            individual[pop][int(np.random.randint(0,pop_size-1))] = mig_ind
+        for pop in range(num_pop):
+            NDIV = sum(tau_arr[pop,:])
+            mig, gamma_1, gamma_2, gamma_3 = 0,0,0,0
+            if NDIV==dim:
+                gamma_1 = 1
+            
+            if any(tau_arr[pop,:] == 1) and np.random.uniform(0,1) < 1e-1:
+                gamma_2 = 1
+            
+            if (NDIV/dim) >= (1- NFE/NFE_max):
+                gamma_3 = 1
+            
+            if gamma_1 or gamma_2 or gamma_3:
+                mig = 1
+            
+            #Migrasjonskriterie møtt
+            if mig:
+                sort = np.argsort(likelihood[pop])
+                best_ind = individual[pop][sort][0]
+                mig_ind, k = pool(best_ind, k, gen)
+                new_ind = np.zeros_like(tau_arr[pop])
+                # print(new_ind)
+                # print(mig_ind)
+                # print(best_ind)
+                for j in range(dim-1):
+                    if tau_arr[pop,j]:
+                        new_ind[j] = mig_ind[0][j]
+                    else:
+                        new_ind[j] = best_ind[0][j]
+                individual[pop][int(np.random.randint(0,pop_size-1))] = new_ind
 
 print(individual)
