@@ -2,11 +2,9 @@ import numpy as np
 import random as rd
 from problem_func import *
 from scipy.stats import cauchy
-from scipy.stats.qmc import LatinHypercube
-
 
 class DEVO:
-    def __init__(self, maxiteration,population_size_list, mut_prob, no_parents, dim, problem_func,  no_pop = 1):
+    def __init__(self, maxiteration,population_size_list, mut_prob, no_parents, dim, problem_func,  no_pop = 1, prior_best=0):
         self.iter = 0
         self.maxiter = maxiteration
         self.no_pop = no_pop
@@ -50,6 +48,11 @@ class DEVO:
             self.M_F.append(0.5*a)
             
         self.func_calls = 0
+        
+        #For second run
+        self.prior_best = prior_best
+        self.sigma      = 0.5
+        self.delta      = 200
 
     #Trenger å kunne bestemme dimensjonen på popluasjonen og gi dette som et output
     def initialize_single_pop(self, x_min, x_max, randomize = 'True'):
@@ -134,6 +137,14 @@ class DEVO:
                     self.likely_ind[pop][i] = score
                     self.func_calls += 1
 
+        elif self.problem_func == "mod_eggholder":
+            for pop in range(self.no_pop):
+                for i in range(self.population_size_list[pop]):
+                    score = func.mod_eggholder(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
+                    self.likely_ind[pop][i] = score
+                    self.func_calls += 1
+
+
         elif self.problem_func == "Himmelblau":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
@@ -151,6 +162,11 @@ class DEVO:
         elif self.problem_func == "Eggholder":
             score = func.Eggholder(ind)
             self.func_calls += 1
+
+        elif self.problem_func == "mod_eggholder":
+            score = func.mod_eggholder(ind, self.prior_best, self.delta, self.sigma)
+            self.func_calls += 1
+
 
         elif self.problem_func == "Himmelblau":
             score = func.Himmelblau(ind)

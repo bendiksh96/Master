@@ -19,6 +19,12 @@ class Problem_Function:
         
         return func
     
+    def mod_eggholder(self, x, best, delta, sigma):
+        func = 0
+        for i in range(self.dim-1):
+            func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))    
+        func = func - func * np.exp(-(best-(func+delta))**2/(2*sigma**2)) 
+        return func
     
     def Himmelblau(self, x):
         func = 0
