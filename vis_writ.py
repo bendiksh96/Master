@@ -43,7 +43,7 @@ class Data:
             # Add axes
                 cmap = plt.get_cmap("viridis_r")
                 cmap.set_extremes(under= 'black', over='grey')
-                norm = plt.Normalize(-4000,0)
+                norm = plt.Normalize(1,0)
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)

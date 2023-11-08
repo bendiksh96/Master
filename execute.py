@@ -30,11 +30,11 @@ import matplotlib.pyplot as plt
 
 
 start = perf_counter()
-max_iter = 500
-x_min = -512
-x_max = 512
-dim =   5
-pop =   [1000, 100]
+max_iter = 100
+x_min = -5
+x_max = 5
+dim =   7
+pop =   [100, 100]
 n_p =   [0.4 * p for p in pop]
 m_p =   [0.1]
 no_pop = 1
@@ -59,7 +59,7 @@ for i in range(no_pop):
 
 #Evolution
 klam = Data(dim, x_min, x_max)
-vary = DEVO(maxiteration=max_iter, population_size_list=pop, mut_prob=m_p, no_parents=n_p, dim = dim, problem_func = "Eggholder", no_pop=no_pop)
+vary = DEVO(maxiteration=max_iter, population_size_list=pop, mut_prob=m_p, no_parents=n_p, dim = dim, problem_func = "Rosenbrock", no_pop=no_pop)
 vary.initialize_single_pop(x_min, x_max, True)
 vary.eval_likelihood_pop()
 func_eval = 0
@@ -84,12 +84,17 @@ for iter in range(max_iter):
     func_eval += pop[0]
 end = perf_counter()
 
-max_iter = 1000
-pop = [10000]
+
+# klam.visualize_1(vary.ind[0],vary.likely_ind[0], eval_type=eval_type)
+
+max_iter = 400
+pop = [100]
 print(vary.abs_best)
 
+
+
 #Second eval
-ry = DEVO(maxiteration=max_iter, population_size_list=pop, mut_prob=m_p, no_parents=n_p, dim = dim, problem_func = "mod_eggholder", no_pop=no_pop, prior_best=vary.abs_best)
+ry = DEVO(maxiteration=max_iter, population_size_list=pop, mut_prob=m_p, no_parents=n_p, dim = dim, problem_func = "mod_rosenbrock", no_pop=no_pop, prior_best=vary.abs_best)
 ry.initialize_single_pop(x_min, x_max, True)
 ry.eval_likelihood_pop()
 func_eval = 0
@@ -97,8 +102,8 @@ for iter in range(max_iter):
     ry.fornicate(method= eval_type)
     ry.eval_likelihood_pop()
     ry.check_oob()    
-    # vary.migration(0.1)
     ry.iter += 1
+
     # for k in range(no_pop):
     #     evolution_individuals[k][iter] = ry.ind[k]
     #     sum_likelihood[k][iter] = sum(ry.likely_ind[k])
@@ -117,12 +122,13 @@ for iter in range(max_iter):
 # print(f'Time of evaluation: {end-start:.2f} seconds')
 # print(vary.abs_best)
 
-
-
-print(ry.likely_ind[0])
+# sort = np.argsort(ry.likely_ind_true[0])
+# print(ry.likely_ind_true[0][sort][0])
 #Visualization
+print(ry.history[0][:][0])
+exit()
 # klam.visualize_population_evolution(evolution_individuals[0], vary.likely_ind[0])
-klam.visualize_1(ry.ind[0],ry.likely_ind[0], eval_type=eval_type)
+klam.visualize_1(ry.history[:][0],ry.likely_ind_true[0], eval_type=eval_type)
 # klam.visualize_iter_loss(iter_var[0:k], sum_likelihood[0:k], n_p)
-klam.data_file(vary.ind[0], vary.likely_ind[0], vary.population_size_list[0])
+# klam.data_file(vary.ind[0], vary.likely_ind[0], vary.population_size_list[0])
 # klam.visualize_2(max_iter, vary.ind[0], vary.likely_ind[0])

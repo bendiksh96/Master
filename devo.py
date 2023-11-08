@@ -5,6 +5,8 @@ from scipy.stats import cauchy
 
 class DEVO:
     def __init__(self, maxiteration,population_size_list, mut_prob, no_parents, dim, problem_func,  no_pop = 1, prior_best=0):
+        self.history = []
+        
         self.iter = 0
         self.maxiter = maxiteration
         self.no_pop = no_pop
@@ -19,6 +21,7 @@ class DEVO:
         #Need to have an option for different population sizes for different populations.
         self.ind = []
         self.likely_ind = []
+        self.likely_ind_true = []
         self.likely_ind_percieved = []
         self.F_list = []
         self.CR_list = []
@@ -41,17 +44,19 @@ class DEVO:
             a = np.ones((self.population_size_list[pop]))
             self.ind.append(np.zeros((self.population_size_list[pop], self.dim)))
             self.likely_ind.append(np.zeros((self.population_size_list[pop])))
+            self.likely_ind_true.append(np.zeros((self.population_size_list[pop])))
             self.likely_ind_percieved.append(np.zeros((self.population_size_list[pop])))
             self.F_list.append(a)
             self.CR_list.append(a)
             self.M_CR.append(0.5*a)
             self.M_F.append(0.5*a)
             
+            
         self.func_calls = 0
         
         #For second run
         self.prior_best = prior_best
-        self.sigma      = 0.5
+        self.sigma      = 10
         self.delta      = 200
 
     #Trenger å kunne bestemme dimensjonen på popluasjonen og gi dette som et output
@@ -130,6 +135,16 @@ class DEVO:
                     score = func.Rosenbrock(self.ind[pop][i])
                     self.likely_ind[pop][i]= score
                     self.func_calls += 1
+        elif self.problem_func == "mod_rosenbrock":
+            for pop in range(self.no_pop):
+                for i in range(self.population_size_list[pop]):
+                    score, true_score = func.mod_rosenbrock(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
+                    
+                    self.likely_ind[pop][i]= score
+                    self.likely_ind_true[pop][i] = true_score
+                    self.func_calls += 1
+                    if true_score > score:
+                        self.history.append([self.ind[pop][i], score])
         elif self.problem_func == "Eggholder":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
@@ -140,9 +155,12 @@ class DEVO:
         elif self.problem_func == "mod_eggholder":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
-                    score = func.mod_eggholder(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
+                    score, true_score = func.mod_eggholder(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
                     self.likely_ind[pop][i] = score
-                    self.func_calls += 1
+                    self.likely_ind_true[pop][i] = true_score
+                    self.func_calls += 1  
+                    if true_score > score:
+                        self.history.append(self.ind[pop][i], score)
 
 
         elif self.problem_func == "Himmelblau":
@@ -152,6 +170,16 @@ class DEVO:
                     self.likely_ind[pop][i] = score
                     self.func_calls += 1
 
+        elif self.problem_func == "mod_himmelblau":
+            for pop in range(self.no_pop):
+                for i in range(self.population_size_list[pop]):
+                    score, true_score = func.mod_himmelblau(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
+                    self.likely_ind[pop][i] = score
+                    self.likely_ind_true[pop][i] = true_score
+                    self.func_calls += 1
+                    if true_score > score:
+                        self.history.append(self.ind[pop][i], score)
+                    
     #Evaluer et individs likelihood
     def eval_likelihood_ind(self, ind):
         func = Problem_Function(self.dim)
@@ -159,12 +187,16 @@ class DEVO:
             score = func.Rosenbrock(ind)
             self.func_calls += 1
 
+        elif self.problem_func == "mod_rosenbrock":
+            score,true_score = func.mod_rosenbrock(ind, self.prior_best, self.delta, self.sigma)
+            self.func_calls += 1
+
         elif self.problem_func == "Eggholder":
             score = func.Eggholder(ind)
             self.func_calls += 1
 
         elif self.problem_func == "mod_eggholder":
-            score = func.mod_eggholder(ind, self.prior_best, self.delta, self.sigma)
+            score, true_score = func.mod_eggholder(ind, self.prior_best, self.delta, self.sigma)
             self.func_calls += 1
 
 
@@ -172,6 +204,13 @@ class DEVO:
             score = func.Himmelblau(ind)
             self.func_calls += 1
 
+
+        elif self.problem_func == "mod_himmelblau":
+            score, true_score = func.mod_himmelblau(ind, self.prior_best, self.delta, self.sigma)
+            self.func_calls += 1
+            
+        
+       
         return score
     
     #Velg foreldre iht. antall foreldre, samt likelihood
@@ -502,12 +541,12 @@ class DEVO:
                             self.u[i,j] = self.v[i,j]
                     if self.eval_likelihood_ind(self.u[i]) <= self.likely_ind[pop][i]:
                         self.ind[pop][i] = self.u[i]
-                    # if self.eval_likelihood_ind(self.u[i]) < self.likely_ind[pop][i]:
                         self.A.append(self.ind[pop][i])        
                         delta_f.append(self.eval_likelihood_ind(self.u[i])-self.likely_ind[pop][i])                
                         S_CR.append(self.CR_list[pop][i])
                         S_F.append(self.F_list[pop][i])
                         self.ind[pop][i] = self.u[i]
+                        
                         if len(self.A) > self.population_size_list[pop]:
                             del self.A[np.random.randint(0, population_size)]
                 #Update weights
