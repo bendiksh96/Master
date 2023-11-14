@@ -58,6 +58,7 @@ class DEVO:
         self.prior_best = prior_best
         self.sigma      = 10
         self.delta      = 200
+        self.mod_ind_best = 0
 
     #Trenger å kunne bestemme dimensjonen på popluasjonen og gi dette som et output
     def initialize_single_pop(self, x_min, x_max, randomize = 'True'):
