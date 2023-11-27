@@ -1,5 +1,7 @@
+from pathlib import Path
+import sys
+import numpy as np
 from class_devo import *
-
 
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 # Mulige funksjoner:
@@ -14,22 +16,26 @@ from class_devo import *
 #   -bat        (Ikke helt oppe og går)
 # ¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 
-a = DEVO_class(dim = 5, problem_func = 'Himmelblau', method = 'shade')
-a.intialize_population(xmin = -5, xmax = 5, num_ind = 100)
-a.evolve(maxiter = 100)
 
-kaare = len(a.hist_lik)
-print(kaare)
-ind_arr = np.ones((kaare, a.dim))
-lik_arr = np.ones((kaare))
+# np.random.seed(154321431)
+method = 'jde'
+# method = 'shade'
 
-for are in range(kaare):   
-    ind_arr[are] = a.hist_ind[are]
-    lik_arr[are] = a.hist_lik[are]
+optimizer = DEVO_class(dim = 5, problem_func = 'Himmelblau', method = method)
+optimizer.intialize_population(xmin = -5, xmax = 5, num_ind = 1000)
+optimizer.evolve(maxiter=2000, tol=1e-12)
 
-vis = Data(a.dim, a.xmin, a.xmax)
-vis.visualize_1(ind_arr,lik_arr, 'dshade')
-vis.data_file(ind_arr, lik_arr, kaare) 
+n_points = len(optimizer.hist_lik)
+print(f"Number of points: {n_points}")
+
+hist_ind_arr = np.array(optimizer.hist_ind)
+hist_lik_arr = np.array(optimizer.hist_lik)
+
+vis = Data(optimizer.dim, optimizer.xmin, optimizer.xmax)
+vis.visualize_1(hist_ind_arr, hist_lik_arr, method, output_dir=Path.cwd())
+vis.data_file(hist_ind_arr, hist_lik_arr, n_points) 
+
+
 #¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 # Fiks et konvergeringskriterie - Funker sånn passe?
 # 
