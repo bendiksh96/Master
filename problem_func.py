@@ -60,6 +60,23 @@ class Problem_Function:
             func += (x[i]**2 + x[i+1] - 11)**2 + (x[i] + x[i+1]**2 -7)**2
         func += 1
         func = np.log(func)
+
+        # Ensure the minimum function value is 0
+        if len(x) == 2:
+            pass
+        elif len(x) == 3:
+            func -= 0.26533184
+        elif len(x) == 4:
+            func -= 1.70103186
+        elif len(x) == 5:
+            func -= 2.30011077
+        elif len(x) == 6:
+            func -= 2.85764265
+        else:
+            raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
+
+        # _Anders
+        # func *= 2
         return func
     
     def mod_himmelblau(self, x):

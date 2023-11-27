@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-sys.path.append(r'C:\Users\Lenovo\Documents\Master')
+# sys.path.append(r'C:\Users\Lenovo\Documents\Master')
 from problem_func import *
 
 

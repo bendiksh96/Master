@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 import matplotlib
 import csv
@@ -14,13 +15,25 @@ class Data:
     def data_storage(self):
         a = 1
 
-    def visualize_1(self, individuals, likelihood, eval_type):
-        sort_ = np.argsort((likelihood), axis=0)
+    def visualize_1(self, individuals, likelihood, eval_type, output_dir=str(Path.cwd())):
+        sort_ = np.argsort((likelihood), axis=0)[::-1]
         likelihood = likelihood[sort_]
         individuals = individuals[sort_,:].reshape((len(likelihood), self.dim))
         # kn =  np.where(likelihood > 60)
         # individuals[kn,:] = 'nan'
-                
+
+        # _Anders
+        print(f"DEBUG: len(individuals): {len(individuals)}")
+
+        # keep_indices =  np.where(likelihood < 6.0)
+        # individuals = individuals[keep_indices]
+        # likelihood = likelihood[keep_indices]
+        # print(f"DEBUG: len(individuals): {len(individuals)}")
+
+        print(f"DEBUG: likelihood[-10:]: {likelihood[-10:]}")
+        print(f"DEBUG: likelihood[0:10]: {likelihood[0:10]}")
+
+
         # Create figure
         fontsize = 8
         fsize_per_dim = 5.0
@@ -35,16 +48,17 @@ class Data:
 
         fig = plt.figure(figsize=(fsize, fsize))
         cmap_vmin = 0.0
-        cmap_vmax = 6
+        cmap_vmax = 6.0
         plot_facecolor = '0.0'
 
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
                 cmap = plt.get_cmap("viridis_r")
-                cmap.set_extremes(under= 'black', over='black')
-                norm = plt.Normalize(0, 5.915)
-                # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
+                # _Anders
+                cmap.set_extremes(under= 'red', over='grey')
+                # norm = plt.Normalize(0, 5.915)
+                norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)
                 ax = fig.add_axes((left, bottom, plot_width, plot_height))
@@ -61,6 +75,9 @@ class Data:
                 plt.yticks(fontsize=fontsize)
                 # Create a colour scale normalization
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
+                # _Anders
+                # scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
+                #                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
                 scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
                                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
 
@@ -74,10 +91,9 @@ class Data:
         fig = plt.gcf()
         plt.text(0.5, 1.0, summary_string, fontsize=fontsize, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
-        # output_dir_name = 'asad.png'
-        plot_file_name = r"C:\Users\Lenovo\Documents\Master\fig.png"
+        plot_file_name = str(Path(output_dir) / "fig.png")
         plt.savefig(plot_file_name)
-        plt.show()
+        # plt.show()
 
     def visualize_2(self, iter, individuals, likelihood):
         # Create figure
@@ -131,7 +147,7 @@ class Data:
 
         plt.legend()
 
-        plot_file_name = os.path.join(output_dir_name, "summary_plots.png")
+        plot_file_name = os.path.join(output_dir, "summary_plots.png")
         plt.savefig(plot_file_name)
 
         print()
@@ -207,8 +223,8 @@ class Data:
         return 0
         
 
-    def data_file(self, individuals, likelihood, pop_size):
-        path = (r"C:\Users\Lenovo\Documents\Master\data.csv")
+    def data_file(self, individuals, likelihood, pop_size, output_dir=str(Path.cwd())):
+        path = str(Path(output_dir) / "data.csv") 
         new_list = []
         for i in range(pop_size):
             str1 = []
