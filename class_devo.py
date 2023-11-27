@@ -47,27 +47,25 @@ class DEVO_class:
                 self.nfe  += self.num_ind
                 self.iter +=1
 
-                if self.iter > 10:
-                    current_std = np.std(mod.likelihood)
-                    atol = tol
-                    threshold_std = atol + tol * np.abs(np.mean(mod.likelihood))
-                    print(f"DEBUG: current_std: {current_std}   threshold_std: {threshold_std}")
-                    if current_std <= threshold_std:
-                        print('Converged!')
-                        conv = True
-
                 # if self.iter > 10:
-                #     # _Anders
-                #     # if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
-                #     current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
-                #     print(f"DEBUG: current_eps = {current_eps}")
-                #     if current_eps < tol:
+                #     current_std = np.std(mod.likelihood)
+                #     atol = tol
+                #     threshold_std = atol + tol * np.abs(np.mean(mod.likelihood))
+                #     print(f"DEBUG: current_std: {current_std}   threshold_std: {threshold_std}")
+                #     if current_std <= threshold_std:
                 #         print('Converged!')
                 #         conv = True
-                #     del iter_likelihood[0]
+
+                iter_likelihood.append(np.mean(mod.likelihood))
+                if self.iter > 10:
+                    current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
+                    print(f"iter: {self.iter}  current_eps: {current_eps}")
+                    if current_eps < tol:
+                        print('Converged!')
+                        conv = True
+                    del iter_likelihood[0]
 
                 for i in range(self.num_ind):
-                    # _Anders
                     self.hist_ind.append(deepcopy(self.individual[i]))
                     self.hist_lik.append(deepcopy(self.likelihood[i]))
 
@@ -81,16 +79,26 @@ class DEVO_class:
                 
                 self.nfe  += self.num_ind
                 self.iter +=1
+
+                # if self.iter > 10:
+                #     current_std = np.std(mod.likelihood)
+                #     atol = tol
+                #     threshold_std = atol + tol * np.abs(np.mean(mod.likelihood))
+                #     print(f"DEBUG: current_std: {current_std}   threshold_std: {threshold_std}")
+                #     if current_std <= threshold_std:
+                #         print('Converged!')
+                #         conv = True
+
                 iter_likelihood.append(np.mean(mod.likelihood))
                 if self.iter > 10:
-                    # _Anders
                     # if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
                     current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
-                    print(f"DEBUG: current_eps = {current_eps}")
+                    print(f"iter: {self.iter}  current_eps: {current_eps}")
                     if current_eps < tol:
                         print('Converged!')
                         conv = True
                     del iter_likelihood[0]
+
                 for i in range(self.num_ind):
                     self.hist_ind.append(deepcopy(self.individual[i]))
                     self.hist_lik.append(deepcopy(self.likelihood[i]))

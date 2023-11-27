@@ -18,12 +18,12 @@ from class_devo import *
 
 
 # np.random.seed(154321431)
-method = 'jde'
-# method = 'shade'
+# method = 'jde'
+method = 'shade'
 
-optimizer = DEVO_class(dim = 5, problem_func = 'Himmelblau', method = method)
+optimizer = DEVO_class(dim = 3, problem_func = 'Himmelblau', method = method)
 optimizer.intialize_population(xmin = -5, xmax = 5, num_ind = 1000)
-optimizer.evolve(maxiter=2000, tol=1e-12)
+optimizer.evolve(maxiter=1000, tol=1e-8)
 
 n_points = len(optimizer.hist_lik)
 print(f"Number of points: {n_points}")

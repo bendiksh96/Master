@@ -22,16 +22,13 @@ class Data:
         # kn =  np.where(likelihood > 60)
         # individuals[kn,:] = 'nan'
 
-        # _Anders
-        print(f"DEBUG: len(individuals): {len(individuals)}")
-
         # keep_indices =  np.where(likelihood < 6.0)
         # individuals = individuals[keep_indices]
         # likelihood = likelihood[keep_indices]
-        # print(f"DEBUG: len(individuals): {len(individuals)}")
 
-        print(f"DEBUG: likelihood[-10:]: {likelihood[-10:]}")
-        print(f"DEBUG: likelihood[0:10]: {likelihood[0:10]}")
+        print(f"Best-fit:   x: {individuals[-1]}   objfunc(x): {likelihood[-1]}")
+        # print(f"DEBUG: likelihood[-10:]: {likelihood[-10:]}")
+        # print(f"DEBUG: likelihood[0:10]: {likelihood[0:10]}")
 
 
         # Create figure
@@ -54,7 +51,7 @@ class Data:
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
-                cmap = plt.get_cmap("viridis_r")
+                cmap = plt.get_cmap("viridis_r", 6)
                 # _Anders
                 cmap.set_extremes(under= 'red', over='grey')
                 # norm = plt.Normalize(0, 5.915)
@@ -74,10 +71,6 @@ class Data:
                 plt.xticks(fontsize=fontsize)
                 plt.yticks(fontsize=fontsize)
                 # Create a colour scale normalization
-                # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
-                # _Anders
-                # scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
-                #                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
                 scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
                                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
 

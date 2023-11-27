@@ -65,13 +65,13 @@ class Problem_Function:
         if len(x) == 2:
             pass
         elif len(x) == 3:
-            func -= 0.26533184
+            func -= 0.265331837897597
         elif len(x) == 4:
-            func -= 1.70103186
+            func -= 1.7010318616354436
         elif len(x) == 5:
-            func -= 2.30011077
+            func -= 2.3001107745553155
         elif len(x) == 6:
-            func -= 2.85764265
+            func -= 2.8576426513378994
         else:
             raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
 
