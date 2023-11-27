@@ -15,7 +15,7 @@ class Data:
         a = 1
 
     def visualize_1(self, individuals, likelihood, eval_type):
-        sort_ = np.argsort((-1*likelihood), axis=0)
+        sort_ = np.argsort((likelihood), axis=0)
         likelihood = likelihood[sort_]
         individuals = individuals[sort_,:].reshape((len(likelihood), self.dim))
         # kn =  np.where(likelihood > 60)
@@ -42,8 +42,8 @@ class Data:
             for j in range(i+1,self.dim):
             # Add axes
                 cmap = plt.get_cmap("viridis_r")
-                cmap.set_extremes(under= 'black', over='grey')
-                norm = plt.Normalize(1,0)
+                cmap.set_extremes(under= 'black', over='black')
+                norm = plt.Normalize(0, 5.915)
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)
@@ -59,7 +59,6 @@ class Data:
                 plt.xlabel("x_" + str(i), fontsize=fontsize)
                 plt.xticks(fontsize=fontsize)
                 plt.yticks(fontsize=fontsize)
-
                 # Create a colour scale normalization
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
@@ -210,15 +209,14 @@ class Data:
 
     def data_file(self, individuals, likelihood, pop_size):
         path = (r"C:\Users\Lenovo\Documents\Master\data.csv")
-        index = 0
         new_list = []
         for i in range(pop_size):
             str1 = []
             for j in range(self.dim):
-                str_ = round(individuals[i,j],4)
+                str_ = round(individuals[i,j],10)
                 str1.append(str_)
             str2 = likelihood[i]
-            new_list.append([str1[0:(self.dim)], round(str2,4)])
+            new_list.append([str1[0:(self.dim)], round(str2,10)])
         with open(path, 'w', newline='') as csvfile:
             csvfile = csv.writer(csvfile, delimiter=',')
             csvfile.writerow(['Individual' + '       '+'Score'])
