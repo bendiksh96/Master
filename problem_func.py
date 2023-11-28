@@ -21,6 +21,8 @@ class Problem_Function:
             val = self.Himmelblau(x)
         if problem_func == 'mod_Himmelblau':
             val = self.mod_himmelblau(x)
+        if problem_func == 'mod2_Himmelblau':
+            val = self.mod2_himmelblau(x)
         return val
     def Rosenbrock(self, x):
         func = 0
@@ -75,20 +77,31 @@ class Problem_Function:
         else:
             raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
 
-        # _Anders
-        # func *= 2
+        # func *= 1.5
         return func
     
     def mod_himmelblau(self, x):
-        func = 0
-        for i in range(self.dim-1):
-            func += (x[i]**2 + x[i+1] - 11)**2 + (x[i] + x[i+1]**2 -7)**2 
-        func += 1
-        func = np.log(func)
+        # func = 0
+        # for i in range(self.dim-1):
+        #     func += (x[i]**2 + x[i+1] - 11)**2 + (x[i] + x[i+1]**2 -7)**2 
+        # func += 1
+        # func = np.log(func)
+        true_func = self.Himmelblau(x)
 
-        true_func = func
-        
-        kunk = func *(1 + np.exp(-(self.best-(func+(1e-3)))**2/(2*self.sigma**2)) )
+        kunk = true_func + np.exp(-(self.best - true_func)**2 / (2 * self.sigma**2))
+        # kunk = func * (1 + np.exp(-(self.best-(func+(1e-3)))**2/(2*self.sigma**2)) )
         # print(np.exp(-(best-(func))**2/(2*sigma**2)), kunk)
-        return kunk, true_func
+        print(f"DEBUG: x:{x}   true_func:{true_func}   kunk:{kunk}")
+        return kunk #, true_func
+
+
+    def mod2_himmelblau(self, x):
+        true_func = self.Himmelblau(x)
+        # sigma = 10.0
+        delta = 1.5
+        # func = (true_func - delta)**2 / (2 * sigma**2)
+        func = (true_func - delta)**2
+        # print(f"DEBUG: x:{x}   true_func:{true_func}   func:{func}")
+        return func
+
     

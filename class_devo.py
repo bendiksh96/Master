@@ -91,7 +91,6 @@ class DEVO_class:
 
                 iter_likelihood.append(np.mean(mod.likelihood))
                 if self.iter > 10:
-                    # if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
                     current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
                     print(f"iter: {self.iter}  current_eps: {current_eps}")
                     if current_eps < tol:
@@ -120,7 +119,9 @@ class DEVO_class:
                 self.iter +=1
                 iter_likelihood.append(np.mean(mod.likelihood))
                 if self.iter > 10:
-                    if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
+                    current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
+                    print(f"iter: {self.iter}  current_eps: {current_eps}")
+                    if current_eps < tol:
                         print('Converged!')
                         conv = True
                     del iter_likelihood[0]
@@ -141,23 +142,22 @@ class DEVO_class:
                 iter_likelihood.append(np.mean(mod.likelihood))
                 
                 if self.iter > 10:
-                    # print(np.mean(iter_likelihood)-iter_likelihood[-1])
-                    if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
+                    current_eps = abs(np.mean(iter_likelihood)-np.min(iter_likelihood))
+                    print(f"iter: {self.iter}  current_eps: {current_eps}")
+                    if current_eps < tol:
                         print('Converged!')
-                        
                         conv = True
                     del iter_likelihood[0]
                 for i in range(self.num_ind):
                     self.hist_ind.append(deepcopy(self.individual[i]))
                     self.hist_lik.append(deepcopy(self.likelihood[i]))
             if conv:
-                #Change function
-                mod.prob_func = 'mod_' + self.problem_func
-                best = mod.abs_best
-                mod.Data.param_change(best=best, delta=.1,sigma=1)
                 self.intialize_population(self.xmin, self.xmax, self.num_ind)
+                mod2 = d_SHADE(self.individual, self.likelihood, 'mod_' + self.problem_func)
+                mod2.Data.param_change(best=mod.abs_best, delta=.1,sigma=2)
                 while self.iter < maxiter:
-                    mod.evolve_explore()
+                    print(f"iter: {self.iter}")
+                    mod2.evolve_explore()
                     
                     self.check_oob()
                     
@@ -167,6 +167,24 @@ class DEVO_class:
                     for i in range(self.num_ind):
                         self.hist_ind.append(deepcopy(self.individual[i]))
                         self.hist_lik.append(deepcopy(self.likelihood[i]))
+
+                # #Change function
+                # mod.prob_func = 'mod_' + self.problem_func
+                # best = mod.abs_best
+                # mod.Data.param_change(best=best, delta=.1,sigma=1)
+                # self.intialize_population(self.xmin, self.xmax, self.num_ind)
+                # while self.iter < maxiter:
+                #     print(f"iter: {self.iter}")
+                #     mod.evolve_explore()
+                    
+                #     self.check_oob()
+                    
+                #     self.nfe  += self.num_ind
+                #     self.iter += 1
+                #     #Run indefinetly?                    
+                #     for i in range(self.num_ind):
+                #         self.hist_ind.append(deepcopy(self.individual[i]))
+                #         self.hist_lik.append(deepcopy(self.likelihood[i]))
 
         
         

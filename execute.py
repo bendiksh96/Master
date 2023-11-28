@@ -20,9 +20,10 @@ from class_devo import *
 # np.random.seed(154321431)
 # method = 'jde'
 method = 'shade'
+# method = 'double_shade'
 
 optimizer = DEVO_class(dim = 3, problem_func = 'Himmelblau', method = method)
-optimizer.intialize_population(xmin = -5, xmax = 5, num_ind = 1000)
+optimizer.intialize_population(xmin = -5, xmax = 5, num_ind = 100)
 optimizer.evolve(maxiter=1000, tol=1e-8)
 
 n_points = len(optimizer.hist_lik)

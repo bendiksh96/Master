@@ -45,13 +45,13 @@ class Data:
 
         fig = plt.figure(figsize=(fsize, fsize))
         cmap_vmin = 0.0
-        cmap_vmax = 6.0
+        cmap_vmax = 3.0
         plot_facecolor = '0.0'
 
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
-                cmap = plt.get_cmap("viridis_r", 6)
+                cmap = plt.get_cmap("viridis_r", 3)
                 # _Anders
                 cmap.set_extremes(under= 'red', over='grey')
                 # norm = plt.Normalize(0, 5.915)
