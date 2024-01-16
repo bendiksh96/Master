@@ -7,6 +7,7 @@ sys.path.append(r'C:\Users\Lenovo\Documents\Master\Methods')
 from problem_func import *
 from jde import *
 from bat import *
+from ddms import * 
 from shade import *
 from d_shade import *
 
@@ -79,7 +80,23 @@ class DEVO_class:
                     
         
         if self.method == 'ddms':
-            pass
+            iter_likelihood = []; tol = 1e-3; conv = False
+            mod = DDMS(self.individual, self.likelihood, self.problem_func)
+            while self.iter < maxiter and conv == False:
+                mod.evolve()
+                self.check_oob()
+                
+                self.nfe  += self.num_ind
+                self.iter +=1
+                iter_likelihood.append(np.mean(mod.likelihood))
+                if self.iter > 10:
+                    if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol:
+                        print('Conv')    
+                        conv = True
+                    del iter_likelihood[0]
+                for i in range(self.num_ind):
+                    self.hist_ind.append(self.individual[i])
+                    self.hist_lik.append(self.likelihood[i])
         
         if self.method == 'bat':
             iter_likelihood = []; tol = 1e-5; conv = False
@@ -124,11 +141,17 @@ class DEVO_class:
                     self.hist_ind.append(self.individual[i])
                     self.hist_lik.append(self.likelihood[i])
             if conv:
-                #Change function
+                #Change function to modified version
                 mod.prob_func = 'mod_' + self.problem_func
                 best = mod.abs_best
-                mod.Data.param_change(best=best, delta=.1,sigma=1)
+                #Here we need to calculate the delta_log, ie.  the boundary of likelihood and how many sigma we are interested in.
+                #delta_log = ....
+                mod.Data.param_change(best=best, sigma=.3, delta_log = 0)
+                
+                #Initialize population anew
                 self.intialize_population(self.xmin, self.xmax, self.num_ind)
+                
+                #Start the evolution
                 while self.iter < maxiter:
                     mod.evolve_explore()
                     
@@ -141,8 +164,7 @@ class DEVO_class:
                         self.hist_ind.append(self.individual[i])
                         self.hist_lik.append(self.likelihood[i])
 
-        
-        
+            
     #Sjekker rammebetingelser
     def check_oob(self):
         var = 0

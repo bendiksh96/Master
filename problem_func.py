@@ -4,10 +4,10 @@ class Problem_Function:
     def __init__(self, dim):
         self.dim =  dim
     
-    def param_change(self, best, delta, sigma):
+    def param_change(self, best, sigma, delta_log):
         self.best   = best
-        self.delta  = delta
         self.sigma  = sigma
+        self.delta_log = delta_log
     def evaluate(self, x, problem_func):
         if problem_func == 'Eggholder':
             val = self.Eggholder(x)
@@ -45,13 +45,16 @@ class Problem_Function:
         
         return func
     
-    def mod_eggholder(self, x, best, delta, sigma):
+    def mod_eggholder(self, x, best, sigma):
         func = 0
-        sigma = 0.5
+        sigma = 0.3
         for i in range(self.dim-1):
             func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))    
         true_func = func
-        func = func - func * np.exp(-(best-(func))**2/(2*sigma**2)) 
+        
+        #If the value supercedes the necessity of a gaussian, add one.  
+        if true_func >= self.delta_log:
+            func = func - func * np.exp(-(best-(func))**2/(2*sigma**2)) 
         return func, true_func
     
     def Himmelblau(self, x):

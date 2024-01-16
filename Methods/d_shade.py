@@ -91,19 +91,25 @@ class d_SHADE:
             self.k_arg += 1
 
     def evolve_explore(self):
+        #Initialize the list of weights
         S_CR       = []
         S_F        = []
         delta_f    = []
 
+        #Initialize temporary variables
         self.u          = np.zeros_like(self.individual)
         self.v          = np.zeros_like(self.individual)
+        
+        #Previous best indices
         sort            = np.argsort(self.likelihood, axis = 0)
         best_indexes    = sort[0:self.num_ind]
         xpbest          = self.individual[best_indexes]
         self.abs_best   = self.likelihood[best_indexes[0]]
         self.best_ind   = self.individual[best_indexes][0]
-        #Mutant vector
+
+        #Evolve individuals
         for i in range(self.num_ind-1):
+            
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
             #Burde være Cauchy-fordeling
@@ -113,7 +119,6 @@ class d_SHADE:
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
-            
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
                                             
         #Crossover
@@ -122,18 +127,26 @@ class d_SHADE:
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist [i]:
                     self.u[i,j] = self.v[i,j]
-                
+            
+            #Check if the new crossover individual is superior to the prior
             temp, actual = self.eval_likelihood_ind(self.u[i])     
             if temp <= self.likelihood[i]:
                 self.individual[i] = self.u[i]
+                
+                #If so, update temporary variables
                 self.A.append(self.individual[i])        
                 delta_f.append(temp-self.likelihood[i])                
                 S_CR.append(self.CRlist[i])
                 S_F.append(self.Flist[i])
+                
+                #Update the individual
                 self.individual[i] = self.u[i]
                 self.likelihood[i] = temp
+                
+                #If archive exceeds number of individuals, delete a random archived log.
                 if len(self.A) > self.num_ind :
                     del self.A[np.random.randint(0, self.num_ind)]
+        
         #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
@@ -156,7 +169,6 @@ class d_SHADE:
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):
-        # Data = Problem_Function(self.dim)
         Data = self.Data
         return Data.evaluate(individual, self.prob_func)
         

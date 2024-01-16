@@ -1,4 +1,5 @@
 import numpy as np
+from problem_func import * 
 
 class DDMS:
     def __init__(self, individual, likelihood, problem_func):
@@ -7,27 +8,29 @@ class DDMS:
         self.dim        = len(individual[0])        
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
+        self.Data       = Problem_Function(self.dim)
 
         
-        k           = 1
         self.s_cluster   = []
         self.mu_cluster  = []
         self.var_cluster = []
         self.ind_cluster = []
         self.cluster_record = []
         self.inhabit_num = []
+   
+        self.k = 1
     
-    def pool(self, ind, k, gen):
-        if k == 1:
+    def pool(self, ind, gen):
+        if self.k == 1:
             #Create a cluster!
             self.s_cluster.append([1])
             self.mu_cluster.append([ind])
             self.var_cluster.append([0])
-            self.cluster_record.append([k])
+            self.cluster_record.append([self.k])
             self.ind_cluster.append([ind])
             mig = ind
         else:
-            if k ==2:
+            if self.k ==2:
                 #Add individual to initial cluster
                 s_12    = 2
                 mu_12   = (s_12 - 1)/s_12 * self.mu_cluster[0][0]  + (1/s_12)*ind
@@ -36,13 +39,13 @@ class DDMS:
                 self.s_cluster[0].append(s_12)
                 self.mu_cluster[0].append(mu_12)
                 self.var_cluster[0].append(var_12)
-                self.cluster_record[0].append(k)
+                self.cluster_record[0].append(self.k)
                 self.ind_cluster[0].append([ind] + self.ind_cluster[0][0])
                 mig = mu_12
                 self.inhabit_num.append([1])
 
             
-            if k>= 3:
+            if self.k>= 3:
                 inhabit = False
                 #Sjekk om den tilhører noen av skyene, oppdater skyer deretter
                 for i in range(len(self.s_cluster)):
@@ -73,7 +76,7 @@ class DDMS:
                         self.var_cluster[i].append(var_temp)
                         self.inhabit_num[i][-1] += 1
                         
-                        self.cluster_record[i].append(k)
+                        self.cluster_record[i].append(self.k)
                         self.ind_cluster[i].append([ind] + self.ind_cluster[i][num_in_cloud])    
                     
                     #Update old cloud, without adding individual 
@@ -91,7 +94,7 @@ class DDMS:
                     self.mu_cluster.append([ind])
                     self.var_cluster.append([0])
                     self.ind_cluster.append([ind])
-                    self.cluster_record.append([k])
+                    self.cluster_record.append([self.k])
                     self.inhabit_num.append([0])
                     
                 
@@ -155,7 +158,7 @@ class DDMS:
                         self.var_cluster.append([new_list[u][2]])
                         
                         self.ind_cluster.append([ind])
-                        self.cluster_record.append([k])
+                        self.cluster_record.append([self.k])
                         self.inhabit_num.append([0])
                     
                     #Delete old clouds
@@ -170,97 +173,96 @@ class DDMS:
                 ran = np.random.randint(0, len(self.mu_cluster))
                 mig = self.mu_cluster[ran][self.inhabit_num[ran][-1]]    
         
-        #Returner k og individet
-        k += 1 
-        return mig, k
+        self.k += 1 
+        
+        #Returner individet
+        return mig
  
  
     def evolve(self):
-    
-        if role == 'island':
-            mu_arr  = np.zeros((self.dim))
-            sig_arr = np.zeros((self.dim))
-            lmd_arr = np.zeros((self.dim))
-            tau_arr = np.zeros((self.dim))
+        mu_arr  = np.zeros((self.dim))
+        sig_arr = np.zeros((self.dim))
+        lmd_arr = np.zeros((self.dim))
+        tau_arr = np.zeros((self.dim))
+        
+        #Vanlig propagasjon-scheme
+        F  = 0.1
+        CR = 0.1
+        u = np.zeros_like(self.individual)
+        v = np.zeros_like(self.individual)
+        klai = np.argsort(self.likelihood, axis = 0)
+        best_index = klai[0]
+        ind_best = self.individual[best_index]
+        abs_best = self.likelihood[best_index]
+        
+        for i in range(self.num_ind):
+            rand1_ = np.random.randint(self.num_ind)
+            rand2_ = np.random.randint(self.num_ind)
+            rand3_ = np.random.randint(self.num_ind)
             
-            #Vanlig propagasjon-scheme
-            F  = 0.1
-            CR = 0.1
-            u = np.zeros_like(individual)
-            v = np.zeros_like(individual)
-            klai = np.argsort(likelihood, axis = 0)
-            best_index = klai[0]
-            ind_best = individual[best_index]
-            abs_best = likelihood[best_index]
-            
-            for i in range(self.num_ind):
-                rand1_ = np.random.randint(self.num_ind)
-                rand2_ = np.random.randint(self.num_ind)
-                rand3_ = np.random.randint(self.num_ind)
-                
-                #rand/1 scheme
-                v[i] = individual[rand1_] + F * (individual[rand2_] - individual[rand3_])
-            
-            for i in range(self.num_ind):
-                for j in range(dim):
-                    randint = np.random.randint(0,1)
-                    if randint < CR:
-                        u[i,j] = v[i,j]
-                argi = Eggholder(u[i])
-                if argi < likelihood[i]:
-                    individual[i] = u[i]
-                    likelihood[i] = argi
-            
-            for j in range(dim-1):
-                mu_     = np.mean(individual[:, j])
-                sig_    = sigma_func(individual[:,j], mu_)
-                mu_min  = np.mean(mu[gen-1])
-                tht_    = theta_val(mu_, mu_min, sig_)
-                omg_    = omega(tht_)  
-                tauh_   = tau_hat(sig_,omg_)                 
-                lmd_    = lmd_val(lmd[gen-1][j], mu_ ,mu[gen-1][j], sig_, sigma[gen-1][j])
-                taub_   = tau_bar(lmd_) 
-                tau_    = tau_tot(tauh_, taub_)
+            #rand/1 scheme
+            v[i] = self.individual[rand1_] + F * (self.individual[rand2_] - self.individual[rand3_])
+        
+        for i in range(self.num_ind):
+            for j in range(self.dim):
+                randint = np.random.randint(0,1)
+                if randint < CR:
+                    u[i,j] = v[i,j]
+            argi = self.prob_func(u[i])
+            if argi < self.likelihood[i]:
+                self.individual[i] = u[i]
+                self.likelihood[i] = argi
+        
+        for j in range(self.dim-1):
+            mu_     = np.mean(self.individual[:, j])
+            sig_    = self.sigma_func(self.individual[:,j], mu_)
+            mu_min  = np.mean(mu[gen-1])
+            tht_    = self.theta_val(mu_, mu_min, sig_)
+            omg_    = self.omega(tht_)  
+            tauh_   = self.tau_hat(sig_,omg_)                 
+            lmd_    = self.lmd_val(lmd[gen-1][j], mu_ ,mu[gen-1][j], sig_, sigma[gen-1][j])
+            taub_   = self.tau_bar(lmd_) 
+            tau_    = self.tau_tot(tauh_, taub_)
 
-                lmd_arr[j]  = lmd_
-                mu_arr[j]   = mu_
-                sig_arr[j]  = sig_
-                tau_arr[j]  = tau_
+            lmd_arr[j]  = lmd_
+            mu_arr[j]   = mu_
+            sig_arr[j]  = sig_
+            tau_arr[j]  = tau_
 
-            mu.append(mu_arr)    
-            lmd.append(lmd_arr)
-            sigma.append(sig_arr)
-            NDIV = sum(tau_arr[:])
-            mig, gamma_1, gamma_2, gamma_3 = 0,0,0,0
-            if NDIV==dim:
-                gamma_1 = 1
-            
-            if any(tau_arr[:] == 1) and np.random.uniform(0,1) < 1e-1:
-                gamma_2 = 1
-            
-            if (NDIV/dim) >= (1- NFE/NFE_max):
-                gamma_3 = 1
-            
-            if gamma_1 or gamma_2 or gamma_3:
-                mig = 1
-            
-            #Migrasjonskriterie møtt
-            if mig:
-                sort = np.argsort(likelihood)
-                best_ind = individual[sort][0]
-                mig_ind, k = self.pool(best_ind, k, gen)
-                new_ind = np.zeros_like(tau_arr)
-                # print(new_ind)
-                # print(mig_ind)
-                # print(best_ind)
-                for j in range(dim-1):
-                    if tau_arr[j]:
-                        new_ind[j] = mig_ind[0][j]
-                    else:
-                        new_ind[j] = best_ind[0][j]
-                # if (new_ind == best_ind).all:
-                #     print('Jaja, sånn er livet')
-                individual[int(np.random.randint(0,self.num_ind-1))] = new_ind    
+        mu.append(mu_arr)    
+        lmd.append(lmd_arr)
+        sigma.append(sig_arr)
+        NDIV = sum(tau_arr[:])
+        mig, gamma_1, gamma_2, gamma_3 = 0,0,0,0
+        if NDIV==self.dim:
+            gamma_1 = 1
+        
+        if any(tau_arr[:] == 1) and np.random.uniform(0,1) < 1e-1:
+            gamma_2 = 1
+        
+        if (NDIV/dim) >= (1- NFE/NFE_max):
+            gamma_3 = 1
+        
+        if gamma_1 or gamma_2 or gamma_3:
+            mig = 1
+        
+        #Migrasjonskriterie møtt
+        if mig:
+            sort = np.argsort(self.likelihood)
+            best_ind = self.individual[sort][0]
+            mig_ind, k = self.pool(best_ind, k, gen)
+            new_ind = np.zeros_like(tau_arr)
+            # print(new_ind)
+            # print(mig_ind)
+            # print(best_ind)
+            for j in range(self.dim-1):
+                if tau_arr[j]:
+                    new_ind[j] = mig_ind[0][j]
+                else:
+                    new_ind[j] = best_ind[0][j]
+            # if (new_ind == best_ind).all:
+            #     print('Jaja, sånn er livet')
+            self.individual[int(np.random.randint(0,self.num_ind-1))] = new_ind    
     
     def sigma_func(x_, mu):
         ret = 0 
