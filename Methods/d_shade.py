@@ -60,15 +60,15 @@ class d_SHADE:
                 if randint < self.CRlist [i]:
                     self.u[i,j] = self.v[i,j]
                 
-            temp = self.eval_likelihood_ind(self.u[i])     
-            if temp <= self.likelihood[i]:
+            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
+            if perceived_likelihood <= self.likelihood[i]:
                 self.individual[i] = self.u[i]
                 self.A.append(self.individual[i])        
-                delta_f.append(temp-self.likelihood[i])                
+                delta_f.append(perceived_likelihood-self.likelihood[i])                
                 S_CR.append(self.CRlist[i])
                 S_F.append(self.Flist[i])
                 self.individual[i] = self.u[i]
-                self.likelihood[i] = temp
+                self.likelihood[i] = perceived_likelihood
                 if len(self.A) > self.num_ind :
                     del self.A[np.random.randint(0, self.num_ind)]
         #Update weights
@@ -129,20 +129,16 @@ class d_SHADE:
                     self.u[i,j] = self.v[i,j]
             
             #Check if the new crossover individual is superior to the prior
-            temp, actual = self.eval_likelihood_ind(self.u[i])     
-            if temp <= self.likelihood[i]:
+            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
+            if perceived_likelihood <= self.likelihood[i]:
                 self.individual[i] = self.u[i]
-                
-                #If so, update temporary variables
                 self.A.append(self.individual[i])        
-                delta_f.append(temp-self.likelihood[i])                
+                delta_f.append(perceived_likelihood-self.likelihood[i])                
                 S_CR.append(self.CRlist[i])
                 S_F.append(self.Flist[i])
-                
-                #Update the individual
                 self.individual[i] = self.u[i]
-                self.likelihood[i] = temp
-                
+                self.likelihood[i] = perceived_likelihood
+
                 #If archive exceeds number of individuals, delete a random archived log.
                 if len(self.A) > self.num_ind :
                     del self.A[np.random.randint(0, self.num_ind)]

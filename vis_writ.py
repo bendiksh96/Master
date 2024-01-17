@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 
-class Data:
+class Vis:
     def __init__(self, dim, x_min, x_max):
         self.dim = dim
         self.x_min = x_min
@@ -34,15 +34,15 @@ class Data:
         plot_height = plot_width
 
         fig = plt.figure(figsize=(fsize, fsize))
-        cmap_vmin = 0.0
-        cmap_vmax = 6
+        cmap_vmin = 0.5
+        cmap_vmax = 3
         plot_facecolor = '0.0'
 
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
                 cmap = plt.get_cmap("viridis_r")
-                cmap.set_extremes(under= 'black', over='black')
+                #cmap.set_extremes(under= 'black', over='black')
                 norm = plt.Normalize(0, 5.915)
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
@@ -60,7 +60,7 @@ class Data:
                 plt.xticks(fontsize=fontsize)
                 plt.yticks(fontsize=fontsize)
                 # Create a colour scale normalization
-                # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
+                norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
                                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
 
@@ -75,8 +75,8 @@ class Data:
         plt.text(0.5, 1.0, summary_string, fontsize=fontsize, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
         # output_dir_name = 'asad.png'
-        plot_file_name = r"C:\Users\Lenovo\Documents\Master\fig.png"
-        plt.savefig(plot_file_name)
+        #plot_file_name = r"C:\Users\Lenovo\Documents\Master\fig.png"
+       # plt.savefig(plot_file_name)
         plt.show()
 
     def visualize_2(self, iter, individuals, likelihood):
