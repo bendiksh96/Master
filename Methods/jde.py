@@ -40,7 +40,7 @@ class jDE:
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist[i]:
                     self.u[i,j] = self.v[i,j]
-            temp = self.eval_likelihood_ind(self.u[i])
+            temp, z = self.eval_likelihood_ind(self.u[i])
             if temp < self.likelihood[i]:
                 self.individual[i] = self.u[i]
                 self.likelihood[i] = temp

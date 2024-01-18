@@ -23,6 +23,7 @@ class Problem_Function:
         if problem_func == 'mod_Himmelblau':
             val = self.mod_himmelblau(x)
         return val
+    
     def Rosenbrock(self, x):
         func = 0
         for i in range(self.dim-1):

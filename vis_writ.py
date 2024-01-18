@@ -11,11 +11,8 @@ class Vis:
         self.x_min = x_min
         self.x_max = x_max
 
-    def data_storage(self):
-        a = 1
-
-    def visualize_1(self, individuals, likelihood, eval_type):
-        sort_ = np.argsort((likelihood), axis=0)
+    def visualize_1(self, individuals, likelihood, eval_type, best):
+        sort_ = np.argsort(((-1)*likelihood), axis=0)
         likelihood = likelihood[sort_]
         individuals = individuals[sort_,:].reshape((len(likelihood), self.dim))
         # kn =  np.where(likelihood > 60)
@@ -34,16 +31,15 @@ class Vis:
         plot_height = plot_width
 
         fig = plt.figure(figsize=(fsize, fsize))
-        cmap_vmin = 0.5
-        cmap_vmax = 3
+        cmap_vmin = 0
+        cmap_vmax = 4   
         plot_facecolor = '0.0'
 
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
-                cmap = plt.get_cmap("viridis_r")
-                #cmap.set_extremes(under= 'black', over='black')
-                norm = plt.Normalize(0, 5.915)
+                cmap = plt.get_cmap("viridis_r",)
+                cmap.set_extremes(under= 'black', over='black')
                 # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)
@@ -79,7 +75,7 @@ class Vis:
        # plt.savefig(plot_file_name)
         plt.show()
 
-    def visualize_2(self, iter, individuals, likelihood):
+    def visualize_2(self, likelihood, iter_likelihood_mean, iter_likelihood_min,iter_likelihood_median):
         # Create figure
         fsize_per_dim = 5.0
         fsize = fsize_per_dim * (self.dim-1)
@@ -109,46 +105,24 @@ class Vis:
         fig = plt.gcf()
         plt.text(0.5, 1.0, "Juppsi", fontsize=8.0, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
-        plt.show()
-        exit()
         # Plot 2: objective function values vs iteration
         plt.sca(ax2)
 
-        best_obj_iter = solution[2]
-        mean_obj_iter = solution[3]
-        median_obj_iter = solution[4]
-        iterations = list(range(len(best_obj_iter)))
-
-        plt.plot(iterations, best_obj_iter, '-', color='black', linewidth=1.5, label="best")
-        plt.plot(iterations, mean_obj_iter, '-', linewidth=1.5, label="mean")
-        plt.plot(iterations, median_obj_iter, '-', linewidth=1.5, label="median")
-
+        iterations = list(range(len(iter_likelihood_mean)))
+        plt.plot(iterations, iter_likelihood_mean, '-', color = 'black', label = 'Mean likelihood')
+        plt.plot(iterations, iter_likelihood_min, '-', linewidth = 1.5, label = 'Best likelihood')
+        plt.plot(iterations, iter_likelihood_median, '--', linewidth =1.5, label = 'Median likelihood')
         plt.xlabel("Iteration")
         plt.ylabel("-loglike")
-
         plt.yscale("log")
-        plt.ylim([1e-6, 1e4])
-
+        plt.ylim([1e0, 1e1])
         plt.legend()
-
-        plot_file_name = os.path.join(output_dir_name, "summary_plots.png")
-        plt.savefig(plot_file_name)
-
-        print()
-        print(f"Generated plot: {plot_file_name}")
-
-    def visualize_iter_loss(self, iter, likelihood, population_size):
-        fig, axs = plt.subplots(1,2,figsize=(8,4))
-        axs[0].set_ylabel('log10 of total likelihood')
-        axs[0].set_xlabel('Iterations')
-        axs[0].plot(iter, np.log10(likelihood))
-        plt.grid()
-        axs[1].set_ylabel('mean likelihood of individuals')
-        axs[1].set_xlabel('Iterations')
-        axs[1].plot(iter[40::], (likelihood[40::]/population_size))
-        plt.grid()
         plt.show()
-        #Spennende å se iter vs likelihood/total population
+        # plot_file_name = os.path.join(output_dir_name, "summary_plots.png")
+        # plt.savefig(plot_file_name)
+
+        # print()
+        # print(f"Generated plot: {plot_file_name}")
 
     def visualize_population_evolution(self, individuals, likelihood):
         # Create figure
