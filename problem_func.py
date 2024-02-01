@@ -29,7 +29,7 @@ class Problem_Function:
         for i in range(self.dim-1):
             func += 100*(x[i+1]-x[i]**2)**2 + (1 - x[i])**2
         
-        return func
+        return func, func
     
     def mod_rosenbrock(self, x):
         func = 0
@@ -45,19 +45,21 @@ class Problem_Function:
         for i in range(self.dim-1):
             func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))
         
-        return func
+        return func, func
     
     def mod_eggholder(self, x, best, sigma):
         func = 0
-        sigma = 0.3
+        delta_log = self.delta_log
         for i in range(self.dim-1):
             func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))    
         true_func = func
         
         #If the value supercedes the necessity of a gaussian, add one.  
-        if true_func >= self.delta_log:
-            func = func - func * np.exp(-(best-(func))**2/(2*sigma**2)) 
+        if true_func <= (self.best+delta_log):
+            func = self.best + delta_log
+            func = func  + delta_log * np.exp(- (self.best-(true_func))**2/(2*self.sigma**2)) 
         return func, true_func
+    
     
     def Himmelblau(self, x):
         func = 0
@@ -65,6 +67,21 @@ class Problem_Function:
             func += (x[i]**2 + x[i+1] - 11)**2 + (x[i] + x[i+1]**2 -7)**2
         func += 1
         func = np.log(func)
+
+        if len(x) == 2:
+            pass
+        elif len(x) == 3:
+            func -= 0.265331837897597
+        elif len(x) == 4:
+            func -= 1.7010318616354436
+        elif len(x) == 5:
+            func -= 2.3001107745553155
+        elif len(x) == 6:
+            func -= 2.8576426513378994
+        else:
+            raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
+
+
         return func, func
     
     def mod_himmelblau(self, x):
@@ -86,4 +103,4 @@ class Problem_Function:
         return func , true_func
         
         
-    
+

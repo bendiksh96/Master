@@ -55,7 +55,6 @@ class jDE:
                 self.Flist[i] += ru2 * self.Flist[i]
             if ru3 < self.tau2:
                 self.CRlist[i] = ru4
-
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):

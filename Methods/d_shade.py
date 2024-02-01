@@ -59,19 +59,18 @@ class d_SHADE:
             for j in range(self.dim):
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist [i]:
-                    self.u[i,j] = self.v[i,j]
+                    # self.u[i,j] = self.v[i,j]
                 
-            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
-            if perceived_likelihood <= self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.A.append(self.individual[i])        
-                delta_f.append(perceived_likelihood-self.likelihood[i])                
-                S_CR.append(self.CRlist[i])
-                S_F.append(self.Flist[i])
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = perceived_likelihood
-                if len(self.A) > self.num_ind :
-                    del self.A[np.random.randint(0, self.num_ind)]
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.A.append(self.individual[i])        
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.likelihood[i] = perceived_likelihood
+                        if len(self.A) > self.num_ind :
+                            del self.A[np.random.randint(0, self.num_ind)]
         #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
@@ -127,23 +126,22 @@ class d_SHADE:
             for j in range(self.dim):
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist [i]:
-                    self.u[i,j] = self.v[i,j]
+                    # self.u[i,j] = self.v[i,j]
             
-            #Check if the new crossover individual is superior to the prior
-            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
-            if perceived_likelihood <= self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.A.append(self.individual[i])        
-                delta_f.append(perceived_likelihood-self.likelihood[i])                
-                S_CR.append(self.CRlist[i])
-                S_F.append(self.Flist[i])
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = perceived_likelihood
-                self.true_likelihood[i] = true_likelihood
+                    #Check if the new crossover individual is superior to the prior
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.A.append(self.individual[i])        
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.likelihood[i] = perceived_likelihood
+                        self.true_likelihood[i] = true_likelihood
 
-                #If archive exceeds number of individuals, delete a random archived log.
-                if len(self.A) > self.num_ind :
-                    del self.A[np.random.randint(0, self.num_ind)]
+                        #If archive exceeds number of individuals, delete a random archived log.
+                        if len(self.A) > self.num_ind :
+                            del self.A[np.random.randint(0, self.num_ind)]
         
         #Update weights
         if len(S_CR) != 0:

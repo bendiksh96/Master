@@ -20,7 +20,8 @@ class jDErpo:
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.CRupp          = 1
         self.tau1,self.tau2 = 0.1,0.1
-        self.iter           = 0
+        self.nfe            = 0 
+        self.max_nfe        = 0
         self.Data           = Problem_Function(self.dim)
     
     def evolve(self):
@@ -34,8 +35,8 @@ class jDErpo:
         best_indexes = sort_index[0:NP]
         xpbest = self.individual[best_indexes]
         
-        Flow  = 0.2  + 0.3  * self.iter/self.maxiter
-        CRlow = 0.05 + 0.95 * self.iter/self.maxiter
+        Flow  = 0.2  + 0.3  * self.nfe/self.max_nfe
+        CRlow = 0.05 + 0.95 * self.nfe/self.max_nfe
         
         #Mutant vector
         for i in range(self.num_ind):
@@ -43,7 +44,7 @@ class jDErpo:
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
             ri4 = np.random.randint(NP)
-            if np.random.uniform(0,1) < 0.8 and self.iter > 0.8*self.maxiter:
+            if np.random.uniform(0,1) < 0.8 and self.nfe > 0.8*self.max_nfe:
                 #rand/1 scheme
                 self.v[i] = self.individual[ri1] + self.Flist[i]* (self.individual[ri2]- self.individual[ri3])
             else:   

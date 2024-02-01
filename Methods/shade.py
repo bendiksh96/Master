@@ -14,31 +14,33 @@ class SHADE:
         self.prob_func  = problem_func
         self.k_arg      = 0 
         
-        p_i             = np.random.uniform(2/self.num_ind, 0.2)
-        NP              = int(self.num_ind * p_i)        
-        H               = self.num_ind
-        
-        self.A          = []
         self.Flist      = [0.1 for p in range(self.num_ind)]
         self.CRlist     = [0.1 for p in range(self.num_ind)]
         self.M_CR       = [0.1 for p in range(self.num_ind)]
         self.M_F        = [0.1 for p in range(self.num_ind)]
-        
         self.Data = Problem_Function(self.dim)
-
+        
+        # p_i             = np.random.uniform(2/self.num_ind, 0.2)
+        # NP              = int(self.num_ind * p_i)        
+        # H               = self.num_ind
+        # print(self.individual, self.num_ind)
 
     def evolve(self):
+
+        #Reset success parameters
         S_CR       = []
         S_F        = []
         delta_f    = []
 
-        self.u  = np.zeros_like(self.individual)
-        self.v  = np.zeros_like(self.individual)
-        sort    = np.argsort(self.likelihood, axis = 0)
+        self.u          = np.zeros_like(self.individual)
+        self.v          = np.zeros_like(self.individual)
+        sort            = np.argsort(self.likelihood, axis = 0)
+        
         best_indexes    = sort[0:self.num_ind]
         xpbest          = self.individual[best_indexes]
         self.abs_best   = self.likelihood[best_indexes[0]]
         self.best_ind   = self.individual[best_indexes][0]
+
         #Mutant vector
         for i in range(self.num_ind-1):
             ri = np.random.randint(1,self.num_ind) 
@@ -52,31 +54,32 @@ class SHADE:
             ri3 = np.random.randint(self.num_ind)
             
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
-                                            
+        # print(self.individual)        
         #Crossover
-        for i in range(self.num_ind):
+        for i in range(self.num_ind-1):
             for j in range(self.dim):
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist [i]:
-                    self.u[i,j] = self.v[i,j]
-                
-            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
-            if perceived_likelihood <= self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.A.append(self.individual[i])        
-                delta_f.append(perceived_likelihood-self.likelihood[i])                
-                S_CR.append(self.CRlist[i])
-                S_F.append(self.Flist[i])
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = true_likelihood
-                if len(self.A) > self.num_ind :
-                    del self.A[np.random.randint(0, self.num_ind)]
+                    # self.u[i,j] = self.v[i,j]
+                    #har trikset endel her. Fikk null, men tror det er slik det må se ut
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        # print(self.v[i,j])
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = true_likelihood
+        # print(self.individual)
+
         #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
                 self.k_arg = 1
             wk = []
             mcr = 0
+            
             mf_nom = 0
             mf_denom = 0
             tol = 1e-3

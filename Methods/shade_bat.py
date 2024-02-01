@@ -62,17 +62,17 @@ class shade_bat:
                 if randint < self.CRlist [i]:
                     self.u[i,j] = self.v[i,j]
                 
-            perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
-            if perceived_likelihood <= self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.A.append(self.individual[i])        
-                delta_f.append(perceived_likelihood-self.likelihood[i])                
-                S_CR.append(self.CRlist[i])
-                S_F.append(self.Flist[i])
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = perceived_likelihood
-                if len(self.A) > self.num_ind :
-                    del self.A[np.random.randint(0, self.num_ind)]
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.u[i])     
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.u[i]
+                        self.A.append(self.individual[i])        
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.individual[i] = self.u[i]
+                        self.likelihood[i] = perceived_likelihood
+                        if len(self.A) > self.num_ind :
+                            del self.A[np.random.randint(0, self.num_ind)]
         #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
@@ -98,68 +98,129 @@ class shade_bat:
         self.BM         = np.zeros((self.num_ind, self.dim))
         self.BM_val     = np.zeros(self.num_ind)
         self.BM_val[:]  = 100
+        self.f_j        = np.zeros_like(self.likelihood)
+        self.A          = np.zeros_like(self.likelihood)
+
         self.velocity   = np.zeros((self.num_ind, self.dim))
         self.pulse      = np.zeros((self.num_ind, self.dim))
         self.gen        = 0
         if standard == True:
-            self.rj          = .2
+            # self.rj          = .2
             self.rj0         = .2
-            self.A           = .5
+            self.A_fac       = 1.4
             self.eps         = .01
             self.gamma       = .9
             self.alfa        = .9
         self.init_vel()
 
     def evolve_bat(self):           
-        sort = np.argsort(self.likelihood)
-        best_ind = self.individual[sort][0]
-        best_val = self.likelihood[sort][0]
-        worst_val = self.likelihood[sort][-1]
-        
+
+        sort        = np.argsort(self.likelihood)
+        best_ind    = self.individual[sort][0]
+
+        sort        = np.argsort(self.f_j)
+        low_freq   = self.f_j[sort][0]
+        high_freq  = self.f_j[sort][-1]
+
         for i in range(self.num_ind):
             for j in range(self.dim):
-                u = np.random.uniform(0,1)
                 #Frequency
-                f_j = best_val + (best_val-worst_val) * np.random.uniform(0,1)
-                self.velocity[i,j] = self.velocity[i,j] +(self.individual[i,j] - best_ind[j]) * f_j
-                #Update self.individual if
-                if u < self.pulse[i,j]:
-                    self.individual[i,j] = best_ind[j] + self.eps*self.A
-                else:
-                    self.individual[i,j] = self.velocity[i,j] + self.individual[i,j] 
-                
-                
-                #oob
+                self.f_j[i] = low_freq + (high_freq-low_freq) * np.random.uniform(0,1)
+                #Velocity
+                self.velocity[i,j] = self.velocity[i,j] +(self.individual[i,j] - best_ind[j]) * self.f_j[i]
                 if self.individual[i,j] < self.xmin:
                     if self.velocity[i,j] < 0:
                         self.velocity[i,j] = - self.velocity[i,j]
-                    if self.individual[i,j] < 1.2*self.xmin:
+                    if self.individual[i,j] < 1.1*self.xmin:
                         self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
-                
+
                 if self.individual[i,j] > self.xmax:
                     if self.velocity[i,j] > 0:
                         self.velocity[i,j] = - self.velocity[i,j]
-                    if self.individual[i,j] > 1.2*self.xmax:
+                    if self.individual[i,j] > 1.1*self.xmax:
                         self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
-                    
-            perceived_likelihood, self.true_likelihood[i] = self.eval_likelihood_ind(self.individual[i])        
-            self.likelihood[i] = perceived_likelihood
+                
+            var = self.velocity[i] + self.individual[i]
+                   
+            temp, z = self.eval_likelihood_ind(var)
+            if temp < self.likelihood[i]:
+                self.individual[i] = var 
             
-            #If the likelihood is equal for any individual, increase its velocity
-            if abs(self.likelihood[i] - self.BM_val[i]) < 1e-3:
-                self.velocity[i] = self.velocity[i] + self.A*1e-2
-            
+
+
             #If likelihood smaller or loudness over threshold -> Update BM and reduce loudness
-            if self.likelihood[i] < self.BM_val[i] or np.random.uniform(0,1) < self.A:
-                self.pulse[i] = self.pulse[i]*(1- np.exp(-self.gamma*self.gen))
-                self.A = self.alfa*self.A
-                self.BM[i] = self.individual[i]
-                self.BM_val[i] = self.likelihood[i]           
+            if self.likelihood[i] < self.BM_val[i] or np.random.uniform(0,1) < self.A[i]:
+                # print('puls_faktor:',(1- np.exp(-self.gamma*self.gen)))
+                self.pulse[i]   = self.pulse[i]*(1- np.exp(-self.gamma*self.gen))
+                self.A[i]       = self.alfa*self.A[i]
+                self.BM[i]      = self.individual[i]
+                self.BM_val[i]  = self.likelihood[i]
+
+        sort        = np.argsort(self.likelihood)
+        best_ind    = self.individual[sort][0]
+        for i in range(self.num_ind):
+            for j in range(self.dim):
+                eps = np.random.uniform(-1,1)
+                self.individual[i,j] = best_ind[j] + eps * self.A[i]
+            self.likelihood[i], z = self.eval_likelihood_ind(self.individual[i]) 
+                
         #Sort the bats
-        sort = np.argsort(self.BM_val)
-        self.BM = self.BM[sort]
-        self.BM_val = self.BM_val[sort]        
-        self.gen += 1        
+        self.true_likelihood    = self.likelihood
+        sort                    = np.argsort(self.BM_val)
+        self.BM                 = self.BM[sort]
+        self.BM_val             = self.BM_val[sort]
+        self.gen                += 1
+
+
+        # sort = np.argsort(self.likelihood)
+        # best_ind = self.individual[sort][0]
+        # best_val = self.likelihood[sort][0]
+        # worst_val = self.likelihood[sort][-1]
+        
+        # for i in range(self.num_ind):
+        #     for j in range(self.dim):
+        #         u = np.random.uniform(0,1)
+        #         #Frequency
+        #         f_j = best_val + (best_val-worst_val) * np.random.uniform(0,1)
+        #         self.velocity[i,j] = self.velocity[i,j] +(self.individual[i,j] - best_ind[j]) * f_j
+        #         #Update self.individual if
+        #         if u < self.pulse[i,j]:
+        #             self.individual[i,j] = best_ind[j] + self.eps*self.A
+        #         else:
+        #             self.individual[i,j] = self.velocity[i,j] + self.individual[i,j] 
+                
+                
+        #         #oob
+        #         if self.individual[i,j] < self.xmin:
+        #             if self.velocity[i,j] < 0:
+        #                 self.velocity[i,j] = - self.velocity[i,j]
+        #             if self.individual[i,j] < 1.2*self.xmin:
+        #                 self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
+                
+        #         if self.individual[i,j] > self.xmax:
+        #             if self.velocity[i,j] > 0:
+        #                 self.velocity[i,j] = - self.velocity[i,j]
+        #             if self.individual[i,j] > 1.2*self.xmax:
+        #                 self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
+                    
+        #     perceived_likelihood, self.true_likelihood[i] = self.eval_likelihood_ind(self.individual[i])        
+        #     self.likelihood[i] = perceived_likelihood
+            
+        #     #If the likelihood is equal for any individual, increase its velocity
+        #     if abs(self.likelihood[i] - self.BM_val[i]) < 1e-3:
+        #         self.velocity[i] = self.velocity[i] + self.A*1e-2
+            
+        #     #If likelihood smaller or loudness over threshold -> Update BM and reduce loudness
+        #     if self.likelihood[i] < self.BM_val[i] or np.random.uniform(0,1) < self.A:
+        #         self.pulse[i] = self.pulse[i]*(1- np.exp(-self.gamma*self.gen))
+        #         self.A = self.alfa*self.A
+        #         self.BM[i] = self.individual[i]
+        #         self.BM_val[i] = self.likelihood[i]           
+        # #Sort the bats
+        # sort = np.argsort(self.BM_val)
+        # self.BM = self.BM[sort]
+        # self.BM_val = self.BM_val[sort]        
+        # self.gen += 1        
     
     def set_limits(self, xmin, xmax):
         self.xmin = xmin
@@ -170,6 +231,8 @@ class shade_bat:
             for j in range(self.dim):
                 self.velocity[i,j]    = np.random.uniform(-1,1)/5
                 self.pulse[i,j]       = self.rj
+            self.f_j[i] = np.random.uniform(0, 2)
+            self.A[i]   = self.A_fac
 
     def eval_likelihood_ind(self, individual):
         Data = self.Data
