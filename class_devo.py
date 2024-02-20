@@ -19,7 +19,18 @@ from shade_bat import *
 from chaotic_bat import *
 from d_shade_pso import * 
 
-
+def loading_bar():
+    toolbar_width = 40  # adjust the width of the loading bar
+    total_time = 5  # specify the total time for the process completion
+    
+    elapsed_time = time.time() - start_time
+    completed = int(elapsed_time / total_time * toolbar_width)
+    remaining = toolbar_width - completed
+    
+    loading_bar = '[' + '=' * completed + '.' * remaining + ']'
+    
+    print(f'\rLoading: {loading_bar} {int(elapsed_time/total_time*100)}%', end='')
+    
 def conditions(problem_function):
     if problem_function == 'Himmelblau':
         xmin, xmax = -5,5
@@ -36,7 +47,8 @@ class DEVO_class:
         self.dim            = dim
         self.hist_data      = []
         self.nfe            = 0
-        self.best           = 0
+        self.best           = 10
+        self.open_data()
         
     #Initialize population(s)        
     def initialize_population(self, xmin, xmax, num_ind):
@@ -58,12 +70,14 @@ class DEVO_class:
             temp, z = Data.evaluate(self.individual[i,:], self.problem_func)
             self.likelihood[i] = temp
             var.append(temp)
+            var.append(1)
             self.hist_data.append(var)
         self.nfe += self.num_ind
+        
+        self.write_data()
     
     def evolve(self, max_nfe):
         self.max_nfe   = max_nfe
-        self.open_data()
         if self.method == 'jde':
             iter_likelihood = []; tol = 1e-3; conv = False
             mod = jDE(self.individual, self.likelihood, self.problem_func)
@@ -299,6 +313,7 @@ class DEVO_class:
                         for j in range(self.dim):
                             var.append(self.individual[i,j])
                         var.append(self.likelihood[i])
+                        var.append([1])
                         self.hist_data.append(var)
 
                     if len(self.hist_data)>int(1e5):
@@ -322,40 +337,41 @@ class DEVO_class:
                 
                 self.nfe  += self.num_ind
                 iter_likelihood.append(np.mean(mod.likelihood))
-                
+                if mod.abs_best < self.best:
+                    self.best = mod.abs_best
                 if int(self.nfe/self.num_ind) > 10:
-                    # print(np.mean(iter_likelihood)-iter_likelihood[-1])
-                    if mod.abs_best < tol:
-                        print('Conv')    
+                    if mod.abs_best <tol:
+                        print('Converged at nfe:', self.nfe)    
+                        print()
                         for i in range(self.num_ind):
                             var = []
                             for j in range(self.dim):
                                 var.append(self.individual[i,j])
                             var.append(self.likelihood[i])
+                            var.append(1)
                             self.hist_data.append(var)
-
                         conv = True
-                        self.conv_iter = self.nfe
+                        conv_iter = self.nfe
+                        print()
+                        print()
                     del iter_likelihood[0]
                 
-                if b*1000<self.nfe:
-                    print(self.nfe)
+                if int(b*1e4)<self.nfe:
+                    print('nfe:',self.nfe)
                     b+=1
-                
                     
                 for i in range(self.num_ind):
                     var = []
                     for j in range(self.dim):
                         var.append(self.individual[i,j])
                     var.append(self.likelihood[i])
+                    var.append(1)
                     self.hist_data.append(var)
+                
                 if len(self.hist_data)>int(1e5):
                     self.write_data()
-                    self.hist_data       = []
+                    
             self.write_data()
-
-
-
             if conv:
                 self.iter_likelihood_mean = []
                 self.iter_likelihood_best = []
@@ -365,41 +381,43 @@ class DEVO_class:
                 mod.prob_func = 'mod_' + self.problem_func
                 self.best   = mod.abs_best
                 best        = mod.abs_best
-                self.num_ind = self.num_ind
-                #Initialize population anew
-                
+                self.num_ind = self.num_ind*10
+                print('Starting Exploration, NFE:', self.nfe)
+                print()
+                #Initialize population anew                
                 self.initialize_population(self.xmin, self.xmax, self.num_ind)
                 mod.__init__(self.individual, self.likelihood, mod.prob_func)
-                mod.Data.param_change(best=best, delta_log = 1.15)
-                #Start the evolution
-                # while self.nfe < (self.max_nfe):
-                for _ in range(self.nfe, int(self.max_nfe), self.num_ind):
+                mod.Data.param_change(best=self.best, delta_log = 1.15)
 
-                    print(_)
+                #Start the evolution
+                for _ in range(self.nfe, int(self.max_nfe), self.num_ind):
                     mod.evolve_explore()
                     self.check_oob()
                     self.nfe  += self.num_ind
-                    if b*1000<self.nfe:
-                        print(self.nfe)
+                    if int(b*1e4)<self.nfe:
+                        print('nfe:',self.nfe)
                         b+=1
 
                     for i in range(self.num_ind):
                         var = []
                         for j in range(self.dim):
                             var.append(self.individual[i,j])
-                        var.append(self.likelihood[i])
+                        var.append(mod.true_likelihood[i])
+                        var.append(2)
                         self.hist_data.append(var)
 
                     if len(self.hist_data)>int(1e5):
                         self.write_data()
-                        self.hist_data       = []
                     # self.iter_likelihood_mean.append(np.mean(mod.true_likelihood))
                     # self.iter_likelihood_best.append(np.min(mod.true_likelihood))
                     # self.iter_likelihood_median.append(np.median(mod.true_likelihood))
-                    if self.nfe/self.max_nfe >= 0.8:
+                    if self.nfe/self.max_nfe >= 0.6:# or self.nfe >conv_iter + int(conv_iter/2):
+                        print('Partikkelisering. NFE: ', self.nfe)
+                        print()
+                        print('Kriterier:',self.nfe/self.max_nfe, 'og', conv_iter + 3*int(conv_iter/2))
                         break
-
-                centroids, clusters = mod.cluster(4)
+                
+                centroids, clusters = mod.cluster_dim(loglike_tol = 5.915, k = 6)
                 # plt.scatter(centroids[:,0], centroids[:,1])
                 # for arg in range(mod.k):
                 #     plt.scatter(mod.X[clusters[arg],0], mod.X[clusters[arg],1])
@@ -407,17 +425,38 @@ class DEVO_class:
                 # plt.xlim(-5,5)
                 # plt.ylim(-5,5)
                 # plt.show()
-                mod.optimum = mod.abs_best 
-                for arg in range(mod.k):
-                    mod.optimal_individual[clusters[arg]] = centroids[arg] 
+                mod.Data.param_change(best=self.best, delta_log = 1.15)
+
+                mod.optimum = mod.abs_best
+                
+                
+                
+                for i in range(self.num_ind):
+                    for j in range(self.dim):
+                        arg = int(clusters[i,j])
+                        mod.optimal_individual[i,j] = centroids[arg, j]
+
+                # print(mod.optimal_individual)                
                 mod.init_particle()
+                
                 for _ in range(self.nfe, int(self.max_nfe), self.num_ind):
-                    if b*1000<self.nfe:
-                        print(self.nfe)
+                    if int(b*1e4)<self.nfe:
+                        print('nfe:',self.nfe)
                         b+=1                    
                     mod.evolve_particle()
-            print('Program complete')
-            self.write_data()
+                    self.check_oob()
+                    self.nfe  += self.num_ind
+                    for i in range(self.num_ind):
+                        var = []
+                        for j in range(self.dim):
+                            var.append(self.individual[i,j])
+                        var.append(mod.true_likelihood[i])
+                        var.append(3)
+                        self.hist_data.append(var)
+
+                    if len(self.hist_data)>int(1e5):
+                        self.write_data()
+                self.write_data()
 
 
         if self.method == 'shade_bat':
@@ -526,10 +565,17 @@ class DEVO_class:
     
     def open_data(self):
         self.path = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
+        with open(self.path, 'w', newline='') as csvfile:
+            csvfile = csv.writer(csvfile, delimiter=',')
+            csvfile.writerows(self.hist_data)
+            
     def write_data(self):
+        # print('Length of written datafile:',len(self.hist_data))
         with open(self.path, 'a', newline='') as csvfile:
             csvfile = csv.writer(csvfile, delimiter=',')
             csvfile.writerows(self.hist_data)
+        self.hist_data       = []
+
 
         
  
@@ -537,26 +583,30 @@ class DEVO_class:
 #Available methods:
 # ¤ jDE /jDErpo
 # ¤ bat
-# ¤ shade / double_shade / shade_bat
+# ¤ shade / double_shade / shade_bat / double_shade_pso
 #¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
+np.random.seed(4531234)
 
-dim                 = 2
+dim                 = 3
 population_size     = 100
-max_nfe             = 2e4
+max_nfe             = 2e5
 method              = 'double_shade_pso'
-problem_function    = 'Himmelblau'
+# problem_function    = 'Himmelblau'
 # problem_function    = 'Eggholder'
-# problem_function    = 'Rosenbrock'
+problem_function    = 'Rosenbrock'
 xmin, xmax = conditions(problem_function)
 
 cl = DEVO_class(dim, problem_function, method)
 cl.initialize_population(xmin,xmax, population_size)
 cl.evolve(max_nfe)
+print(cl.best)
 
-
+print('Program Complete. Analyzing data and Plotting.')
 vis = Vis(dim, xmin,xmax, max_nfe, method, problem_function)
 vis.extract_data()
-vis.visualize_parameter_space()
+# vis.visualize_parameter_space()
+vis.stacked_hist()
+
 # vis.visualize_2()
 # vis.visualize_2(cl.actual_likelihood,cl.iter_likelihood_mean, cl.iter_likelihood_best,cl.iter_likelihood_median)
 

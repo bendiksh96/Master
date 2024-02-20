@@ -47,7 +47,7 @@ class Problem_Function:
         
         return func, func
     
-    def mod_eggholder(self, x, best, sigma):
+    def mod_eggholder(self, x):
         func = 0
         delta_log = self.delta_log
         for i in range(self.dim-1):
@@ -98,6 +98,19 @@ class Problem_Function:
             
             func = self.best + delta_log
             func = func  + delta_log * np.exp(- (self.best-(true_func))**2/(2*self.sigma**2)) 
+    def mod_himmelblau2(self, x):
+        func = 0
+        delta_log = self.delta_log
+        for i in range(self.dim-1):
+            func += (x[i]**2 + x[i+1] - 11)**2 + (x[i] + x[i+1]**2 -7)**2 
+        func += 1
+        func = np.log(func)
+        true_func = func
+        
+        
+        if true_func <= (self.best+delta_log):
+            
+            func = (true_func - delta_log)**2
     
     
         return func , true_func
