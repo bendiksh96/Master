@@ -338,7 +338,7 @@ class d_SHADE_pso:
                     #Regn ut ny cluster (med disse nye labels inkludert)
                     #Lag ny cluster array
                     self.un_empty_cluster -= 1
-        return 
+        return self.super_centroids, self.super_labels
 
     def init_particle(self):
         #Velocity initialization
