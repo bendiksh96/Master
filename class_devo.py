@@ -370,7 +370,8 @@ class DEVO_class:
                 
                 if len(self.hist_data)>int(1e5):
                     self.write_data()
-                    
+            print('Best value:', mod.abs_best)
+            print('In: ', mod.best_ind)
             self.write_data()
             if conv:
                 self.iter_likelihood_mean = []
@@ -417,7 +418,8 @@ class DEVO_class:
                         print('Kriterier:',self.nfe/self.max_nfe, 'og', conv_iter + 3*int(conv_iter/2))
                         break
                 
-                centroids, clusters = mod.cluster_dim(loglike_tol = 5.915, k = 6)
+                #Anders mener k = 5 er nok
+                centroids, clusters = mod.cluster_dim(loglike_tol = 5.915, k = 5)
                 # plt.scatter(centroids[:,0], centroids[:,1])
                 # for arg in range(mod.k):
                 #     plt.scatter(mod.X[clusters[arg],0], mod.X[clusters[arg],1])
@@ -433,7 +435,9 @@ class DEVO_class:
                 
                 for i in range(self.num_ind):
                     for j in range(self.dim):
-                        arg = int(clusters[i,j])
+                        arg = clusters[i,j]
+                        # arg = mod.un_empty_clusters
+                        
                         mod.optimal_individual[i,j] = centroids[arg, j]
 
                 # print(mod.optimal_individual)                
@@ -587,6 +591,14 @@ class DEVO_class:
 #¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤
 np.random.seed(4531234)
 
+def log_thresh(sigma):
+    if sigma == 1:
+        return 1.15
+    if sigma == 2:
+        return 3.09
+    if sigma == 3:
+        return 5.915
+
 dim                 = 3
 population_size     = 100
 max_nfe             = 2e5
@@ -596,6 +608,12 @@ method              = 'double_shade_pso'
 problem_function    = 'Rosenbrock'
 xmin, xmax = conditions(problem_function)
 
+#How many sigmas are you interested in?
+sigma = 2
+log_threshold = log_thresh(sigma)
+ 
+
+
 cl = DEVO_class(dim, problem_function, method)
 cl.initialize_population(xmin,xmax, population_size)
 cl.evolve(max_nfe)
@@ -604,7 +622,7 @@ print(cl.best)
 print('Program Complete. Analyzing data and Plotting.')
 vis = Vis(dim, xmin,xmax, max_nfe, method, problem_function)
 vis.extract_data()
-# vis.visualize_parameter_space()
+vis.visualize_parameter_space()
 vis.stacked_hist()
 
 # vis.visualize_2()
@@ -613,3 +631,7 @@ vis.stacked_hist()
 
 #h5py
 #text-behandling _
+
+
+
+# SKaler hastighet partikkel med størrelse clsuter

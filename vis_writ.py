@@ -1,24 +1,50 @@
 import os
-import matplotlib
-import csv
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
+import pandas as pd
+import seaborn as sns
+
 
 class Vis:
-    def __init__(self, dim, x_min, x_max):
-        self.dim = dim
-        self.x_min = x_min
-        self.x_max = x_max
+    def __init__(self, dim, x_min, x_max, nfe_max, method, problem_function):
+        self.x_min, self.x_max  = x_min, x_max
+        self.dim                = dim
+        self.nfe_max            = nfe_max
+        self.method             = method
+        self.problem_function   = problem_function
+        
 
-    def visualize_1(self, individuals, likelihood, eval_type, best):
-        sort_ = np.argsort(((-1)*likelihood), axis=0)
-        likelihood = likelihood[sort_]
-        individuals = individuals[sort_,:].reshape((len(likelihood), self.dim))
-        # kn =  np.where(likelihood > 60)
-        # individuals[kn,:] = 'nan'
+    def extract_data(self):
+        path    = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
+        ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
+        
+        likelihood_list = []
+        individual_list = []
+        index_list      = []
+        for index, row in ds.iterrows(): 
+            var = []
+            for j in range(self.dim):     
+                var.append(row[j])
+            likelihood_list.append(row[j+1])
+            individual_list.append(var)
+            index_list.append(row[j+2])
+        self.likelihood     = np.array(likelihood_list)
+        self.individuals    = np.array(individual_list)
+        self.index          = np.array(index_list)
+
+        print(len(self.likelihood))
+        
+        
+        
+    def visualize_parameter_space(self):
+        #Sort order of the individuals 
+        sort_               = np.argsort(((-1)*self.likelihood), axis=0)
+        self.likelihood     = self.likelihood[sort_]
+        self.individuals    = self.individuals[sort_,:].reshape((len(self.likelihood), self.dim))
                 
-        # Create figure
+                
         fontsize = 8
         fsize_per_dim = 5.0
         fsize = fsize_per_dim * (self.dim-1)
@@ -31,33 +57,30 @@ class Vis:
         plot_height = plot_width
 
         fig = plt.figure(figsize=(fsize, fsize))
-        cmap_vmin = 0
-        cmap_vmax = 4   
-        plot_facecolor = '0.0'
 
         for i in range(self.dim):
             for j in range(i+1,self.dim):
             # Add axes
-                cmap = plt.get_cmap("viridis_r",)
+                cmap = mpl.cm.viridis_r
+                bounds = [0, 1.15, 3.09, 5.915]
+                norm = mpl.colors.BoundaryNorm(bounds, cmap.N) #extend = 'both'
                 cmap.set_extremes(under= 'black', over='black')
-                # norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)
                 ax = fig.add_axes((left, bottom, plot_width, plot_height))
-                ax.set_facecolor(plot_facecolor)
+                ax.set_facecolor('0')
 
                 # Axis ranges
-                plt.xlim([1.05*self.x_min, 1.05*self.x_max])
-                plt.ylim([1.05*self.x_min, 1.05*self.x_max])
+                plt.xlim([1.01*self.x_min, 1.01*self.x_max])
+                plt.ylim([1.01*self.x_min, 1.01*self.x_max])
 
                 # Axis labels
                 plt.ylabel("x_" + str(j), fontsize=fontsize)
                 plt.xlabel("x_" + str(i), fontsize=fontsize)
                 plt.xticks(fontsize=fontsize)
                 plt.yticks(fontsize=fontsize)
-                # Create a colour scale normalization
-                norm = matplotlib.cm.colors.Normalize(vmin=cmap_vmin, vmax=cmap_vmax)
-                scat = ax.scatter(individuals[:,i], individuals[:,j], c=likelihood,
+
+                scat = ax.scatter(self.individuals[:,i], self.individuals[:,j], c=self.likelihood,
                                     s=markersize, edgecolor=markerbordercolor, linewidth=markerborderwidth, cmap=cmap, norm=norm)
 
                 # Add a colorbar for last plot on each row
@@ -65,17 +88,57 @@ class Vis:
                     axins = inset_axes(ax, width="3%", height="100%", loc='right', borderpad=-0.4*fsize*plot_width)
                     cbar = fig.colorbar(scat, cax=axins, orientation="vertical")
                     cbar.set_label("objfunc(x)", fontsize=fontsize)
+        ax = fig.add_axes((0.7 ,0.08, .25,.25))        
+        counts, bins, patches = plt.hist(self.likelihood, bins=80, range=(0, 20), density=False, facecolor="forestgreen", alpha=0.5, histtype="stepfilled")
+        max_counts = np.max(counts)
 
-        summary_string = f"Method: {eval_type}"
+        plt.plot([1.15, 1.15], [0, 2 * max_counts], '--', color='black', label = '1sigma')
+        plt.plot([3.09, 3.09], [0, 2 * max_counts], '--', color='grey', label = '2sigma')
+        plt.plot([5.915, 5.915], [0, 2 * max_counts], '--', color='purple', label = '3sigma')
+        plt.legend(loc = 0, bbox_to_anchor=(0.5, 1.1))
+        plt.xlabel('log-likelihood')
+        plt.ylabel('counts')
+        plt.xlim([-0.2, 20.])
+        plt.ylim([0., 1.1 * max_counts])
+
+        summary_string = f"Method: {self.method} on Function: {self.problem_function}"
         fig = plt.gcf()
         plt.text(0.5, 1.0, summary_string, fontsize=fontsize, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
-        # output_dir_name = 'asad.png'
-        #plot_file_name = r"C:\Users\Lenovo\Documents\Master\fig.png"
-       # plt.savefig(plot_file_name)
-        plt.show()
+        plot_file_name = r"C:\Users\Lenovo\Documents\Master\Figs\fig_0602.png"
+        plt.savefig(plot_file_name)
+        # plt.show()
 
-    def visualize_2(self, likelihood, iter_likelihood_mean, iter_likelihood_min,iter_likelihood_median):
+
+    def stacked_hist(self):
+        l = np.where(self.likelihood < 10)
+        lik = self.likelihood[l]
+        
+        dex = self.index[l]
+        fontsize = 8
+        labels = sorted(set(dex))
+        bin = 80
+        colors = plt.cm.get_cmap('tab10', len(labels))
+        colors = sns.color_palette("husl", len(labels))
+        counts = []
+        
+        count,b = np.histogram(lik)
+        jar = []
+        for i, method in enumerate(labels):
+            method_values = lik[dex == method]
+            hist,_ = np.histogram(method_values, bins=bin)
+            counts.append(hist)
+            jar.append(method_values)
+        max_count = np.max(counts)*2
+        
+        sns.histplot(jar,multiple = 'stack', bins = bin) 
+        sns.lineplot(x=[1.15, 1.15], y=[0, max_count*1.1], dashes=[3,3])                        
+        sns.lineplot(x=[3.09, 3.09], y=[0, max_count*1.1], dashes=[3,3])                        
+        sns.lineplot(x=[5.915, 5.915], y=[0, max_count*1.1], dashes=[3,3])                        
+        plt.show()
+        
+        
+    def visualize_2(self):#, iter_likelihood_mean, iter_likelihood_min,iter_likelihood_median):
         # Create figure
         fsize_per_dim = 5.0
         fsize = fsize_per_dim * (self.dim-1)
@@ -89,21 +152,20 @@ class Vis:
         plt.xlabel("-loglike")
 
         # Create plot
-        counts, bins, patches = plt.hist(likelihood, bins=80, range=(0, 20.), density=False, facecolor="forestgreen", alpha=0.5, histtype="stepfilled")
-        counts, bins, patches = plt.hist(likelihood, bins=80, range=(0, 20.), density=False, color="black", histtype="step", linewidth=2.0)
+        counts, bins, patches = plt.hist(self.likelihood, bins=80, range=(0, 20.), density=False, facecolor="forestgreen", alpha=0.5, histtype="stepfilled")
 
         max_counts = np.max(counts)
 
-        plt.plot([1.0, 1.0], [0, 2 * max_counts], '--', color='black')
-        plt.plot([3.0, 3.0], [0, 2 * max_counts], '--', color='black')
-        plt.plot([6.0, 6.0], [0, 2 * max_counts], '--', color='black')
+        plt.plot([1.15, 1.15], [0, 2 * max_counts], '--', color='black')
+        plt.plot([3.09, 3.09], [0, 2 * max_counts], '--', color='black')
+        plt.plot([5.915,5.915], [0, 2 * max_counts], '--', color='black')
 
-        plt.xlim([-0.5, 20.])
+        plt.xlim([-0.2, 8.])
         plt.ylim([0., 1.1 * max_counts])
 
         #delta_x = x_max - x_min
         fig = plt.gcf()
-        plt.text(0.5, 1.0, "Juppsi", fontsize=8.0, transform=fig.transFigure,
+        plt.text(0.5, 1.0, f"{self.method} on {self.problem_function}", fontsize=8.0, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
         # Plot 2: objective function values vs iteration
         plt.sca(ax2)
@@ -178,22 +240,6 @@ class Vis:
             count +=1
 
         plt.show()            
-        return 0
         
 
-    def data_file(self, individuals, likelihood, pop_size):
-        path = (r"C:\Users\Lenovo\Documents\Master\data.csv")
-        new_list = []
-        for i in range(pop_size):
-            str1 = []
-            for j in range(self.dim):
-                str_ = round(individuals[i,j],10)
-                str1.append(str_)
-            str2 = likelihood[i]
-            new_list.append([str1[0:(self.dim)], round(str2,10)])
-        with open(path, 'w', newline='') as csvfile:
-            csvfile = csv.writer(csvfile, delimiter=',')
-            csvfile.writerow(['Individual' + '       '+'Score'])
-
-            csvfile.writerows(new_list)
 
