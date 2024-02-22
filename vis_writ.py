@@ -18,6 +18,7 @@ class Vis:
 
     def extract_data(self):
         path    = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
+        path    = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
         ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
         
         likelihood_list = []
@@ -64,7 +65,7 @@ class Vis:
                 cmap = mpl.cm.viridis_r
                 bounds = [0, 1.15, 3.09, 5.915]
                 norm = mpl.colors.BoundaryNorm(bounds, cmap.N) #extend = 'both'
-                cmap.set_extremes(under= 'black', over='black')
+                #cmap.set_extremes(under= 'black', over='black')
                 left = figpad + i*(plot_width + plotpad)
                 bottom = figpad + (j-1)*(plot_width + plotpad)
                 ax = fig.add_axes((left, bottom, plot_width, plot_height))

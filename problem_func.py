@@ -45,6 +45,11 @@ class Problem_Function:
         for i in range(self.dim-1):
             func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))
         
+        
+        if dim == 2:
+            func += 959.64
+        if dim == 3:
+            pass
         return func, func
     
     def mod_eggholder(self, x):

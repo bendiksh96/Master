@@ -191,10 +191,11 @@ class d_SHADE_pso:
         self.super_centroids = np.zeros((k, self.dim))
         self.super_labels = np.zeros((self.num_ind, self.dim))
         maxiter = 1000
+        centroids = self.individual[np.random.choice(range(self.num_ind), size=k, replace=False),j]
+
         for j in range(self.dim):
             for _ in range(maxiter):
                 labels = np.zeros((self.num_ind, self.dim))
-                centroids = self.individual[np.random.choice(range(self.num_ind), size=k, replace=False),j]
                 distance = np.zeros((self.num_ind, k))
                 
                 #Finn avstand til alle punkter
@@ -220,6 +221,7 @@ class d_SHADE_pso:
                     self.super_centroids[:,j] = centroids
                     self.super_labels[:,j] = labels[:,j]
                     break
+                centroids = new_centroids
             self.super_centroids[:,j] = centroids
             self.super_labels[:,j] = labels[:,j]
         
@@ -265,7 +267,7 @@ class d_SHADE_pso:
             super_centroids (_array_): The center of mass of each centroid 
             super_labels (_array_): The label of each individual, corresponding to a centroid
         """
-
+        #self.k = self.num_ind/4
         self.k = k
         self.un_empty_cluster = k
         cluster_sort = np.where(self.likelihood< loglike_tol)
@@ -275,7 +277,8 @@ class d_SHADE_pso:
         self.super_centroids = np.zeros((k,self.dim))
         self.super_labels = np.zeros((self.num_ind))
         maxiter = 1000
-        centroids = self.X[np.random.choice(range(self.num_ind), size=k, replace=False)]
+        centroids = self.X[np.random.choice(range(len(self.X)), size=k, replace=False)]
+        
         for _ in range(maxiter):
             labels = np.zeros((self.num_ind))
             distance = np.zeros((self.num_ind, k))
@@ -306,9 +309,31 @@ class d_SHADE_pso:
             centroids = new_centroids
         self.super_centroids = centroids
         self.super_labels = labels
+        
+        
+        
         for arg in range(k):
             _,true_lik  = self.eval_likelihood_ind(self.super_centroids[arg,:])
-            if true_lik > 4:
+            
+            krev = np.where(self.super_labels == arg)
+            
+            
+            krev_ = krev[0]
+            
+            print(krev_)
+            for ab in range(len(krev_)):
+                i = krev_[ab]
+                print(i)                    
+                if true_lik > self.likelihood[i]:
+                    true_lik = self.likelihood[i]
+                    self.super_centroids[arg] = self.individual[i]
+                    
+                    
+                        
+                    
+                    
+            lik_tresh = 5.915
+            if true_lik > lik_tresh:
                 # print('bad cluster')
                 mess = np.where(self.super_labels == arg)
                 temp_lik = self.likelihood[mess]

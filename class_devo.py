@@ -2,11 +2,12 @@ import sys
 import numpy as np
 import random as rd
 import csv
-sys.path.append(r'C:\Users\Lenovo\Documents\Master\Methods')
+sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master')
+#sys.path.append(r'C:\Users\Lenovo\Documents\Master\Methods')
 
 from vis_writ import *
-
-sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\Desktop\Skole\Master\Methods')
+sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Methods')
+#sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\Desktop\Skole\Master\Methods')
 from problem_func import *
 from jde import *
 from bat import *
@@ -41,13 +42,14 @@ def conditions(problem_function):
     return xmin, xmax
 
 class DEVO_class:
-    def __init__(self, dim, problem_func, method):
+    def __init__(self, dim, problem_func, method, log_thresh):
         self.problem_func   = problem_func
         self.method         = method
         self.dim            = dim
         self.hist_data      = []
         self.nfe            = 0
         self.best           = 10
+        self.log_thresh     = log_thresh
         self.open_data()
         
     #Initialize population(s)        
@@ -300,7 +302,7 @@ class DEVO_class:
                 #Initialize population anew
                 self.initialize_population(self.xmin, self.xmax, self.num_ind)
                 mod.__init__(self.individual, self.likelihood, mod.prob_func)
-                mod.Data.param_change(best=best, delta_log = 1.15)
+                mod.Data.param_change(best=best, delta_log = self.log_thresh)
                 
                 #Start the evolution
                 while self.nfe <= (self.max_nfe):
@@ -388,7 +390,7 @@ class DEVO_class:
                 #Initialize population anew                
                 self.initialize_population(self.xmin, self.xmax, self.num_ind)
                 mod.__init__(self.individual, self.likelihood, mod.prob_func)
-                mod.Data.param_change(best=self.best, delta_log = 1.15)
+                mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
 
                 #Start the evolution
                 for _ in range(self.nfe, int(self.max_nfe), self.num_ind):
@@ -419,7 +421,7 @@ class DEVO_class:
                         break
                 
                 #Anders mener k = 5 er nok
-                centroids, clusters = mod.cluster_dim(loglike_tol = 5.915, k = 5)
+                centroids, clusters = mod.cluster(loglike_tol = 5.915, k = 25)
                 # plt.scatter(centroids[:,0], centroids[:,1])
                 # for arg in range(mod.k):
                 #     plt.scatter(mod.X[clusters[arg],0], mod.X[clusters[arg],1])
@@ -427,18 +429,24 @@ class DEVO_class:
                 # plt.xlim(-5,5)
                 # plt.ylim(-5,5)
                 # plt.show()
-                mod.Data.param_change(best=self.best, delta_log = 1.15)
+                mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
 
                 mod.optimum = mod.abs_best
                 
                 
                 
                 for i in range(self.num_ind):
-                    for j in range(self.dim):
-                        arg = clusters[i,j]
+                    arg = int(clusters[i])
+                    #print(arg)
+                    #print() 
+                   # print(clusters)
+                    
+                    mod.optimal_individual[i] = centroids[arg]
+                    #for j in range(self.dim):
+                     #   arg = clusters[i,j]
                         # arg = mod.un_empty_clusters
                         
-                        mod.optimal_individual[i,j] = centroids[arg, j]
+                      #  mod.optimal_individual[i,j] = centroids[arg, j]
 
                 # print(mod.optimal_individual)                
                 mod.init_particle()
@@ -568,7 +576,8 @@ class DEVO_class:
     
     
     def open_data(self):
-        self.path = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
+        self.path = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
+        #self.path = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
         with open(self.path, 'w', newline='') as csvfile:
             csvfile = csv.writer(csvfile, delimiter=',')
             csvfile.writerows(self.hist_data)
@@ -599,7 +608,7 @@ def log_thresh(sigma):
     if sigma == 3:
         return 5.915
 
-dim                 = 3
+dim                 = 5
 population_size     = 100
 max_nfe             = 2e5
 method              = 'double_shade_pso'
@@ -614,7 +623,7 @@ log_threshold = log_thresh(sigma)
  
 
 
-cl = DEVO_class(dim, problem_function, method)
+cl = DEVO_class(dim, problem_function, method, log_threshold)
 cl.initialize_population(xmin,xmax, population_size)
 cl.evolve(max_nfe)
 print(cl.best)
@@ -623,7 +632,7 @@ print('Program Complete. Analyzing data and Plotting.')
 vis = Vis(dim, xmin,xmax, max_nfe, method, problem_function)
 vis.extract_data()
 vis.visualize_parameter_space()
-vis.stacked_hist()
+#vis.stacked_hist()
 
 # vis.visualize_2()
 # vis.visualize_2(cl.actual_likelihood,cl.iter_likelihood_mean, cl.iter_likelihood_best,cl.iter_likelihood_median)

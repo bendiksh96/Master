@@ -1,17 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy as sp
 
-dim = 2
+
+def Eggholder(x):
+    func = 0
+    dim = len(x[0])
+    for i in range(dim-1):
+        func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))
+        
+    return func
 
 
-def rosenbrock(x, y):
-    return (1 - x)**2 + 100 * (y - x**2)**2
+num_ind = 10
+dim     = 3
+individual = np.zeros((num_ind,dim))
+likelihood = np.zeros(num_ind)
 
-x = np.linspace(-.5,.5,1000)
-y = np.linspace(-.5,.5,1000)
+for i in range(num_ind):
+    for j in range(dim):
+        individual[i,j] = np.random.uniform(-5,5)
+    likelihood[i] = Eggholder(individual[i,:])
 
-X,Y = np.meshgrid(x,y)
-Z = rosenbrock(X,Y)
-plt.contour(X,Y, Z, levels= 1000, cmap = 'viridis_r')
-plt.colorbar()
-plt.show()
+res = sp.optimize.minimize((Eggholder, [0,0,0]))
