@@ -9,7 +9,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def func(x,y):
-    return x**2 +    y*2
+    f = x**2 + y**2
+    
+    if f <1:
+        f += 10
+    if f<1.5:
+        f = 1.1
+    return f
 
 
 def ripley(ind, lik, t):
@@ -33,7 +39,7 @@ def ripley(ind, lik, t):
                 I[i,j] = 1
                 print(k)
             else:
-                I[i,j] = 'nan'
+                I[i,j] = 0
                 #I[i,j] = abs(lik[k] - likelihood_grid[i,j])  
     #min_ind = np.where(dist < t)
     
@@ -73,12 +79,18 @@ for _ in range(10):
                 individual[i] = u[i]
                 likelihood[i] = l
 
+
+
+print(likelihood)
+
+
+
 tur = 100
-np.random.seed(2121313)
+np.random.seed(2131)
 x = np.linspace(-2,2,tur)
 y = np.linspace(-2,2,tur)
 X,Y = np.meshgrid(x,y)
-t = np.linspace(0.7,1,9)
+t = np.linspace(0.1,0.5,9)
 val = []
 val2 = []
 fig, axs = plt.subplots(3,3, figsize = (10,10)) 
@@ -89,8 +101,8 @@ for t_ in t:
     val.append(f)
    
     val2.append(f-t_)
-    print(f)
-    print(np.where(f==1))
+  #  print(f)
+    #print(np.where(f==1))
     axs[count1,count2].contourf(X,Y, f)
     
     break
