@@ -12,6 +12,7 @@ class d_SHADE_bat:
         self.likelihood = likelihood
         self.true_likelihood = likelihood
         self.pulse = np.zeros_like(self.individual)  
+        self.hist_data  = []
 
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
@@ -85,7 +86,12 @@ class d_SHADE_bat:
                 if randint < self.CRlist [i]:
                     # self.u[i,j] = self.v[i,j]
                 
-                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])   
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                
+                    self.hist_data.append(k)
+                    self.nfe += 1
+  
                     if perceived_likelihood <= self.likelihood[i]:
                         self.individual[i] = self.v[i]
                         self.A.append(self.individual[i])        
@@ -151,6 +157,10 @@ class d_SHADE_bat:
             if randint < self.CRlist [i]:
                 #Check if the new crossover individual is superior to the prior
                 perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
+                
+                self.hist_data.append(k)
+                self.nfe += 1
                 if perceived_likelihood <= self.likelihood[i]:
                     self.individual[i] = self.v[i]
                     self.A.append(self.individual[i])        
@@ -241,28 +251,33 @@ class d_SHADE_bat:
         
         
         for arg in range(k):
-            _,true_lik  = self.eval_likelihood_ind(self.super_centroids[arg,:])
+            _,true_likelihood  = self.eval_likelihood_ind(self.super_centroids[arg,:])
+            k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
+            
+            self.hist_data.append(k)
+            self.nfe += 1
+
             krev = np.where(self.super_labels == arg)
             krev_ = krev[0]
             
             for ab in range(len(krev_)):
                 i = krev_[ab]
-                if true_lik > self.likelihood[i]:
-                    true_lik = self.likelihood[i]
+                if true_likelihood > self.likelihood[i]:
+                    true_likelihood = self.likelihood[i]
                     self.super_centroids[arg] = self.individual[i]
                     
             lik_tresh = 5.915
-            if true_lik > lik_tresh:
+            if true_likelihood > lik_tresh:
                 # print('bad cluster')
                 mess = np.where(self.super_labels == arg)
                 temp_lik = self.likelihood[mess]
                 new_lik = 'nan'
 
                 for b in range(len(temp_lik)):
-                    if temp_lik[b] < true_lik:
+                    if temp_lik[b] < true_likelihood:
                         # print('success')
                         new_lik = temp_lik[b]
-                        true_lik = new_lik
+                        true_likelihood = new_lik
                         self.super_centroids[arg, :] = new_lik
                         
                 #No individuals in cluster with sufficiently low likelihood
@@ -296,6 +311,8 @@ class d_SHADE_bat:
             self.f_j[i] = np.random.uniform(0, 2)
             self.A_bat[i]   = 0.8#self.A_fac
         print('Bats are flapping and ready')    
+        
+        
     def evolve_bat(self):
         sort        = np.argsort(self.f_j)
         low_freq   = self.f_j[sort][0]
@@ -322,7 +339,12 @@ class d_SHADE_bat:
                 
             var = self.velocity[i] + self.individual[i]
                    
-            temp, z = self.eval_likelihood_ind(var)
+            temp, true_likelihood = self.eval_likelihood_ind(var)
+            k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+            
+            self.hist_data.append(k)
+            self.nfe += 1
+
             if temp < self.likelihood[i]:
                 self.individual[i] = var 
             
@@ -337,30 +359,37 @@ class d_SHADE_bat:
 
 
         #øke hver likelihood om ingen bevegelse
-        sort_2        = np.argsort(self.likelihood)
-        best_ind    = self.individual[sort_2][0]
+        # sort_2       = np.argsort(self.likelihood)
+        # best_ind     = self.individual[sort_2][0]
         
-        for i in range(self.num_ind):
-            r1 = np.random.uniform(0,1)
-            if r1< .3:
-                for j in range(self.dim):
-                    eps = np.random.uniform(-1,1)
-                    self.individual[i,j] = best_ind[j] + eps*self.A_bat[i]
-            else:
-                r2 =  np.random.randint(0,self.num_ind)
-                r3 =  np.random.randint(0,self.num_ind)
-                r4 =  np.random.randint(0,self.num_ind)
-                self.individual[i] = self.individual[r2] + .5* (self.individual[r3]-self.individual[r4])
-            self.likelihood[i], z = self.eval_likelihood_ind(self.individual[i]) 
+        # for i in range(self.num_ind):
+        #     r1 = np.random.uniform(0,1)
+        #     if r1< .3:
+        #         for j in range(self.dim):
+        #             eps = np.random.uniform(-1,1)
+        #             self.individual[i,j] = best_ind[j] + eps*self.A_bat[i]
+        #         self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i]) 
+        #         k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+        #         self.hist_data.append(k)
+        #         self.nfe += 1
+        #     else:
+        #         r2 =  np.random.randint(0,self.num_ind)
+        #         r3 =  np.random.randint(0,self.num_ind)
+        #         r4 =  np.random.randint(0,self.num_ind)
+        #         self.individual[i] = self.individual[r2] + .5* (self.individual[r3]-self.individual[r4])
                 
+        #         self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i]) 
+        #         k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                
+        #         self.hist_data.append(k)
+        #         self.nfe += 1
+
         #Sort the bats
         self.true_likelihood    = self.likelihood
         sort                    = np.argsort(self.BM_val)
         self.BM                 = self.BM[sort]
         self.BM_val             = self.BM_val[sort]
         self.gen                += 1
-
-        
         
         for i in range(self.num_ind):
             k = 0.1
@@ -370,7 +399,11 @@ class d_SHADE_bat:
                 self.individual[i,j]    = self.individual[i,j] + self.velocity[i,j]
             self.likelihood[i], self.true_likelihood[i] = self.eval_likelihood_ind(self.individual[i])
 
-        
+        #Evaluate entire population
+        k = [self.v[i,j] for j in range(self.dim)] + [self.true_likelihood[i]] + [3]
+        self.hist_data.append(k)
+        self.nfe += self.num_ind
+
       
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.

@@ -46,10 +46,17 @@ class Problem_Function:
             func -= (x[i+1]+47)*np.sin(np.sqrt(abs(x[i+1]+(x[i]/2)+47)))+ x[i]*np.sin(np.sqrt(abs(x[i]-(x[i+1]+47))))
         
         
-        if dim == 2:
+        if len(x) == 2:
             func += 959.64
-        if dim == 3:
-            pass
+        if len(x) == 3:
+            func += 1598.39
+        if len(x) == 4:
+            func += 2661.6139521459468
+        if len(x) == 5:
+            func += 3538.459172633198
+        if len(x) == 6:
+            func += 3919.5415493072023
+        
         return func, func
     
     def mod_eggholder(self, x):
@@ -98,11 +105,11 @@ class Problem_Function:
         func = np.log(func)
         true_func = func
         
-        
         if true_func <= (self.best+delta_log):
             
             func = self.best + delta_log
             func = func  + delta_log * np.exp(- (self.best-(true_func))**2/(2*self.sigma**2)) 
+        return func, true_func
     def mod_himmelblau2(self, x):
         func = 0
         delta_log = self.delta_log

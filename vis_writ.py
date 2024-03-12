@@ -18,7 +18,7 @@ class Vis:
 
     def extract_data(self):
         path    = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
-        path    = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
+        # path    = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
         ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
         
         likelihood_list = []
@@ -31,11 +31,11 @@ class Vis:
             likelihood_list.append(row[j+1])
             individual_list.append(var)
             index_list.append(row[j+2])
+            
         self.likelihood     = np.array(likelihood_list)
         self.individuals    = np.array(individual_list)
         self.index          = np.array(index_list)
-
-        print(len(self.likelihood))
+        print('Number of points:', len(self.likelihood))
         
         
         
@@ -90,9 +90,38 @@ class Vis:
                     cbar = fig.colorbar(scat, cax=axins, orientation="vertical")
                     cbar.set_label("objfunc(x)", fontsize=fontsize)
         ax = fig.add_axes((0.7 ,0.08, .25,.25))        
-        counts, bins, patches = plt.hist(self.likelihood, bins=80, range=(0, 20), density=False, facecolor="forestgreen", alpha=0.5, histtype="stepfilled")
-        max_counts = np.max(counts)
+        # l = np.where(self.likelihood < 10)
 
+        # lik = self.likelihood[l]
+        
+        # dex = self.index[l]
+        # fontsize = 8
+        # labels = sorted(set(dex))
+        # bin = 80
+        # colors = plt.cm.get_cmap('tab10', len(labels))
+        # colors = sns.color_palette("husl", len(labels))
+        # counts = []
+        
+        # count,b = np.histogram(lik)
+        # jar = []
+        # for i, method in enumerate(labels):
+        #     method_values = lik[dex == method]
+        #     hist,_ = np.histogram(method_values, bins=bin)
+        #     counts.append(hist)
+        #     jar.append(method_values)
+        # max_count = np.max(counts)*2
+        
+        # sns.histplot(jar,multiple = 'stack', bins = bin) 
+        # sns.lineplot(x=[1.15, 1.15], y=[0, max_count*1.1], dashes=[3,3])                        
+        # sns.lineplot(x=[3.09, 3.09], y=[0, max_count*1.1], dashes=[3,3])                        
+        # sns.lineplot(x=[5.915, 5.915], y=[0, max_count*1.1], dashes=[3,3])                        
+
+
+
+
+        counts, bins, patches = plt.hist(self.likelihood, bins=80, range=(0, 20), density=False, facecolor="forestgreen", alpha=0.5, histtype="stepfilled")
+
+        max_counts = np.max(counts)
         plt.plot([1.15, 1.15], [0, 2 * max_counts], '--', color='black', label = '1sigma')
         plt.plot([3.09, 3.09], [0, 2 * max_counts], '--', color='grey', label = '2sigma')
         plt.plot([5.915, 5.915], [0, 2 * max_counts], '--', color='purple', label = '3sigma')
@@ -108,29 +137,29 @@ class Vis:
                 verticalalignment='top', horizontalalignment='center')
         plot_file_name = r"C:\Users\Lenovo\Documents\Master\Figs\fig_0602.png"
         plt.savefig(plot_file_name)
-        # plt.show()
+        plt.show()
 
 
     def stacked_hist(self):
         l = np.where(self.likelihood < 10)
-        lik = self.likelihood[l]
+        self.likelihood = self.likelihood[l]
         
-        dex = self.index[l]
+        self.index = self.index[l]
         fontsize = 8
-        labels = sorted(set(dex))
+        labels = sorted(set(self.index))
         bin = 80
-        colors = plt.cm.get_cmap('tab10', len(labels))
-        colors = sns.color_palette("husl", len(labels))
+        # colors = plt.cm.get_cmap('tab10', len(labels))
+        # colors = sns.color_palette("husl", len(labels))
+        # count,b = np.histogram(self.likelihood)
         counts = []
         
-        count,b = np.histogram(lik)
         jar = []
         for i, method in enumerate(labels):
-            method_values = lik[dex == method]
+            method_values = self.likelihood[self.index == method]
             hist,_ = np.histogram(method_values, bins=bin)
             counts.append(hist)
             jar.append(method_values)
-        max_count = np.max(counts)*2
+        max_count = np.max(counts)
         
         sns.histplot(jar,multiple = 'stack', bins = bin) 
         sns.lineplot(x=[1.15, 1.15], y=[0, max_count*1.1], dashes=[3,3])                        

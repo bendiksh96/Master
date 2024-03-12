@@ -13,7 +13,7 @@ class SHADE:
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
         self.k_arg      = 0 
-        
+        self.nfe        = 0        
         self.Flist      = [0.1 for p in range(self.num_ind)]
         self.CRlist     = [0.1 for p in range(self.num_ind)]
         self.M_CR       = [0.1 for p in range(self.num_ind)]
@@ -24,8 +24,11 @@ class SHADE:
         # NP              = int(self.num_ind * p_i)        
         # H               = self.num_ind
         # print(self.individual, self.num_ind)
+        self.hist_data      = []
 
     def evolve(self):
+        self.nfe        = 0   
+     
 
         #Reset success parameters
         S_CR       = []
@@ -54,24 +57,23 @@ class SHADE:
             ri3 = np.random.randint(self.num_ind)
             
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
-        # print(self.individual)        
         #Crossover
         for i in range(self.num_ind-1):
-            for j in range(self.dim):
-                randint = np.random.randint(0,1)
-                if randint < self.CRlist [i]:
-                    # self.u[i,j] = self.v[i,j]
-                    #har trikset endel her. Fikk null, men tror det er slik det må se ut
-                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
-                    if perceived_likelihood <= self.likelihood[i]:
-                        self.individual[i] = self.v[i]
-                        delta_f.append(perceived_likelihood-self.likelihood[i])                
-                        S_CR.append(self.CRlist[i])
-                        S_F.append(self.Flist[i])
-                        # print(self.v[i,j])
-                        self.individual[i] = self.v[i]
-                        self.likelihood[i] = true_likelihood
-        # print(self.individual)
+            randint = np.random.randint(0,1)
+            if randint < self.CRlist [i]:
+                # self.u[i,j] = self.v[i,j]
+                #har trikset endel her. Fikk null, men tror det er slik det må se ut
+                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i]) 
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                self.hist_data.append(k)
+                self.nfe += 1  
+                if perceived_likelihood <= self.likelihood[i]:
+                    self.individual[i] = self.v[i]
+                    delta_f.append(perceived_likelihood-self.likelihood[i])                
+                    S_CR.append(self.CRlist[i])
+                    S_F.append(self.Flist[i])
+                    self.individual[i] = self.v[i]
+                    self.likelihood[i] = perceived_likelihood
 
         #Update weights
         if len(S_CR) != 0:
@@ -89,6 +91,8 @@ class SHADE:
                 mcr += wk[arg] * S_CR[arg]
                 mf_nom  += wk[arg]*S_F[arg]**2
                 mf_denom += wk[arg]*S_F[arg]
+                
+            
             self.M_CR[self.k_arg] = mcr
             self.M_F[self.k_arg] = mf_nom/(mf_denom+tol)
             self.k_arg += 1

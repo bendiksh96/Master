@@ -16,21 +16,22 @@ class d_SHADE_pso:
         self.k_arg      = 0 
         self.velocity   = np.zeros_like(self.individual)
         self.optimum    = 10
-
-
+        self.hist_data  = []
+        self.nfe        = 0
         self.optimal_individual    = np.zeros_like(self.individual)
         self.force    = np.zeros_like(self.individual)
         
         self.A          = []
         self.Flist      = [0.1 for p in range(self.num_ind)]
         self.CRlist     = [0.1 for p in range(self.num_ind)]
-        self.M_CR       = [0.1 for p in range(self.num_ind)]
-        self.M_F        = [0.1 for p in range(self.num_ind)]
+        self.M_CR       = [0.5 for p in range(self.num_ind)]
+        self.M_F        = [0.5 for p in range(self.num_ind)]
         
         self.Data = Problem_Function(self.dim)
 
 
     def evolve_converge(self):
+        self.nfe   = 0 
         S_CR       = []
         S_F        = []
         delta_f    = []
@@ -59,22 +60,25 @@ class d_SHADE_pso:
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
                                             
         #Crossover
+        #Dette er egentlig 
         for i in range(self.num_ind):
-            for j in range(self.dim):
-                randint = np.random.randint(0,1)
-                if randint < self.CRlist [i]:
-                    # self.u[i,j] = self.v[i,j]
+            randint = np.random.uniform(0,1)
+            if randint < self.CRlist[i]:
+                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])    
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
                 
-                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
-                    if perceived_likelihood <= self.likelihood[i]:
-                        self.individual[i] = self.v[i]
-                        self.A.append(self.individual[i])        
-                        delta_f.append(perceived_likelihood-self.likelihood[i])                
-                        S_CR.append(self.CRlist[i])
-                        S_F.append(self.Flist[i])
-                        self.likelihood[i] = perceived_likelihood
-                        if len(self.A) > self.num_ind :
-                            del self.A[np.random.randint(0, self.num_ind)]
+                self.hist_data.append(k)
+                self.nfe += 1
+ 
+                if perceived_likelihood <= self.likelihood[i]:
+                    self.individual[i] = self.v[i]
+                    self.A.append(self.individual[i])        
+                    delta_f.append(perceived_likelihood-self.likelihood[i])                
+                    S_CR.append(self.CRlist[i])
+                    S_F.append(self.Flist[i])
+                    self.likelihood[i] = perceived_likelihood
+                    if len(self.A) > self.num_ind :
+                        del self.A[np.random.randint(0, self.num_ind)]
         #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
@@ -95,6 +99,7 @@ class d_SHADE_pso:
             self.k_arg += 1
 
     def evolve_explore(self):
+        self.nfe = 0
         #Initialize the list of weights
         S_CR       = []
         S_F        = []
@@ -127,30 +132,33 @@ class d_SHADE_pso:
                                             
         #Crossover
         for i in range(self.num_ind):
-            for j in range(self.dim):
-                randint = np.random.randint(0,1)
-                if randint < self.CRlist [i]:
-                    # self.u[i,j] = self.v[i,j]
-                    # print(self.v[i])
-                    # print(self.eval_likelihood_ind(self.v[i]))
+            randint = np.random.randint(0,1)
+            if randint < self.CRlist [i]:
+                # self.u[i,j] = self.v[i,j]
+                # print(self.v[i])
+                # print(self.eval_likelihood_ind(self.v[i]))
 
-                    # exit()
-                    #Check if the new crossover individual is superior to the prior
-                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
-                    if perceived_likelihood <= self.likelihood[i]:
-                        self.individual[i] = self.v[i]
-                        self.A.append(self.individual[i])        
-                        delta_f.append(perceived_likelihood-self.likelihood[i])                
-                        S_CR.append(self.CRlist[i])
-                        S_F.append(self.Flist[i])
-                        self.likelihood[i] = perceived_likelihood
-                        self.true_likelihood[i] = true_likelihood
+                # exit()
+                #Check if the new crossover individual is superior to the prior
+                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
+                self.hist_data.append(k)
+                self.nfe += 1
 
-                        #If archive exceeds number of individuals, delete a random archived log.
-                        if len(self.A) > self.num_ind :
-                            del self.A[np.random.randint(0, self.num_ind)]
-        
-        #Update weights
+                if perceived_likelihood <= self.likelihood[i]:
+                    self.individual[i] = self.v[i]
+                    self.A.append(self.individual[i])        
+                    delta_f.append(perceived_likelihood-self.likelihood[i])                
+                    S_CR.append(self.CRlist[i])
+                    S_F.append(self.Flist[i])
+                    self.likelihood[i] = perceived_likelihood
+                    self.true_likelihood[i] = true_likelihood
+
+                    #If archive exceeds number of individuals, delete a random archived log.
+                    if len(self.A) > self.num_ind :
+                        del self.A[np.random.randint(0, self.num_ind)]
+    
+    #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
                 self.k_arg = 1
@@ -181,7 +189,7 @@ class d_SHADE_pso:
             super_centroids (_array_): The center of mass of each centroid 
             super_labels (_array_): The label of each individual, corresponding to a centroid
         """
-
+        self.nfe = 0
         self.k = k
         self.un_empty_cluster = k
         cluster_sort = np.where(self.likelihood< loglike_tol)
@@ -267,6 +275,7 @@ class d_SHADE_pso:
             super_centroids (_array_): The center of mass of each centroid 
             super_labels (_array_): The label of each individual, corresponding to a centroid
         """
+        self.nfe = 0
         #self.k = self.num_ind/4
         self.k = k
         self.un_empty_cluster = k
@@ -313,37 +322,32 @@ class d_SHADE_pso:
         
         
         for arg in range(k):
-            _,true_lik  = self.eval_likelihood_ind(self.super_centroids[arg,:])
-            
+            _,true_likelihood  = self.eval_likelihood_ind(self.super_centroids[arg,:])
+            k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
+            self.hist_data.append(k)
+            self.nfe += 1
+
             krev = np.where(self.super_labels == arg)
-            
-            
             krev_ = krev[0]
             
-            print(krev_)
             for ab in range(len(krev_)):
                 i = krev_[ab]
-                print(i)                    
-                if true_lik > self.likelihood[i]:
-                    true_lik = self.likelihood[i]
+                if true_likelihood > self.likelihood[i]:
+                    true_likelihood = self.likelihood[i]
                     self.super_centroids[arg] = self.individual[i]
                     
-                    
-                        
-                    
-                    
             lik_tresh = 5.915
-            if true_lik > lik_tresh:
+            if true_likelihood > lik_tresh:
                 # print('bad cluster')
                 mess = np.where(self.super_labels == arg)
                 temp_lik = self.likelihood[mess]
                 new_lik = 'nan'
 
                 for b in range(len(temp_lik)):
-                    if temp_lik[b] < true_lik:
+                    if temp_lik[b] < true_likelihood:
                         # print('success')
                         new_lik = temp_lik[b]
-                        true_lik = new_lik
+                        true_likelihood = new_lik
                         self.super_centroids[arg, :] = new_lik
                         
                 #No individuals in cluster with sufficiently low likelihood
@@ -375,7 +379,7 @@ class d_SHADE_pso:
         print('Particles Initialized')
     
     def evolve_particle(self):
-        
+        self.nfe = 0
         #Gjør hver posisjon om til en partikkel
         
         #Finn beste cluster for partikkelet ved å gå gjennom avstand til hvert massesentrum
@@ -388,7 +392,10 @@ class d_SHADE_pso:
                 self.force[i,j]         = -k * (self.likelihood[i] - self.optimum) * (self.individual[i,j] - self.optimal_individual[i,j])#/abs(self.individual[i,j] - self.optimal_individual[i,j])
                 self.velocity[i,j]      = self.velocity[i,j] + self.force[i,j]
                 self.individual[i,j]    = self.individual[i,j] + self.velocity[i,j]
-            self.likelihood[i], self.true_likelihood[i] = self.eval_likelihood_ind(self.individual[i])
+            self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i])
+            k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [3]
+            self.hist_data.append(k)
+            self.nfe += 1
 
         
         # Modeller kraft som f = -k (log_likelihood - log_likelihood_best)* unit_vector

@@ -19,8 +19,11 @@ class jDE:
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
         self.Data           = Problem_Function(self.dim)
+        self.nfe            = 0
+        self.hist_data      = []
 
     def evolve(self):
+        self.nfe        = 0
         sort_index      = np.argsort(self.likelihood, axis = 0)
         best_index      = sort_index[0]
         best_individual = self.individual[best_index]
@@ -36,14 +39,15 @@ class jDE:
         
         #Muter        
         for i in range(self.num_ind):
-            for j in range(self.dim):
-                randint = np.random.randint(0,1)
-                if randint < self.CRlist[i]:
-                    self.u[i,j] = self.v[i,j]
-            temp, z = self.eval_likelihood_ind(self.u[i])
-            if temp < self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = temp
+            randint = np.random.uniform(0,1)
+            if randint < self.CRlist[i]:
+                temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                self.hist_data.append(k)
+                self.nfe += 1
+                if temp < self.likelihood[i]:
+                    self.individual[i] = self.v[i]
+                    self.likelihood[i] = temp
 
         #Crossover
         for i in range(self.num_ind):
@@ -58,6 +62,5 @@ class jDE:
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):
-        # Data = Problem_Function(self.dim)
         Data = self.Data
         return Data.evaluate(individual, self.problem_func)

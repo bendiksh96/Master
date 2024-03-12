@@ -163,11 +163,10 @@ class DDMS:
             for j in range(self.dim):
                 randint = np.random.randint(0,1)
                 if randint < self.CRlist[i]:
-                    self.u[i,j] = self.v[i,j]
-            temp, z = self.eval_likelihood_ind(self.u[i])
-            if temp < self.likelihood[i]:
-                self.individual[i] = self.u[i]
-                self.likelihood[i] = temp
+                    temp, z = self.eval_likelihood_ind(self.v[i])
+                    if temp < self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = temp
 
         #Crossover
         for i in range(self.num_ind):

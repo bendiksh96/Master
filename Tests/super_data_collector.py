@@ -5,10 +5,13 @@ Created on Fri Mar  8 10:06:02 2024
 @author: Bendik Selvaag-Hagen
 """
 import sys
-sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master')
+sys.path.append(r'C:\Users\Lenovo\Documents\Master')
 import numpy as np
 import matplotlib.pyplot as plt
+from problem_func import *
 import pandas as pd
+import matplotlib as mpl 
+import csv
 
 
 class Super_Data:
@@ -77,7 +80,7 @@ class Super_Data:
                         self.individual[i] = self.v[i]
                         self.likelihood[i] = perceived
                         
-                elif u  < 0.5:
+                elif u  < 0.4:
                     self.individual[i] = self.v[i]
                     self.likelihood[i] = perceived
                 if np.random.uniform(0,1) < 0.01:
@@ -100,7 +103,7 @@ class Super_Data:
                 break
             
     def open_data(self):
-        self.path = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
+        self.path = (r'C:\Users\Lenovo\Documents\Master\datafile.csv')
         #self.path = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
         with open(self.path, 'w', newline='') as csvfile:
             csvfile = csv.writer(csvfile, delimiter=',')
@@ -116,7 +119,7 @@ class Super_Data:
 
     def extract_data(self):
         #path    = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
-        path    = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
+        path    = (r'C:\Users\Lenovo\Documents\Master\datafile.csv')
         ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
         
         likelihood_list = []
@@ -130,12 +133,57 @@ class Super_Data:
             individual_list.append(var)
             #index_list.append(row[j+2])
         self.likelihood     = np.array(likelihood_list)
-        self.individuals    = np.array(individual_list)
+        self.individual    = np.array(individual_list)
         #self.index          = np.array(index_list)
-        a = np.where(self.likelihood<3.09)
-        self.likelihood = self.likelihood[a]
-        self.individuals = self.individuals[a,:]
-        #print(len(self.likelihood))
+        # a = np.where(self.likelihood<3.09)
+        # self.likelihood = self.likelihood[a]
+        # self.individuals = self.individuals[a,:]
+        
+        
+        
+    def bin_parameter_space(self):
+        self.nbin_per_dim = 100
+        if self.dim == 3:
+            self.bin_arr = np.zeros((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))
+            self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*100
+        if self.dim > 3:
+            pass
+        
+        bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
+        for p in range(len(self.likelihood)):
+            var = []
+            for j in range(self.dim):
+                # for b in range(self.nbin_per_dim):
+                d_ = self.individual[p,j]
+                #print(d_)
+                closest_index = np.abs(bin_space - d_).argmin()
+                var.append(closest_index)
+                #print(closest_index)
+                #print(bin_space[closest_index])
+            #print(var)
+            
+            self.bin_arr[var[0],var[1],var[2]] += 1
+            self.bin_arr[var[0],var[1],var[2]] += 1
+            if self.bin_val[var[0],var[1],var[2]] < self.likelihood[p]:
+                self.bin_val[var[0],var[1],var[2]] = self.likelihood[p]
+            
+            # self.bin_arr[var] +=1
+            # exit()       
+            if count > 1e5:
+                count = 0 
+                print('Evaluated',p, 'datapoints')
+                #Burde vel også skrive til fil
+        
+        print('Plotting')
+        
+        z_slice = self.bin_arr[:,:,80]
+        plt.contourf(z_slice, cmap='viridis')
+
+        plt.colorbar()
+        plt.show()
+                
+        
+        
         
     def visualize_parameter_space(self):
         #Sort order of the individuals 
@@ -178,10 +226,6 @@ class Super_Data:
                 plt.xlim([1.01*self.xmin, 1.01*self.xmax])
                 plt.ylim([1.01*self.xmin, 1.01*self.xmax])
 
-
-                #plt.xlim([-5,2])
-                #plt.ylim([0,2])
-
                 # Axis labels
                 plt.ylabel("x_" + str(j), fontsize=fontsize)
                 plt.xlabel("x_" + str(i), fontsize=fontsize)
@@ -213,8 +257,8 @@ class Super_Data:
         fig = plt.gcf()
         plt.text(0.5, 1.0, summary_string, fontsize=fontsize, transform=fig.transFigure,
                 verticalalignment='top', horizontalalignment='center')
-        #plot_file_name = r"C:\Users\Lenovo\Documents\Master\Figs\fig_0602.png"
-        #plt.savefig(plot_file_name)
+        plot_file_name = r"C:\Users\Lenovo\Documents\Master\Figs\fig_0602.png"
+        plt.savefig(plot_file_name)
         plt.show()
 
 
@@ -229,4 +273,6 @@ num_ind = 20000
 data_collector.initialize_population(xmin, xmax, num_ind)
 data_collector.evolve(int(1e7))
 data_collector.extract_data()
-data_collector.visualize_parameter_space()
+#data_collector.visualize_parameter_space()
+
+data_collector.bin_parameter_space()

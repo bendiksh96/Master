@@ -18,10 +18,17 @@ def Himmelblau(x, y):
     func = np.log(func)
     return func
 
-plt.contourf(x,y, Himmelblau(X,Y))
+
+
+def rosenbrock(x, y):
+    return (1 - x)**2 + 100 * (y - x**2)**2
+
+
+plt.contourf(x,y, rosenbrock(X,Y))
 plt.grid()
 plt.xlabel('x')
 plt.ylabel('y')
 plt.title('Contour in 2D of Himmelblau function')
 plt.colorbar()
-plt.savefig(r'C:\Users\Lenovo\Documents\Master\Figs\Himmelblau_contour.pdf')
+# plt.savefig(r'C:\Users\Lenovo\Documents\Master\Figs\Himmelblau_contour.pdf')
+plt.show()
