@@ -30,33 +30,36 @@ def Himmelblau(x):
     else:
         raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
 
-
+    delta_log = 3.09
+        
+    if func <= (delta_log):
+        
+        func = (func - delta_log)**2
     return func
-path = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\new_data.csv')
+path = (r'C:\Users\Lenovo\Documents\Master\Tests\new_data.csv')
 
 #with open(path, 'w', newline='') as csvfile:
 #    pass
 
-dim = 3
+
+path = (r'C:\Users\Lenovo\Documents\Master\Tests\4d_validation.npy')
+dim = 4
 xmin, xmax = -5,5
 n_bin_per_dim = 100
 start = time.time()
 
 if dim == 3:    
     bin_space = np.linspace(xmin,xmax, n_bin_per_dim+1)
-    #print(bin_space)
     bin_val = np.zeros((n_bin_per_dim, n_bin_per_dim, n_bin_per_dim))
     
     for u in range(n_bin_per_dim):
         for v in range(n_bin_per_dim):
             val_list = []
             for w in range(n_bin_per_dim):
-                #print(u,v,w)
                 mid_0 = bin_space[u] + abs(bin_space[u] - bin_space[u+1])/2
                 mid_1 = bin_space[v] + abs(bin_space[v] - bin_space[v+1])/2
                 mid_2 = bin_space[w] + abs(bin_space[w] - bin_space[w+1])/2
                 mid = np.array((mid_0, mid_1, mid_2))
-                #print('midpoint:',mid)
                 
                 b_0_min =bin_space[u]
                 b_0_max =bin_space[u+1]
@@ -64,21 +67,21 @@ if dim == 3:
                 b_1_max =bin_space[v+1]
                 b_2_min =bin_space[w]
                 b_2_max =bin_space[w+1]
-                #print('bounds',[b_0_min,b_0_max], [b_1_min, b_1_max], [b_2_min, b_2_max])
-                #print(sp.minimize(Himmelblau, mid))
+
                 #Finn GFBS for funksjonen i dette binnet
                 res = sp.minimize(Himmelblau, mid, method = 'L-BFGS-B', bounds = [(b_0_min,b_0_max),(b_1_min, b_1_max),( b_2_min, b_2_max) ])      
-                #print('result',res.x)
-                #print(res.fun)
-                #print()
-                #print(Himmelblau(res.x))
                 
                 bin_val[u,v,w] = res.fun
                 val_list.append(res.fun)
+                
+                
             #self.path = (r"C:\Users\Lenovo\Documents\Master\datafile.csv")
-            with open(path, 'a', newline='') as csvfile:
-                csvfile = csv.writer(csvfile, delimiter=',')
-                csvfile.writerow(val_list)
+            # with open(path, 'a', newline='') as csvfile:
+            #     csvfile = csv.writer(csvfile, delimiter=',')
+            #     csvfile.writerow(val_list)
+ 
+        print('progress:',u/n_bin_per_dim*100, '%')
+
 
 
 if dim == 4:    
@@ -120,8 +123,8 @@ if dim == 4:
                 #with open(path, 'a', newline='') as csvfile:
                 #    csvfile = csv.writer(csvfile, delimiter=',')
                 #    csvfile.writerow(val_list)
+        print('progress:',u/n_bin_per_dim*100, '%')
 #print(bin_val)
-path = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\numpy_data.csv')
 
 end = time.time()
 np.save(path, bin_val)
