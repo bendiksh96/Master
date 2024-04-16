@@ -83,6 +83,7 @@ class Super_Data:
                 elif u  < 0.4:
                     self.individual[i] = self.v[i]
                     self.likelihood[i] = perceived
+                    
                 if np.random.uniform(0,1) < 0.01:
                     for i in range(self.dim):
                         self.individual[i,j] += np.random.uniform(-1,1) 
@@ -101,6 +102,35 @@ class Super_Data:
             if self.nfe > max_nfe:
                 self.write_data()
                 break
+            
+    def check_oob(self):
+        var = 0
+        Data    = Problem_Function(self.dim)
+        # Data.param_change(0, 1.15)
+        for i in range(self.num_ind):
+            for j in range(self.dim):
+                if  self.individual[i,j] < self.xmin:
+                    var = self.xmin - (self.individual[i,j] - self.xmin)
+                    if var > self.xmax or var < self.xmin:
+                        self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
+                        temp, z = Data.evaluate(self.individual[i,:], self.problem_func)
+                        self.likelihood[i] = temp
+                    else:
+                        self.individual[i,j] = var
+                        temp, z = Data.evaluate(self.individual[i,:], self.problem_func)
+                        self.likelihood[i] = temp
+
+                if  self.individual[i,j] > self.xmax:
+                    var  = self.xmax - (self.individual[i,j] - self.xmax)
+                    if var < self.xmin or var > self.xmax:
+                        self.individual[i,j] = np.random.uniform(self.xmin,self.xmax)
+                        temp, z = Data.evaluate(self.individual[i,:], self.problem_func)
+                        self.likelihood[i] = temp
+                        
+                    else:
+                        self.individual[i,j] = var
+                        temp, z = Data.evaluate(self.individual[i,:], self.problem_func)
+                        self.likelihood[i] =  temp
             
     def open_data(self):
         self.path = (r'C:\Users\Lenovo\Documents\Master\datafile.csv')
@@ -142,38 +172,44 @@ class Super_Data:
         
         
     def bin_parameter_space(self):
+        bin_path = r'C:\Users\Lenovo\Documents\Master\Data\super_data.csv'
+        with open(bin_path, 'w', newline='') as csvfile:
+            csvfile = csv.writer(csvfile, delimiter=',')
+            csvfile.writerow('.')
+
+
         self.nbin_per_dim = 100
         if self.dim == 3:
             self.bin_arr = np.zeros((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))
-            self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*100
+            self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*1000
         if self.dim > 3:
             pass
-        
+        count = 0
         bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
         for p in range(len(self.likelihood)):
             var = []
             for j in range(self.dim):
-                # for b in range(self.nbin_per_dim):
                 d_ = self.individual[p,j]
-                #print(d_)
                 closest_index = np.abs(bin_space - d_).argmin()
                 var.append(closest_index)
-                #print(closest_index)
-                #print(bin_space[closest_index])
-            #print(var)
             
             self.bin_arr[var[0],var[1],var[2]] += 1
-            self.bin_arr[var[0],var[1],var[2]] += 1
-            if self.bin_val[var[0],var[1],var[2]] < self.likelihood[p]:
+            if self.bin_val[var[0],var[1],var[2]] > self.likelihood[p]:
                 self.bin_val[var[0],var[1],var[2]] = self.likelihood[p]
             
-            # self.bin_arr[var] +=1
-            # exit()       
             if count > 1e5:
                 count = 0 
                 print('Evaluated',p, 'datapoints')
                 #Burde vel også skrive til fil
         
+        print('Writing to file')
+        for i in range(self.nbin_per_dim):
+            for j in range(self.nbin_per_dim):
+                for k in range(self.nbin_per_dim):
+                    val = [self.bin_arr[i,j,k], self.bin_val[i,j,k]]
+                    with open(bin_path, 'a', newline='') as csvfile:
+                        csvfile = csv.writer(csvfile, delimiter=',')
+                        csvfile.writerow(val)
         print('Plotting')
         
         z_slice = self.bin_arr[:,:,80]
@@ -268,11 +304,10 @@ log_thresh = 3.09
 data_collector = Super_Data(dim, problem_func, log_thresh)
 
 xmin, xmax = -5,5
-num_ind = 20000
+num_ind = 2000
 
 data_collector.initialize_population(xmin, xmax, num_ind)
 data_collector.evolve(int(1e7))
 data_collector.extract_data()
 #data_collector.visualize_parameter_space()
-
 data_collector.bin_parameter_space()

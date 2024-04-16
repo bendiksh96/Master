@@ -4,10 +4,11 @@ sys.path.append(r'C:\Users\Lenovo\Documents\Master')
 from problem_func import * 
 
 class jDE:
-    def __init__(self, individual, likelihood, problem_func):
+    def __init__(self, individual, likelihood, problem_func, xmin, xmax):
         self.problem_func   = problem_func
         self.individual     = individual
         self.likelihood     = likelihood
+        self.xmin, self.xmax = xmin, xmax
         self.num_ind        = len(likelihood)
         self.dim            = len(individual[0])
         self.u              = np.zeros_like(self.individual)
@@ -41,14 +42,18 @@ class jDE:
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
             if randint < self.CRlist[i]:
-                temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                self.hist_data.append(k)
-                self.nfe += 1
-                if temp < self.likelihood[i]:
-                    self.individual[i] = self.v[i]
-                    self.likelihood[i] = temp
-
+                self.v[i], status = self.check_oob(self.v[i])
+                if status:
+                    temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    self.hist_data.append(k)    
+                    self.nfe += 1
+                    if temp < self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = temp
+                else:
+                    self.Flist[i] = 0.1
+                    
         #Crossover
         for i in range(self.num_ind):
             ru1 = np.random.uniform(0,1)
@@ -59,6 +64,25 @@ class jDE:
                 self.Flist[i] += ru2 * self.Flist[i]
             if ru3 < self.tau2:
                 self.CRlist[i] = ru4
+                
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            if candidate[j] < self.xmin:
+                var = self.xmin - (candidate[j] - self.xmin)
+                if var > self.xmax or var < self.xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > self.xmax:
+                var  = self.xmax - (candidate[j] - self.xmax)
+                if var < self.xmin or var > self.xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
+
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):

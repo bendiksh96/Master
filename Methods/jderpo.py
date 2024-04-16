@@ -5,11 +5,12 @@ from problem_func import *
 
     
 class jDErpo:
-    def __init__(self, individual, likelihood, problem_func):
+    def __init__(self, individual, likelihood, problem_func, xmin, xmax):
         self.problem_func   = problem_func
         self.individual     = individual
         self.likelihood     = likelihood
         self.true_likelihood= likelihood
+        self.xmin, self.xmax = xmin, xmax
         self.num_ind        = len(likelihood)
         self.dim            = len(individual[0])
         self.u              = np.zeros_like(self.individual)
@@ -47,28 +48,33 @@ class jDErpo:
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
+            ri5 = np.random.randint(self.num_ind)
+            ri6 = np.random.randint(self.num_ind)
             ri4 = np.random.randint(NP)
             if np.random.uniform(0,1) < 0.8 and self.nfe_tot > 0.8*self.max_nfe:
                 #rand/1 scheme
                 self.v[i] = self.individual[ri1] + self.Flist[i]* (self.individual[ri2]- self.individual[ri3])
             else:   
-                #pBest/1 scheme
-                self.v[i] = xpbest[ri4] + self.Flist[i]*(self.individual[ri2]- self.individual[ri3])
+                #pBest/2 scheme
+                self.v[i] = xpbest[ri4] + self.Flist[i]*(self.individual[ri2]- self.individual[ri3]) + self.Flist[i]*(self.individual[ri5] - self.individual[ri6])
         
                 
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
             
             if randint < self.CRlist[i]:
-                temp_likelihood, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                self.hist_data.append(k)
-                self.nfe += 1
-                if  temp_likelihood < self.likelihood[i]:
-                    
-                    self.individual[i] = self.v[i]
-                    self.likelihood[i] = temp_likelihood
-                    self.true_likelihood[i] = true_likelihood
+                
+                self.v[i], status = self.check_oob(self.v[i])
+                if status:
+                    temp_likelihood, true_likelihood = self.eval_likelihood_ind(self.v[i])
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    self.hist_data.append(k)
+                    self.nfe += 1
+                    if  temp_likelihood < self.likelihood[i]:
+                        
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = temp_likelihood
+                        self.true_likelihood[i] = true_likelihood
         for i in range(self.num_ind):
             ru1 = np.random.uniform(0,1)
             ru2 = np.random.uniform(0,1)
@@ -78,6 +84,25 @@ class jDErpo:
                 self.Flist[i] =Flow + ru2*(self.Fupp - Flow)
             if ru3 < self.tau2:
                 self.CRlist[i] = CRlow + ru4*(self.CRupp - CRlow)
+
+
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            if candidate[j] < self.xmin:
+                var = self.xmin - (candidate[j] - self.xmin)
+                if var > self.xmax or var < self.xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > self.xmax:
+                var  = self.xmax - (candidate[j] - self.xmax)
+                if var < self.xmin or var > self.xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
 
     def eval_likelihood_ind(self, individual):
         # Data = Problem_Function(self.dim)

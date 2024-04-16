@@ -1,57 +1,29 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.spatial import Voronoi, voronoi_plot_2d
+
+path    = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_rosenbrock.npy")
+arr = np.load(path)
+
+print(arr[60,60,:])
+exit()
 
 
+# path    = (r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\datafile.csv')
+ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
 
-
-def surface_function(x,y):
-#    Rosenbrock
-    func = 100*(y-x**2)**2 + (1 - x)**2
-
-#    Himmmelblau
-    # func = (x**2 + y - 11)**2 + (x + y**2 -7)**2
-    # func = np.log(func)
-    # func += 1
+likelihood_list = []
+individual_list = []
+index_list      = []
+for index, row in ds.iterrows(): 
+    var = []
+    for j in range(self.dim):     
+        var.append(row[j])
+    likelihood_list.append(row[j+1])
+    individual_list.append(var)
+    index_list.append(row[j+2])
     
-    
-    if func < 3.09:
-        func = 3.09 + abs(func-3.09)
-
-
-    return func
-
-
-def ripley_k_point_to_surface(x, y, num_samples):
-    distances = []
-    a = np.linspace(0.5,1.5,num_samples)
-    for _ in range(num_samples):
-        point = np.random.uniform(0.5, 1.5, size=(2,))
-        # print(point)
-        surface_value = surface_function(*point)
-        distance = np.sqrt((x - point[0])**2 + (y - point[1])**2) + surface_value
-        distances.append(distance)
-    return distances
-
-x_ = np.linspace(0.5,1.5,100)
-y_ = np.linspace(0.5,1.5,100)
-num_samples = 100
-
-ripley_k_values = []
-for y in y_:
-    row_distances = []
-    for x in x_:
-        distances = ripley_k_point_to_surface(x, y, num_samples)
-        row_distances.append(np.mean(distances))
-    ripley_k_values.append(row_distances)
-
-
-
-
-# Plotting the Ripley-K function
-plt.contourf(x_, y_, ripley_k_values, levels=100, cmap='jet') 
-plt.colorbar()
-plt.xlabel('x')
-plt.ylabel('y')
-plt.title('Ripley-K Function')
-plt.show()
+self.likelihood     = np.array(likelihood_list)
+# for i in range(len(self.likelihood)):
+#     print(self.likelihood[i])
+self.individuals    = np.array(individual_list)
+self.index          = np.array(index_list)
+print('Number of points:', len(self.likelihood))

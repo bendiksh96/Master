@@ -66,7 +66,6 @@ ind_cluster = []
 cluster_record = []
 inhabit_num = []
 
-
 def pool(ind, k, gen):
     if k == 1:
         #Create a cluster!
@@ -94,6 +93,7 @@ def pool(ind, k, gen):
         
         if k>= 3:
             inhabit = False
+            #Sjekk om den tilhører noen av skyene, oppdater skyer deretter
             for i in range(len(s_cluster)):
                 #Update temporary variables
                 num_in_cloud = inhabit_num[i][-1]
@@ -144,18 +144,23 @@ def pool(ind, k, gen):
                 inhabit_num.append([0])
                 
             
-            #Restart Mechanism 
+            #Restart Mechanism:
+            #Om det er fler enn én sky
             if len(s_cluster) > 1:
+                count = 0
+                #For hver cloud
                 for i in range(len(s_cluster)):
-                    if len(s_cluster[i]) > 10:
-                        mask = np.mean( (s_cluster[i][-10]  - s_cluster[i][-1])-s_cluster[i][-10])
-                        if mask == 5:
-                            #Initiate restart 
-                            for j in range(len(s_cluster[i])):
-                                #Perturbe the individuals in the cluster                        
-                                ind_cluster[i][j] = (np.random.normal(mu_cluster[i][-1],np.sqrt(var_cluster[i][-1])) 
-                                                    + np.random.uniform(0,1)*ind
-                                                    - np.random.uniform(0,1)*ind_cluster[i][j])
+                    if k in cluster_record[i]:
+                        count += 1
+                #Individet er i alle skyene 
+                if count == len(s_cluster):
+                    #Perturber hvert individ i skyen
+                    for i in range(len(s_cluster)):
+                        for j in range(len(s_cluster[i])):
+                            ind_cluster[i][j] = (np.random.normal(mu_cluster[i][-1],np.sqrt(var_cluster[i][-1])) 
+                                                + np.random.uniform(0,1)*ind
+                                                - np.random.uniform(0,1)*ind_cluster[i][j])
+                
                 
             #Merging mechanism
             merge_list = []
@@ -224,9 +229,9 @@ def pool(ind, k, gen):
     return mig, k
 
 num_pop     = 4
-pop_size    = 100
-NFE_max     = 1e5
-dim         = 5
+pop_size    = 20
+dim         = 9
+NFE_max     = 1e4*dim
 NFE         = 0 
 T           = 1e-3
 sigma       = []
@@ -234,7 +239,7 @@ mu          = []
 lmd         = []
 individual  = []
 likelihood  = []
-xmin,xmax   = -5,5
+xmin,xmax   = -512,512
 gen         = 0 
 role        = 'island'
 roly        = []
@@ -349,6 +354,24 @@ while NFE < NFE_max:
                         new_ind[j] = mig_ind[0][j]
                     else:
                         new_ind[j] = best_ind[0][j]
+                # if (new_ind == best_ind).all:
+                #     print('Jaja, sånn er livet')
                 individual[pop][int(np.random.randint(0,pop_size-1))] = new_ind
+        for pop in range(num_pop):
+            for i in range(pop_size):
+                for j in range(dim):
+                    if individual[pop][i,j] < xmin:
+                        #Sprettball
+                        individual[pop][i,j] =  xmin - (  individual[pop][i,j] -  xmin)
+                    if individual[pop][i,j] >  xmax:
+                        #Sprettball
+                        individual[pop][i,j] =  xmax - (  individual[pop][i,j] -  xmax)
+# print(individual)
+from vis_writ import *
 
-print(individual)
+supp = Data(dim, xmin, xmax)
+# print(individual[0])
+# supp.visualize_1(individual[0], likelihood[0], 'DDMS')
+# print()
+# print(likelihood[0])
+# supp.data_file(individual[0], likelihood[0], pop_size)

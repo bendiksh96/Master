@@ -5,7 +5,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 import pandas as pd
 import seaborn as sns
-
+import csv
 
 class Vis:
     def __init__(self, dim, x_min, x_max, nfe_max, method, problem_function):
@@ -14,6 +14,10 @@ class Vis:
         self.nfe_max            = nfe_max
         self.method             = method
         self.problem_function   = problem_function
+        self.swarmy = 0
+        self.normysh = 0
+        self.bin_count_cont,self.bin_count_sigm = 0,0
+        self.mini = 0
         
 
     def extract_data(self):
@@ -31,8 +35,11 @@ class Vis:
             likelihood_list.append(row[j+1])
             individual_list.append(var)
             index_list.append(row[j+2])
+            # print(row[j+2])
             
         self.likelihood     = np.array(likelihood_list)
+        # for i in range(len(self.likelihood)):
+        #     print(self.likelihood[i])
         self.individuals    = np.array(individual_list)
         self.index          = np.array(index_list)
         print('Number of points:', len(self.likelihood))
@@ -45,7 +52,8 @@ class Vis:
         self.likelihood     = self.likelihood[sort_]
         self.individuals    = self.individuals[sort_,:].reshape((len(self.likelihood), self.dim))
                 
-                
+        # self.likelihood = self.likelihood[80000:-1]  
+        # self.individuals = self.individuals[80000:-1]  
         fontsize = 8
         fsize_per_dim = 5.0
         fsize = fsize_per_dim * (self.dim-1)
@@ -152,7 +160,6 @@ class Vis:
         # colors = sns.color_palette("husl", len(labels))
         # count,b = np.histogram(self.likelihood)
         counts = []
-        
         jar = []
         for i, method in enumerate(labels):
             method_values = self.likelihood[self.index == method]
@@ -162,11 +169,10 @@ class Vis:
         max_count = np.max(counts)
         
         sns.histplot(jar,multiple = 'stack', bins = bin) 
-        sns.lineplot(x=[1.15, 1.15], y=[0, max_count*1.1], dashes=[3,3])                        
-        sns.lineplot(x=[3.09, 3.09], y=[0, max_count*1.1], dashes=[3,3])                        
-        sns.lineplot(x=[5.915, 5.915], y=[0, max_count*1.1], dashes=[3,3])                        
-        plt.show()
-        
+        sns.lineplot(x=[1.15, 1.15], y=[0, max_count*2], dashes=[3,3])                        
+        sns.lineplot(x=[3.09, 3.09], y=[0, max_count*2], dashes=[3,3])                        
+        sns.lineplot(x=[5.915, 5.915], y=[0, max_count*2], dashes=[3,3])                        
+        plt.show()        
         
     def visualize_2(self):#, iter_likelihood_mean, iter_likelihood_min,iter_likelihood_median):
         # Create figure
@@ -272,4 +278,150 @@ class Vis:
         plt.show()            
         
 
+    def bin_parameter_space(self, bin_path):
+        self.nbin_per_dim = 100
+        self.xmin = self.x_min
+        self.xmax = self.x_max
+        self.individual = self.individuals
+        if self.problem_function == 'Himmelblau':
+            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_himmelblau.npy")
+        if self.problem_function == 'Rosenbrock':
+            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_rosenbrock.npy")
+        self.validation_likelihood = np.load(bin_path)       
+        self.max_val = np.max(self.validation_likelihood) 
+        print('Max bin value:',self.max_val)
 
+        count = 0
+        bin_path = r'C:\Users\Lenovo\Documents\Master\Data\binned_data.csv'
+        print('Binning')
+        with open(bin_path, 'w', newline='') as csvfile:
+            csvfile = csv.writer(csvfile, delimiter=',')
+
+        if self.dim == 3:
+            self.bin_arr = np.zeros((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))
+            self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*self.max_val
+        if self.dim > 3:
+            pass
+        bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
+        x = 0
+        for p in range(len(self.likelihood)):
+            var = []
+            for j in range(self.dim):
+                d_ = self.individual[p,j]
+                closest_index = np.abs(bin_space - d_).argmin()
+                var.append(closest_index)
+            
+            self.bin_arr[var[0],var[1],var[2]] += 1
+            if self.bin_val[var[0],var[1],var[2]] > self.likelihood[p]:
+                self.bin_val[var[0],var[1],var[2]] = self.likelihood[p]
+                            
+            if count > 1e5:
+                count = 0 
+                print('Evaluated',p, 'datapoints')
+                #Burde vel også skrive til fil
+        
+        """
+        print('Writing to file')
+        for i in range(self.nbin_per_dim):
+            for j in range(self.nbin_per_dim):
+                for k in range(self.nbin_per_dim):
+                    val = [self.bin_arr[i,j,k], self.bin_val[i,j,k]]
+                    with open(bin_path, 'a', newline='') as csvfile:
+                        csvfile = csv.writer(csvfile, delimiter=',')
+                        csvfile.writerow(val)
+                        
+        """
+
+        
+    def compare_bins(self, bin_path):
+        self.occ = 0
+        print('Sammenligner')
+        #sammenligne alle verdier av 
+        arg = 0
+        barg = 0
+        ##Bytt til antall bins vi løper over
+        norm = self.nbin_per_dim**(-self.dim)
+        normysh = 0 
+        swarmy = 0
+        path    = (r"C:\Users\Lenovo\Documents\Master\Data\super_data.txt")
+        if self.problem_function == 'Himmelblau':
+            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_himmelblau.npy")
+        if self.problem_function == 'Rosenbrock':
+            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_rosenbrock.npy")
+
+
+              
+        self.validation_likelihood = np.load(bin_path)        
+        """
+        ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
+        
+        self.validation = np.zeros_like(self.bin_arr)
+        self.validation_likelihood = np.zeros_like(self.bin_arr)
+        
+        super_arr_occ = np.zeros_like(self.bin_arr)
+        super_arr_occ_thresh = np.zeros_like(self.bin_arr)
+        super_arr_occ_thresh[:] = 'nan'
+        super_arr_val = np.ones_like(self.bin_arr)*1001
+        a,b,c = 0,0,0
+        for index, row in ds.iterrows():
+            self.validation[a,b,c] = row[0]
+            self.validation_likelihood[a,b,c] = row[1]
+            a += 1
+            if a == 100:
+                a = 0
+                b +=1
+            if b == 100:
+                b = 0
+                c +=1
+        """
+        print('Done loading')
+        self.delta_occ = 0
+        self.delta_occ_thresh = 0
+        self.likelihood_threshold = 3.09
+        bin_count_cont = 0
+        bin_count_sigm = 0
+        for i in range(self.nbin_per_dim):
+            for j in range(self.nbin_per_dim):
+                for k in range(self.nbin_per_dim):
+                    #Row[0] ~ Occupancy
+                    #Row[1] ~ Likelihood
+                    
+                    #Threshold of contour
+                    eps = .5
+                    
+                    if self.validation_likelihood[i,j,k] < self.likelihood_threshold:
+                        #Number of bins in validation within the threshold
+                        bin_count_sigm +=1 
+                        self.occ += (self.bin_val[i,j,k] - self.validation_likelihood[i,j,k])
+                        if self.bin_val[i,j,k] < self.max_val:
+                            #Number of bins of the method within the bins
+                            swarmy +=1
+                            
+                    if (self.validation_likelihood[i,j,k] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k] > self.likelihood_threshold - eps):# or 
+                        #self.bin_val[i,j,k] < self.likelihood_threshold + eps and self.bin_val[i,j,k] > self.likelihood_threshold - eps) :
+                        
+                        #self.delta_occ += abs(self.validation_likelihood[i,j,k] - self.bin_val[i,j,k])
+                        self.delta_occ += self.bin_val[i,j,k] - self.validation_likelihood[i,j,k] 
+                        if self.bin_val[i,j,k] < self.max_val:
+                            normysh += 1
+                            #print(-self.validation_likelihood[i,j,k] + self.bin_val[i,j,k])
+                        
+                            # print('Method value:',self.bin_val[i,j,k], 'True value:', self.validation_likelihood[i,j,k])
+                            arg += self.bin_val[i,j,k]
+                        bin_count_cont += 1
+                    
+                        #super_arr_occ_thresh[i,j,k] = row[0] - self.bin_arr[i,j,k]
+        #print(super_arr_occ_thresh)
+        #print(arg )
+        self.mini = np.min(self.likelihood)
+        self.swarmy = swarmy; self.normysh = normysh
+        self.bin_count_cont = bin_count_cont; self.bin_count_sigm = bin_count_sigm
+        print('Number of bins with data in contour:',normysh, 'out of', bin_count_cont)
+        print('Number of bins with data inside threshold:',swarmy,' out of', bin_count_sigm)
+        self.occ = self.occ*(1/bin_count_sigm)
+        print('Fill Score:', self.occ)
+        self.delta_occ = self.delta_occ*(1/bin_count_cont)
+        print('Score: ',self.delta_occ)
+        
+        print('Min value:', np.min(self.likelihood))
+        

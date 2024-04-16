@@ -13,6 +13,7 @@ class cbat:
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
         self.Data       = Problem_Function(self.dim)
+        
 
         self.iter       = 0
         self.BM         = np.zeros_like(self.individual)
@@ -23,6 +24,8 @@ class cbat:
         self.f_j        = np.zeros_like(likelihood)
         self.A          = np.zeros_like(likelihood)
         self.gen        = 0
+        
+        self.hist_data = []
         if standard == True:
             # self.rj          = .02
             self.rj0         = .2
@@ -46,6 +49,7 @@ class cbat:
         self.alfa        = alfa
 
     def evolve(self):
+        self.nfe = 0
         sort_1      = np.argsort(self.likelihood)
         best_ind    = self.individual[sort_1][0]
 
@@ -73,9 +77,13 @@ class cbat:
                 
             var = self.velocity[i] + self.individual[i]
                    
-            temp, z = self.eval_likelihood_ind(var)
-            if temp < self.likelihood[i]:
-                self.individual[i] = var 
+            var, status = self.check_oob(var)
+            if status:
+                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(var) 
+                k = [var[j] for j in range(self.dim)] + [true_likelihood] + [1]
+                self.likelihood[i] = perceived_likelihood
+                self.hist_data.append(k)
+                self.nfe += 1  
             
 
 
@@ -89,11 +97,7 @@ class cbat:
 
         #øke hver likelihood om ingen bevegelse
         sort_2        = np.argsort(self.likelihood)
-        # jumbo = 1
-        # if sort_1[0] == sort_2[0]:
-        #     self.likelihood[sort_2][0] += jumbo
-        #     sort_2  = np.argsort(self.likelihood)
-        best_ind    = self.individual[sort_2][0]
+        best_ind      = self.individual[sort_2][0]
         
         for i in range(self.num_ind):
             r1 = np.random.uniform(0,1)
@@ -106,7 +110,14 @@ class cbat:
                 r3 =  np.random.randint(0,self.num_ind)
                 r4 =  np.random.randint(0,self.num_ind)
                 self.individual[i] = self.individual[r2] + .5* (self.individual[r3]-self.individual[r4])
-            self.likelihood[i], z = self.eval_likelihood_ind(self.individual[i]) 
+            self.individual[i], status = self.check_oob(self.individual[i])
+            if status:
+                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.individual[i]) 
+                k = [self.individual[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                self.likelihood[i] = perceived_likelihood                
+                self.hist_data.append(k)
+                self.nfe += 1  
+
                 
         #Sort the bats
         self.true_likelihood    = self.likelihood
@@ -124,6 +135,23 @@ class cbat:
             self.f_j[i] = np.random.uniform(0, 2)
             self.A[i]   = self.A_fac
 
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            if candidate[j] < self.xmin:
+                var = self.xmin - (candidate[j] - self.xmin)
+                if var > self.xmax or var < self.xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > self.xmax:
+                var  = self.xmax - (candidate[j] - self.xmax)
+                if var < self.xmin or var > self.xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
 
     def eval_likelihood_ind(self, individual):
         Data = self.Data

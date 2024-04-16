@@ -6,11 +6,12 @@ from problem_func import *
 
 
 class SHADE:
-    def __init__(self, individual, likelihood, problem_func):
+    def __init__(self, individual, likelihood, problem_func, xmin, xmax):
         self.dim        = len(individual[0])
         self.individual = individual
         self.likelihood = likelihood
         self.num_ind    = len(likelihood)
+        self.xmin, self.xmax=xmin, xmax
         self.prob_func  = problem_func
         self.k_arg      = 0 
         self.nfe        = 0        
@@ -55,25 +56,36 @@ class SHADE:
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
+            ri4 = np.random.randint(self.num_ind)
+            ri5 = np.random.randint(self.num_ind)
+            rip = np.random.randint(self.num_ind/4)
+            #Current to random/2
+            # self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
+            #current/2/bin -- Best
+            self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
             
-            self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
+            #Current to pbest/2
+            # self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[rip]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Crossover
         for i in range(self.num_ind-1):
             randint = np.random.randint(0,1)
             if randint < self.CRlist [i]:
                 # self.u[i,j] = self.v[i,j]
                 #har trikset endel her. Fikk null, men tror det er slik det må se ut
-                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i]) 
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                self.hist_data.append(k)
-                self.nfe += 1  
-                if perceived_likelihood <= self.likelihood[i]:
-                    self.individual[i] = self.v[i]
-                    delta_f.append(perceived_likelihood-self.likelihood[i])                
-                    S_CR.append(self.CRlist[i])
-                    S_F.append(self.Flist[i])
-                    self.individual[i] = self.v[i]
-                    self.likelihood[i] = perceived_likelihood
+                
+                self.v[i], status = self.check_oob(self.v[i])
+                if status:
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i]) 
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    self.hist_data.append(k)
+                    self.nfe += 1  
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = perceived_likelihood
 
         #Update weights
         if len(S_CR) != 0:
@@ -96,6 +108,23 @@ class SHADE:
             self.M_CR[self.k_arg] = mcr
             self.M_F[self.k_arg] = mf_nom/(mf_denom+tol)
             self.k_arg += 1
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            if candidate[j] < self.xmin:
+                var = self.xmin - (candidate[j] - self.xmin)
+                if var > self.xmax or var < self.xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > self.xmax:
+                var  = self.xmax - (candidate[j] - self.xmax)
+                if var < self.xmin or var > self.xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
 
       
     #Metode for å evaluere likelihood til et enkelt individ.

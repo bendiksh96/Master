@@ -5,7 +5,8 @@ from scipy.stats import cauchy
 
 class DEVO:
     def __init__(self, maxiteration,population_size_list, mut_prob, no_parents, dim, problem_func,  no_pop = 1, prior_best=0):
-        self.history = []
+        self.ind_history = []
+        self.lik_history = []
         
         self.iter = 0
         self.maxiter = maxiteration
@@ -56,9 +57,9 @@ class DEVO:
         
         #For second run
         self.prior_best = prior_best
-        self.sigma      = 10
-        self.delta      = 200
-        self.mod_ind_best = 0
+        self.sigma      = 100
+        self.delta      = 2
+        self.new_best   = -1e6
 
     #Trenger å kunne bestemme dimensjonen på popluasjonen og gi dette som et output
     def initialize_single_pop(self, x_min, x_max, randomize = 'True'):
@@ -127,6 +128,27 @@ class DEVO:
                         #Sprettball
                         self.ind[pop][i,j] = self.x_max - (self.ind[pop][i,j] - self.x_max)
                         
+    #GD for SHADE-søk
+    def GD(self, prior_best_ind):
+        maxiter = 100*self.dim; it = 0
+        funk = Problem_Function(self.dim)
+        new_val,a = funk.mod_himmelblau(prior_best_ind, self.prior_best, self.delta, self.sigma)
+        print(new_val-a)
+        v = np.ones(self.dim)*(1e-3)
+        
+        prior_best_ind -= v
+        while it < maxiter:
+            old_val = new_val
+            new_val,a = funk.mod_himmelblau(prior_best_ind,self.prior_best, self.delta, self.sigma)
+            for i in range(self.dim):
+                v[i] = v[i] + (new_val-old_val)*np.random.uniform(0,0.1)
+                prior_best_ind[i] = prior_best_ind[i] - (1e-3)*v[i] 
+            # print(prior_best_ind)
+            it += 1
+        self.new_best_ind = prior_best_ind
+        self.new_best = new_val
+        
+    
     #Evaluer en populasjons likelihood
     def eval_likelihood_pop(self):
         func = Problem_Function(self.dim)
@@ -144,8 +166,9 @@ class DEVO:
                     self.likely_ind[pop][i]= score
                     self.likely_ind_true[pop][i] = true_score
                     self.func_calls += 1
-                    if true_score > score:
-                        self.history.append([self.ind[pop][i], score])
+                    if true_score < self.new_best:
+                        self.ind_history.append(self.ind[pop][i])
+                        self.lik_history.append(true_score)
         elif self.problem_func == "Eggholder":
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
@@ -157,11 +180,11 @@ class DEVO:
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score, true_score = func.mod_eggholder(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
-                    self.likely_ind[pop][i] = score
+                    self.likely_ind[pop][i]= score
                     self.likely_ind_true[pop][i] = true_score
-                    self.func_calls += 1  
-                    if true_score > score:
-                        self.history.append(self.ind[pop][i], score)
+                    self.func_calls += 1
+                    if true_score < self.new_best:
+                        self.history.append([self.ind[pop][i], true_score])
 
 
         elif self.problem_func == "Himmelblau":
@@ -175,11 +198,12 @@ class DEVO:
             for pop in range(self.no_pop):
                 for i in range(self.population_size_list[pop]):
                     score, true_score = func.mod_himmelblau(self.ind[pop][i], self.prior_best, self.delta, self.sigma)
-                    self.likely_ind[pop][i] = score
+                    self.likely_ind[pop][i]= score
                     self.likely_ind_true[pop][i] = true_score
                     self.func_calls += 1
-                    if true_score > score:
-                        self.history.append(self.ind[pop][i], score)
+                    if true_score < self.new_best:
+                        self.ind_history.append(self.ind[pop][i])
+                        self.lik_history.append(true_score)
                     
     #Evaluer et individs likelihood
     def eval_likelihood_ind(self, ind):
@@ -520,7 +544,7 @@ class DEVO:
                 best_indexes = klai[0:NP]
                 xpbest = self.ind[pop][best_indexes]
                 self.abs_best = self.likely_ind[pop][best_indexes[0]]
-                
+                self.best_ind = self.ind[pop][best_indexes][0]
                 #Mutant vector
                 for i in range(population_size):
                     r_i = np.random.randint(1,H) 
@@ -576,15 +600,7 @@ class DEVO:
             if off_value<self.likely_ind[randint]:
                 self.ind[randint] = self.offspring[i]
                 self.likely_ind[randint] = off_value
-        
-    #What kind of evoltionary mechanism. Need to afflict the parent selection and likelihood. 
-    def evol_type(self, evol = 'darwin'):
-        self.d = 1
-        if evol == 'bald':
-            pass
-        elif evol == 'lama':
-            pass
-        
+                
     #Need to 
     def mutation(self):
         self.mut_amp = 0.4
@@ -609,32 +625,4 @@ class DEVO:
                     self.ind[pop][rand_list[pop],:] = self.ind[pop+1][rand_list[pop+1],:]
                     self.ind[pop+1][rand_list[pop+1],:] = var
                     
-                    
-    def nomadic(self):
-        pop_saver = []
-        if len(pop_saver)>10:
-            del pop_saver[0]
-        pop_saver.append(self.ind)
-        
-        
-        
-        #Ha en oversikt over hvorvidt en populasjon er litt stagnant, men innenfor 2sigma
-            #Covarians matrise?
-        #Lag en perturbasjons-operator for å få denne populasjonen til å bevege på seg
-        
-        #Eventuell indre repulsjonskraft
-        
-        
-        return 0                    
-    
-    
-    def repulsion(self):
-        if self.conv:
-            repulsion = 1e-2
-            for pop in range(self.no_pop):
-                for i in range(self.population_size_list[pop]):
-                    for j in range(self.population_size_list[pop]):
-                        if np.abs(self.ind[pop][i]- self.ind[pop][j]) < 1e-2:
-                            self.ind[pop][j] += repulsion
-                            self.ind[pop][i] -= repulsion
                     

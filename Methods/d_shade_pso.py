@@ -6,18 +6,23 @@ from problem_func import *
 
 
 class d_SHADE_pso:
-    def __init__(self, individual, likelihood, problem_func):
+    def __init__(self, individual, likelihood, problem_func, xmin, xmax):
         self.dim        = len(individual[0])
         self.individual = individual
         self.likelihood = likelihood
+        self.xmin, self.xmax = xmin, xmax
         self.true_likelihood = likelihood
+        self.hist_data  = []
+        self.nfe        = 0
+        
+        
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
         self.k_arg      = 0 
+        
         self.velocity   = np.zeros_like(self.individual)
         self.optimum    = 10
-        self.hist_data  = []
-        self.nfe        = 0
+        
         self.optimal_individual    = np.zeros_like(self.individual)
         self.force    = np.zeros_like(self.individual)
         
@@ -36,7 +41,6 @@ class d_SHADE_pso:
         S_F        = []
         delta_f    = []
 
-        self.u          = np.zeros_like(self.individual)
         self.v          = np.zeros_like(self.individual)
         sort            = np.argsort(self.likelihood, axis = 0)
         best_indexes    = sort[0:self.num_ind]
@@ -46,7 +50,9 @@ class d_SHADE_pso:
         #Mutant vector
         for i in range(self.num_ind-1):
             ri = np.random.randint(1,self.num_ind) 
+
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
+
             #Burde være Cauchy-fordeling
             # self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
             cauchy = np.random.standard_cauchy()
@@ -63,31 +69,33 @@ class d_SHADE_pso:
         #Dette er egentlig 
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
+            rands   = np.random.uniform(0,1)
             if randint < self.CRlist[i]:
-                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])    
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                
-                self.hist_data.append(k)
-                self.nfe += 1
+                self.v[i], status = self.check_oob(self.v[i])
+                if status:
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])    
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    
+                    self.hist_data.append(k)
+                    self.nfe += 1
  
-                if perceived_likelihood <= self.likelihood[i]:
-                    self.individual[i] = self.v[i]
-                    self.A.append(self.individual[i])        
-                    delta_f.append(perceived_likelihood-self.likelihood[i])                
-                    S_CR.append(self.CRlist[i])
-                    S_F.append(self.Flist[i])
-                    self.likelihood[i] = perceived_likelihood
-                    if len(self.A) > self.num_ind :
-                        del self.A[np.random.randint(0, self.num_ind)]
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.A.append(self.individual[i])        
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.likelihood[i] = perceived_likelihood
+                        
+                        if len(self.A) > self.num_ind :
+                            del self.A[np.random.randint(0, self.num_ind)]
+                 
         #Update weights
         if len(S_CR) != 0:
+            wk = []; mcr = 0;mf_nom = 0;mf_denom = 0;tol = 1e-3
             if self.k_arg>=self.num_ind:
                 self.k_arg = 1
-            wk = []
-            mcr = 0
-            mf_nom = 0
-            mf_denom = 0
-            tol = 1e-3
+            
             for arg in range(len(S_CR)):
                 wk.append(delta_f[arg]/(sum(delta_f)+tol))
             for arg in range(len(S_CR)):
@@ -121,44 +129,60 @@ class d_SHADE_pso:
             
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
+            if self.CRlist[i] < 1:
+                self.CRlist[i] = 0.1
             #Burde være Cauchy-fordeling
-            self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
+            # self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
+            
+            #Cauchy gir hittil best FILL, men dårligere CONT
+            cauchy = np.random.standard_cauchy()
+            self.Flist[i]  = self.M_F[ri] + 0.1*cauchy 
+            
             
             #Current to pbest/1 
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
-            ri3 = np.random.randint(self.num_ind/4)
-            self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
-                                            
+            ri4 = np.random.randint(self.num_ind)
+            ri5 = np.random.randint(self.num_ind)
+            ri6 = np.random.randint(self.num_ind)
+            rii = np.random.randint(self.num_ind/2)
+            ri3 = np.random.randint(self.num_ind/3)
+            # self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
+            # self.v[i] = self.individual[ri1] + self.Flist[i]*(self.individual[ri2]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri5]- self.individual[ri6])
+            # self.v[i] = self.individual[ri1] + self.Flist[i]*(self.individual[ri2]-self.individual[ri4])
+            
+            self.v[i] = xpbest[rii] + self.Flist[i]*(xpbest[ri3]-self.individual[ri1])
+            # else:
+            #     self.v[i] = self.best_ind + self.Flist[i]*(xpbest[ri3]-self.individual[ri1])                        
         #Crossover
+        count = 0
         for i in range(self.num_ind):
-            randint = np.random.randint(0,1)
-            if randint < self.CRlist [i]:
-                # self.u[i,j] = self.v[i,j]
-                # print(self.v[i])
-                # print(self.eval_likelihood_ind(self.v[i]))
-
-                # exit()
+            randu = np.random.uniform(0,1)
+            randi = np.random.uniform(0,1)
+            if randu < self.CRlist [i] or randi < 0.3:
+                self.v[i], status = self.check_oob(self.v[i])
                 #Check if the new crossover individual is superior to the prior
-                perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
-                self.hist_data.append(k)
-                self.nfe += 1
+                if status:
+                    perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
+                    self.hist_data.append(k)
+                    self.nfe += 1
+                    count += 1
+                    
+                    if perceived_likelihood <= self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.A.append(self.individual[i])        
+                        delta_f.append(perceived_likelihood-self.likelihood[i])                
+                        S_CR.append(self.CRlist[i])
+                        S_F.append(self.Flist[i])
+                        self.likelihood[i] = perceived_likelihood
+                        self.true_likelihood[i] = true_likelihood
 
-                if perceived_likelihood <= self.likelihood[i]:
-                    self.individual[i] = self.v[i]
-                    self.A.append(self.individual[i])        
-                    delta_f.append(perceived_likelihood-self.likelihood[i])                
-                    S_CR.append(self.CRlist[i])
-                    S_F.append(self.Flist[i])
-                    self.likelihood[i] = perceived_likelihood
-                    self.true_likelihood[i] = true_likelihood
-
-                    #If archive exceeds number of individuals, delete a random archived log.
-                    if len(self.A) > self.num_ind :
-                        del self.A[np.random.randint(0, self.num_ind)]
+                        #If archive exceeds number of individuals, delete a random archived log.
+                        if len(self.A) > self.num_ind :
+                            del self.A[np.random.randint(0, self.num_ind)]
     
-    #Update weights
+        #Update weights
         if len(S_CR) != 0:
             if self.k_arg>=self.num_ind:
                 self.k_arg = 1
@@ -279,18 +303,18 @@ class d_SHADE_pso:
         #self.k = self.num_ind/4
         self.k = k
         self.un_empty_cluster = k
-        cluster_sort = np.where(self.likelihood< loglike_tol)
+        cluster_sort = np.where(self.likelihood< (loglike_tol+.5))
         self.X = self.individual[cluster_sort]
 
-        labels    = np.zeros(k)
+        labels    = np.zeros(self.k)
         self.super_centroids = np.zeros((k,self.dim))
         self.super_labels = np.zeros((self.num_ind))
         maxiter = 1000
-        centroids = self.X[np.random.choice(range(len(self.X)), size=k, replace=False)]
+        centroids = self.X[np.random.choice(range(len(self.X)), size=self.k, replace=False)]
         
         for _ in range(maxiter):
             labels = np.zeros((self.num_ind))
-            distance = np.zeros((self.num_ind, k))
+            distance = np.zeros((self.num_ind, self.k))
             
             #Finn avstand til alle punkter
             for w in range(k):
@@ -302,12 +326,12 @@ class d_SHADE_pso:
             #Skriv disse 
             for i in range(self.num_ind):
                 max_dist = 1000
-                for w in range(k):
+                for w in range(self.k):
                     if distance[i,w] < max_dist:
                         labels[i] = int(w)
                         max_dist = distance[i,w]
             new_centroids = np.zeros_like(centroids)
-            for w in range(k):                
+            for w in range(self.k):                
                 new_dex = np.where(labels[:] == w)
                 new_ind = self.individual[new_dex]
                 new_centroids[w] = np.mean(new_ind[:])
@@ -321,7 +345,8 @@ class d_SHADE_pso:
         
         
         
-        for arg in range(k):
+        for arg in range(self.k):
+            
             _,true_likelihood  = self.eval_likelihood_ind(self.super_centroids[arg,:])
             k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
             self.hist_data.append(k)
@@ -367,14 +392,21 @@ class d_SHADE_pso:
                     #Regn ut ny cluster (med disse nye labels inkludert)
                     #Lag ny cluster array
                     self.un_empty_cluster -= 1
+        print(self.k)
+        for i in range(self.k-1):
+            print(self.super_centroids[i])
+            a, true_likelihood = self.eval_likelihood_ind(self.super_centroids[i])
+            print(true_likelihood)
+            #Noen av centroids suger.            
         return self.super_centroids, self.super_labels
 
     def init_particle(self):
         #Velocity initialization
         for i in range(self.num_ind):            
             for j in range(self.dim):
-                ru = np.random.uniform(int(-1e-3),int(1e-3))
-                ru = np.random.uniform(0,1)
+                #ru = np.random.uniform(int(-1e-3),int(1e-3))
+                ru = np.random.uniform(0,1) 
+                ru = ru*0.0001
                 self.velocity[i,j] = (self.individual[i,j] - self.optimal_individual[i,j]) * ru 
         print('Particles Initialized')
     
@@ -387,22 +419,51 @@ class d_SHADE_pso:
         #Gi hver partikkel en hastighet, skalert til sitt massesentrum
         
         for i in range(self.num_ind):
-            k = 0.1
+            k = .01
             for j in range(self.dim):
                 self.force[i,j]         = -k * (self.likelihood[i] - self.optimum) * (self.individual[i,j] - self.optimal_individual[i,j])#/abs(self.individual[i,j] - self.optimal_individual[i,j])
                 self.velocity[i,j]      = self.velocity[i,j] + self.force[i,j]
                 self.individual[i,j]    = self.individual[i,j] + self.velocity[i,j]
-            self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i])
-            k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [3]
-            self.hist_data.append(k)
-            self.nfe += 1
-
-        
+            
+            self.individual[i,:], candidate_status = self.check_oob(self.individual[i])
+            
+            if candidate_status:
+                self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i])
+                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [3]
+                self.hist_data.append(k)
+                # print(self.likelihood[i], true_likelihood)
+                self.true_likelihood[i] = true_likelihood
+                self.nfe += 1
+        # print('i', self.individual[1:4])
+        # print('f', self.force[1:4])
+        # print('v', self.velocity[1:4])
+        # print('lp', self.likelihood[1:4])
+        # print('lt', self.true_likelihood[1:4])
+        # print()
         # Modeller kraft som f = -k (log_likelihood - log_likelihood_best)* unit_vector
             #Fortegnet avhenger om gauss er skrudd på eller ei
         #Bruk Euler-Cromer
         
       
+      
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            if candidate[j] < self.xmin:
+                var = self.xmin - (candidate[j] - self.xmin)
+                if var > self.xmax or var < self.xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > self.xmax:
+                var  = self.xmax - (candidate[j] - self.xmax)
+                if var < self.xmin or var > self.xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
+                
     #Metode for å evaluere likelihood til et enkelt individ.
     #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):
