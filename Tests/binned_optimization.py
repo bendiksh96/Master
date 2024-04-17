@@ -32,11 +32,6 @@ def Himmelblau(x):
     else:
         raise Exception("We don't know the minimum value for Himmelblau in this number of dimensions.")
 
-    delta_log = 3.09
-        
-    if func <= (delta_log):
-        
-        func = (func - delta_log)**2
     return func
 
 
