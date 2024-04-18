@@ -298,25 +298,42 @@ class Vis:
         if self.dim == 3:
             self.bin_arr = np.zeros((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))
             self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*self.max_val
-        if self.dim > 3:
-            pass
-        bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
-        x = 0
-        for p in range(len(self.likelihood)):
-            var = []
-            for j in range(self.dim):
-                d_ = self.individual[p,j]
-                closest_index = np.abs(bin_space - d_).argmin()
-                var.append(closest_index)
-            
-            self.bin_arr[var[0],var[1],var[2]] += 1
-            if self.bin_val[var[0],var[1],var[2]] > self.likelihood[p]:
-                self.bin_val[var[0],var[1],var[2]] = self.likelihood[p]
-                            
-            if count > 1e5:
-                count = 0 
-                print('Evaluated',p, 'datapoints')
-                #Burde vel også skrive til fil
+            bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
+            x = 0
+            for p in range(len(self.likelihood)):
+                var = []
+                for j in range(self.dim):
+                    d_ = self.individual[p,j]
+                    closest_index = np.abs(bin_space - d_).argmin()
+                    var.append(closest_index)
+                
+                self.bin_arr[var[0],var[1],var[2]] += 1
+                if self.bin_val[var[0],var[1],var[2]] > self.likelihood[p]:
+                    self.bin_val[var[0],var[1],var[2]] = self.likelihood[p]
+                                
+                if count > 1e5:
+                    count = 0 
+                    print('Evaluated',p, 'datapoints')
+                    #Burde vel også skrive til fil
+        if self.dim == 4:
+            self.bin_arr = np.zeros((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim, self.nbin_per_dim))
+            self.bin_val = np.ones((self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim,self.nbin_per_dim))*self.max_val
+            bin_space = np.linspace(self.xmin, self.xmax, self.nbin_per_dim)
+            x = 0
+            for p in range(len(self.likelihood)):
+                var = []
+                for j in range(self.dim):
+                    d_ = self.individual[p,j]
+                    closest_index = np.abs(bin_space - d_).argmin()
+                    var.append(closest_index)
+                
+                self.bin_arr[var[0],var[1],var[2], var[3]] += 1
+                if self.bin_val[var[0],var[1],var[2],var[3]] > self.likelihood[p]:
+                    self.bin_val[var[0],var[1],var[2], var[3]] = self.likelihood[p]
+                                
+                if count > 1e5:
+                    count = 0 
+                    print('Evaluated',p, 'datapoints')
         
         """
         print('Writing to file')
@@ -348,29 +365,56 @@ class Vis:
         bin_count_sigm_valid = 0
         bin_count_cont = 0 
         bin_count_cont_valid = 0 
-        for i in range(self.nbin_per_dim):
-            for j in range(self.nbin_per_dim):
-                for k in range(self.nbin_per_dim):
-                    #Row[0] ~ Occupancy
-                    #Row[1] ~ Likelihood
-                    
-                    #Threshold of contour
-                    eps = .1
-                    
-                    if self.validation_likelihood[i,j,k] < self.likelihood_threshold:
-                        #Number of bins in validation within the threshold
-                        if self.bin_val[i,j,k] < self.max_val:
-                            self.occ += (self.bin_val[i,j,k] - self.validation_likelihood[i,j,k])
-                            #Number of bins of the method within the bins
-                            bin_count_sigm +=1 
-                        bin_count_sigm_valid +=1 
+        if self.dim == 3:
+            for i in range(self.nbin_per_dim):
+                for j in range(self.nbin_per_dim):
+                    for k in range(self.nbin_per_dim):
+                        #Row[0] ~ Occupancy
+                        #Row[1] ~ Likelihood
+                        
+                        #Threshold of contour
+                        eps = .1
+                        
+                        if self.validation_likelihood[i,j,k] < self.likelihood_threshold:
+                            #Number of bins in validation within the threshold
+                            if self.bin_val[i,j,k] < self.max_val:
+                                self.occ += (self.bin_val[i,j,k] - self.validation_likelihood[i,j,k])
+                                #Number of bins of the method within the bins
+                                bin_count_sigm +=1 
+                            bin_count_sigm_valid +=1 
+                                
+                        if (self.validation_likelihood[i,j,k] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k] > self.likelihood_threshold - eps):# or 
+                            if self.bin_val[i,j,k] < self.max_val:
+                                self.delta_occ += self.bin_val[i,j,k] - self.validation_likelihood[i,j,k] 
+                                arg += self.bin_val[i,j,k]
+                                bin_count_cont += 1
+                            bin_count_cont_valid += 1
+        if self.dim == 4:
+            for i in range(self.nbin_per_dim):
+                for j in range(self.nbin_per_dim):
+                    for k in range(self.nbin_per_dim):
+                        for h in range(self.nbin_per_dim):
+                            #Row[0] ~ Occupancy
+                            #Row[1] ~ Likelihood
                             
-                    if (self.validation_likelihood[i,j,k] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k] > self.likelihood_threshold - eps):# or 
-                        if self.bin_val[i,j,k] < self.max_val:
-                            self.delta_occ += self.bin_val[i,j,k] - self.validation_likelihood[i,j,k] 
-                            arg += self.bin_val[i,j,k]
-                            bin_count_cont += 1
-                        bin_count_cont_valid += 1
+                            #Threshold of contour
+                            eps = .1
+                            
+                            if self.validation_likelihood[i,j,k,h] < self.likelihood_threshold:
+                                #Number of bins in validation within the threshold
+                                
+                                if self.bin_val[i,j,k,h] < self.max_val:
+                                    self.occ += (self.bin_val[i,j,k,h] - self.validation_likelihood[i,j,k,h])
+                                    #Number of bins of the method within the bins
+                                    bin_count_sigm +=1 
+                                bin_count_sigm_valid +=1 
+                                    
+                            if (self.validation_likelihood[i,j,k,h] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k,h] > self.likelihood_threshold - eps):# or 
+                                if self.bin_val[i,j,k,h] < self.max_val:
+                                    self.delta_occ += self.bin_val[i,j,k,h] - self.validation_likelihood[i,j,k,h] 
+                                    arg += self.bin_val[i,j,k,h]
+                                    bin_count_cont += 1
+                                bin_count_cont_valid += 1
                     
         self.mini = np.min(self.likelihood)
         self.bin_count_cont = bin_count_cont; self.bin_count_sigm = bin_count_sigm

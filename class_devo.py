@@ -708,11 +708,13 @@ def log_thresh(sigma):
         return 5.915
 
 
-dim                 = 3
+dim                 = 4
 sigma               = 2
 def collector():
     method_list = ['double_shade_pso', 'double_shade_bat','jde','shade','random_search','double_shade','jderpo']
-    func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #['Ackley']'Eggholder',  'Michalewicz', 
+    func_list  = ['Himmelblau']
+    # func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #['Ackley']'Eggholder',  'Michalewicz', 
+    
     """    
     Potensielt trenger Eggholdolder og Mik modifisering.
     Ackley er kanskje ikke så gæren, da det er nyttig å se på hvilke score når alt fylles. 
@@ -744,6 +746,10 @@ def collector():
                 
                 if dim == 3:
                     bin_path = "C:/Users/Lenovo/Documents/Master/Tests/3d_" + func_list[fun] + ".npy" 
+                if dim == 4:
+                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_4D_100_result.npy" 
+                if dim == 5:
+                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_5D_100_result.npy" 
 
 
                 dw                  = Vis(dim, xmin,xmax,nfe_list[nf],method_list[met],func_list[fun])
