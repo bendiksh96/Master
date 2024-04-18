@@ -8,14 +8,11 @@ class jDE:
         self.problem_func   = problem_func
         self.individual     = individual
         self.likelihood     = likelihood
-        self.xmin, self.xmax = xmin, xmax
+        self.xmin,self.xmax = xmin, xmax
         self.num_ind        = len(likelihood)
         self.dim            = len(individual[0])
         self.u              = np.zeros_like(self.individual)
         self.v              = np.zeros_like(self.individual)
-        p_i                 = np.random.uniform(2/self.num_ind, 0.2)
-        NP                  = int(self.num_ind * p_i)        
-        H                   = self.num_ind
         self.Flist          = [0.1 for p in range(self.num_ind)]
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
@@ -27,7 +24,6 @@ class jDE:
         self.nfe        = 0
         sort_index      = np.argsort(self.likelihood, axis = 0)
         best_index      = sort_index[0]
-        best_individual = self.individual[best_index]
         self.abs_best   = self.likelihood[best_index]
         
         for i in range(self.num_ind):
@@ -54,7 +50,7 @@ class jDE:
                 else:
                     self.Flist[i] = 0.1
                     
-        #Crossover
+        #Adaptation
         for i in range(self.num_ind):
             ru1 = np.random.uniform(0,1)
             ru2 = np.random.uniform(0,1)

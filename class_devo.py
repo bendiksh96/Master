@@ -52,6 +52,7 @@ def conditions(problem_function):
         xmin, xmax = -5,5 
     if problem_function == 'Ackley':
         xmin, xmax = -32, 32
+        # xmin, xmax = -5, 5
     return xmin, xmax
 
 class DEVO_class:
@@ -400,21 +401,29 @@ class DEVO_class:
                 self.write_data(mod.hist_data)
                 mod.hist_data = []
 
-                #Anders mener k = 5 er nok
-                centroids, clusters = mod.cluster(loglike_tol = 3.09, k = 20)
+                loglike_tol = 3.2
+                k           = 20
+                #Anders mener k = 5 er nok per dimensjon
+                cluster_check = np.where(self.likelihood < loglike_tol)
+                if len(self.likelihood[cluster_check])< k:
+                    k = len(self.likelihood[cluster_check])
+                    if k == 0:
+                        mod.optimal_individual = mod.best_ind
+                    else: 
+                        centroids, clusters = mod.cluster(loglike_tol, k)
+                        mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
+                        mod.optimum = mod.abs_best
+                        for i in range(self.num_ind):
+                            arg = int(clusters[i])
+                            mod.optimal_individual[i] = centroids[arg]
+                else: 
+                    centroids, clusters = mod.cluster(loglike_tol, k)
+                    mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
+                    mod.optimum = mod.abs_best
+                    for i in range(self.num_ind):
+                        arg = int(clusters[i])
+                        mod.optimal_individual[i] = centroids[arg]
 
-                mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
-
-                mod.optimum = mod.abs_best
-
-                for i in range(self.num_ind):
-                    arg = int(clusters[i])
-                    mod.optimal_individual[i] = centroids[arg]
-                    #for j in range(self.dim):
-                     #   arg = clusters[i,j]
-                        # arg = mod.un_empty_clusters
-
-                      #  mod.optimal_individual[i,j] = centroids[arg, j]
 
                 mod.init_particle()
 
@@ -480,10 +489,7 @@ class DEVO_class:
 
                 #Start the evolution
                 while self.nfe < self.max_nfe:
-                    # print(mod.nfe)
                     mod.evolve_explore()
-                    # print(mod.nfe)
-                    # print()
                     self.nfe  += mod.nfe
                     if int(b*1e4)<self.nfe:
                         print('nfe:',self.nfe)
@@ -508,18 +514,23 @@ class DEVO_class:
                 if len(self.likelihood[cluster_check])< k:
                     k = len(self.likelihood[cluster_check])
                     if k == 0:
-                        loglike_tol = 10
-                        k           = 10
-                centroids, clusters = mod.cluster(loglike_tol, k)
-                mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
+                        mod.optimal_individual = mod.best_ind
+                    else: 
+                        centroids, clusters = mod.cluster(loglike_tol, k)
+                        mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
+                        mod.optimum = mod.abs_best
+                        for i in range(self.num_ind):
+                            arg = int(clusters[i])
+                            mod.optimal_individual[i] = centroids[arg]
+                else: 
+                    centroids, clusters = mod.cluster(loglike_tol, k)
+                    mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
+                    mod.optimum = mod.abs_best
+                    for i in range(self.num_ind):
+                        arg = int(clusters[i])
+                        mod.optimal_individual[i] = centroids[arg]
 
-                mod.optimum = mod.abs_best
 
-
-
-                for i in range(self.num_ind):
-                    arg = int(clusters[i])
-                    mod.optimal_individual[i] = centroids[arg]
 
                 mod.init_bat()
                 mod.set_limits(self.xmin,self.xmax)
@@ -700,8 +711,8 @@ def log_thresh(sigma):
 dim                 = 3
 sigma               = 2
 def collector():
-    method_list = [   'jde']#, 'jderpo','shade','random_search','double_shade', 'double_shade_pso', 'double_shade_bat',
-    func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #'Eggholder',  'Michalewicz', 
+    method_list = ['double_shade_pso', 'double_shade_bat','jde','shade','random_search','double_shade','jderpo']
+    func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #['Ackley']'Eggholder',  'Michalewicz', 
     """    
     Potensielt trenger Eggholdolder og Mik modifisering.
     Ackley er kanskje ikke så gæren, da det er nyttig å se på hvilke score når alt fylles. 
@@ -723,7 +734,7 @@ def collector():
                     population_size = int(nfe_list[nf]/50)
                 else:
                     population_size = 100
-                    
+                
                 xmin, xmax          = conditions(func_list[fun])
                 log_threshold       = log_thresh(sigma)
                 cl                  = DEVO_class(dim, func_list[fun], method_list[met], log_threshold)
@@ -741,12 +752,12 @@ def collector():
                 dw.compare_bins(bin_path)
                 data = [
                     ['Method:', method_list[met] , 'Function:' , func_list[fun] , 'NFE:', nfe_list[nf], 'Seed:', seed],
-                    ['fill_score', dw.occ],
-                    ['score', dw.delta_occ],
-                    ['pop', population_size],
+                    ['score within threshold', dw.occ],
+                    ['score on contour', dw.delta_occ],
                     ['min', dw.mini],
-                    ['occ on cont', dw.normysh, 'of', dw.bin_count_cont],
-                    ['occ in sigma', dw.swarmy, 'of', dw.bin_count_sigm], '\n']
+                    ['pop', population_size],
+                    ['contour %', dw.bin_count_cont/dw.bin_count_cont_valid],
+                    ['below threshold %', dw.bin_count_sigm/dw.bin_count_sigm_valid], '\n']
                 
                 with open(path, 'a', newline='') as csvfile:
                     w = csv.writer(csvfile,delimiter= ',')

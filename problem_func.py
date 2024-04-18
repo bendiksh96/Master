@@ -61,6 +61,7 @@ class Problem_Function:
         func -= np.exp(sum2 / self.dim)
         
         func += 1
+        
         func = np.log(func)
         return func, func
     

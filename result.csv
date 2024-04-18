@@ -1,0 +1,1323 @@
+Method:,double_shade_pso,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,15.345745774078548
+score on contour,27.856214458603063
+min,0.0
+pop,100
+contour %,0.45454545454545453
+below threshold %,0.5451388888888888
+"
+"
+Method:,double_shade_pso,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,0.8034071128464877
+score on contour,4.036441408085733
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,0.9965277777777778
+"
+"
+Method:,double_shade_pso,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,6.348725684890738
+score on contour,16.9045364350391
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade_pso,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.0700554646387587
+score on contour,0.06246891498109431
+min,-4.440892098500627e-16
+pop,100
+contour %,0.07398532370573876
+below threshold %,0.084597
+"
+"
+Method:,double_shade_pso,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.06941134590695493
+score on contour,0.06317921087882772
+min,-4.440892098500627e-16
+pop,100
+contour %,0.1328947637188116
+below threshold %,0.153648
+"
+"
+Method:,double_shade_pso,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06694228481814202
+score on contour,0.06216887099152413
+min,-4.440892098500627e-16
+pop,100
+contour %,0.28702904619407027
+below threshold %,0.326368
+"
+"
+Method:,double_shade_pso,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.21710812107645602
+score on contour,0.12590655029614675
+min,0.0009588767565017
+pop,100
+contour %,0.3255597014925373
+below threshold %,0.3943180323556491
+"
+"
+Method:,double_shade_pso,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.10936798483502114
+score on contour,0.0575795131422848
+min,0.0001264876900601
+pop,100
+contour %,0.6468283582089552
+below threshold %,0.7665395238721557
+"
+"
+Method:,double_shade_pso,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,-0.04917604893891079
+score on contour,-0.04810447027827178
+min,0.0008812867119088
+pop,100
+contour %,0.8819029850746268
+below threshold %,0.9399579113507825
+"
+"
+Method:,double_shade_pso,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,2.2190127975866782
+score on contour,0.5202967372348376
+min,0.0006371468046056
+pop,100
+contour %,0.9459459459459459
+below threshold %,0.9070796460176991
+"
+"
+Method:,double_shade_pso,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,0.5615420191542314
+score on contour,-0.32903251034285896
+min,0.0007907167600283
+pop,100
+contour %,0.9459459459459459
+below threshold %,0.9601769911504425
+"
+"
+Method:,double_shade_pso,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,0.18611596307602343
+score on contour,-0.7591053480062987
+min,0.0001594830592365
+pop,100
+contour %,1.0
+below threshold %,0.9690265486725663
+"
+"
+Method:,double_shade_pso,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.09964413068589968
+score on contour,-0.026089940247601556
+min,0.0003762011285446
+pop,100
+contour %,0.07484065794572349
+below threshold %,0.14429679537178378
+"
+"
+Method:,double_shade_pso,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07259528043322507
+score on contour,-0.007737224249272223
+min,0.0006450480792938
+pop,100
+contour %,0.13029302903566323
+below threshold %,0.2695007632345834
+"
+"
+Method:,double_shade_pso,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.027952862008773824
+score on contour,-0.02430159498549434
+min,0.0003228796692575
+pop,100
+contour %,0.270367054610564
+below threshold %,0.5247584685542567
+"
+"
+Method:,double_shade_pso,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.5697188627663117
+score on contour,3.0066735555957402
+min,0.0
+pop,100
+contour %,0.3392857142857143
+below threshold %,0.4083333333333333
+"
+"
+Method:,double_shade_pso,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.7800015328160779
+score on contour,2.08003516525503
+min,0.0
+pop,100
+contour %,0.7321428571428571
+below threshold %,0.8305555555555556
+"
+"
+Method:,double_shade_pso,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,-0.7534928022019168
+score on contour,-0.22623640606688739
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade_pso,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.19910551435889012
+score on contour,0.21256942385132063
+min,0.0001306154589969
+pop,100
+contour %,0.3284828244274809
+below threshold %,0.5482536524061371
+"
+"
+Method:,double_shade_pso,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.14647128792433917
+score on contour,0.18595026275905854
+min,0.0006371313534694
+pop,100
+contour %,0.5283874045801527
+below threshold %,0.7943656071634289
+"
+"
+Method:,double_shade_pso,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,-0.01872901753174896
+score on contour,0.09607807307128045
+min,0.0005099613319858
+pop,100
+contour %,0.7254293893129771
+below threshold %,0.9175524951563073
+"
+"
+Method:,double_shade_bat,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,15.713334842669152
+score on contour,29.302237054022658
+min,0.0
+pop,100
+contour %,0.5
+below threshold %,0.5069444444444444
+"
+"
+Method:,double_shade_bat,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,12.117393531186929
+score on contour,23.05855930518417
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade_bat,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,9.588849714077206
+score on contour,19.723989067548697
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade_bat,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07181132121134072
+score on contour,0.06769366970965009
+min,-4.440892098500627e-16
+pop,100
+contour %,0.08469380981075036
+below threshold %,0.094012
+"
+"
+Method:,double_shade_bat,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07134624969307582
+score on contour,0.06721758857558614
+min,-4.440892098500627e-16
+pop,100
+contour %,0.15585264469478005
+below threshold %,0.17531
+"
+"
+Method:,double_shade_bat,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06939217948786125
+score on contour,0.06576922036155092
+min,-4.440892098500627e-16
+pop,100
+contour %,0.3402140165248741
+below threshold %,0.377745
+"
+"
+Method:,double_shade_bat,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.17716181969086262
+score on contour,0.15337284279608862
+min,0.0002724238577713
+pop,100
+contour %,0.3423507462686567
+below threshold %,0.4195054583716954
+"
+"
+Method:,double_shade_bat,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.1446123992119611
+score on contour,0.13390144766618506
+min,0.0002452025372615
+pop,100
+contour %,0.6977611940298507
+below threshold %,0.812113639352887
+"
+"
+Method:,double_shade_bat,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.10426994535202397
+score on contour,0.10598984210485382
+min,0.0002277663379299
+pop,100
+contour %,0.9117537313432836
+below threshold %,0.9624490332763382
+"
+"
+Method:,double_shade_bat,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,2.720689888783754
+score on contour,2.1932263400708334
+min,0.0006218510618797
+pop,100
+contour %,0.972972972972973
+below threshold %,0.8805309734513275
+"
+"
+Method:,double_shade_bat,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,1.6559153221612697
+score on contour,1.1693051262328307
+min,3.920594916114032e-05
+pop,100
+contour %,0.9459459459459459
+below threshold %,0.9579646017699115
+"
+"
+Method:,double_shade_bat,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,1.2198504944363109
+score on contour,1.2133253207105168
+min,0.0006433531248947
+pop,100
+contour %,1.0
+below threshold %,0.9668141592920354
+"
+"
+Method:,double_shade_bat,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07636011675713206
+score on contour,0.05215487122126236
+min,0.0009962849740565
+pop,100
+contour %,0.10803190849690669
+below threshold %,0.17474483082032166
+"
+"
+Method:,double_shade_bat,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07471508872266927
+score on contour,0.05354805365127791
+min,9.702349210272132e-05
+pop,100
+contour %,0.1661032349443472
+below threshold %,0.29489087420267107
+"
+"
+Method:,double_shade_bat,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06961783795112993
+score on contour,0.05130069825889412
+min,0.0004254363735229
+pop,100
+contour %,0.3362017130105961
+below threshold %,0.5735097784944899
+"
+"
+Method:,double_shade_bat,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.395484738997681
+score on contour,3.236689518984403
+min,0.0
+pop,100
+contour %,0.39285714285714285
+below threshold %,0.44166666666666665
+"
+"
+Method:,double_shade_bat,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.9532904652917966
+score on contour,2.6457256173756893
+min,0.0
+pop,100
+contour %,0.8392857142857143
+below threshold %,0.8722222222222222
+"
+"
+Method:,double_shade_bat,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,0.464751625989696
+score on contour,0.9494879355740344
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade_bat,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.2606371233192887
+score on contour,0.4368794223879157
+min,0.0005107217249551
+pop,100
+contour %,0.36354961832061067
+below threshold %,0.5576792166308844
+"
+"
+Method:,double_shade_bat,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.2285126496419527
+score on contour,0.3877103485712149
+min,0.000195778839536
+pop,100
+contour %,0.5885019083969466
+below threshold %,0.8173273288998272
+"
+"
+Method:,double_shade_bat,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.17966862609494755
+score on contour,0.3299158853858444
+min,0.0005084757079758
+pop,100
+contour %,0.7590648854961832
+below threshold %,0.9323192124417448
+"
+"
+Method:,jde,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,0.09005453429892242
+score on contour,0.11382444387259474
+min,0.0013385741156448
+pop,2000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jde,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07483221983513044
+score on contour,0.09802023432402981
+min,0.000900671894012
+pop,4000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jde,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,0.05774456393113759
+score on contour,0.0765747765746959
+min,0.0002114404859791
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jde,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.0834543363361163
+score on contour,0.06789481964406505
+min,0.0742507029551055
+pop,2000
+contour %,0.011238293178638179
+below threshold %,0.031807
+"
+"
+Method:,jde,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07906865828126482
+score on contour,0.06808537937745823
+min,0.0836319466694482
+pop,4000
+contour %,0.0209905732640201
+below threshold %,0.052375
+"
+"
+Method:,jde,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.07389499864548615
+score on contour,0.06787604308070785
+min,0.027074771553096
+pop,10000
+contour %,0.05216620877717974
+below threshold %,0.104949
+"
+"
+Method:,jde,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.136967938606999
+score on contour,0.14413956671091752
+min,0.0003293302597746
+pop,2000
+contour %,0.3542910447761194
+below threshold %,0.5626726292253058
+"
+"
+Method:,jde,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.12543598957364008
+score on contour,0.13823174247928632
+min,0.0001007770053467
+pop,4000
+contour %,0.5552238805970149
+below threshold %,0.7276075233460476
+"
+"
+Method:,jde,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.10770688500314099
+score on contour,0.11850075423346133
+min,0.0003431878598522
+pop,10000
+contour %,0.7600746268656716
+below threshold %,0.8741286334341707
+"
+"
+Method:,jde,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,1.520479737291793
+score on contour,1.4386207929513577
+min,0.0012547612261727
+pop,2000
+contour %,0.9459459459459459
+below threshold %,0.8871681415929203
+"
+"
+Method:,jde,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,1.2261696067354397
+score on contour,1.4394895908028476
+min,0.0022702170197887
+pop,4000
+contour %,1.0
+below threshold %,0.9557522123893806
+"
+"
+Method:,jde,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,0.8211233252392839
+score on contour,0.7314245494072958
+min,0.0007038870097787
+pop,10000
+contour %,1.0
+below threshold %,0.995575221238938
+"
+"
+Method:,jde,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.056743227206014824
+score on contour,0.0455338503519595
+min,-1.824709780162692e-06
+pop,2000
+contour %,0.009406860059594596
+below threshold %,0.052687112102172945
+"
+"
+Method:,jde,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.05974238376396019
+score on contour,0.046031937988667636
+min,-2.00167302555343e-06
+pop,4000
+contour %,0.01988268148959767
+below threshold %,0.09089669296915001
+"
+"
+Method:,jde,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06446853858002329
+score on contour,0.04418008599961216
+min,-1.685829223774249e-06
+pop,10000
+contour %,0.04804981359986103
+below threshold %,0.16982567626412223
+"
+"
+Method:,jde,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,1.8681352165331344
+score on contour,2.5807899294975467
+min,0.2513150705525575
+pop,2000
+contour %,0.8035714285714286
+below threshold %,0.9
+"
+"
+Method:,jde,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.366523941091094
+score on contour,2.515223886187822
+min,0.1092048730568731
+pop,4000
+contour %,0.9642857142857143
+below threshold %,0.9833333333333333
+"
+"
+Method:,jde,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,0.7605809775823086
+score on contour,1.2516614205186718
+min,0.0049067459572249
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jde,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.2138369226260521
+score on contour,0.44269755686740475
+min,1.0792411423149644e-05
+pop,2000
+contour %,0.11665076335877862
+below threshold %,0.32829763837251924
+"
+"
+Method:,jde,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.22272949304674583
+score on contour,0.43547850913952046
+min,8.514702368410445e-06
+pop,4000
+contour %,0.21588740458015268
+below threshold %,0.48714457768235847
+"
+"
+Method:,jde,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.22162716123120602
+score on contour,0.4153614029519838
+min,5.050782264277712e-06
+pop,10000
+contour %,0.4279580152671756
+below threshold %,0.7027019950777609
+"
+"
+Method:,shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,0.15000854405694566
+score on contour,0.15776021451410563
+min,0.0017268076082899
+pop,2000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,0.1140649358483978
+score on contour,0.12285359506759833
+min,0.0021573795103666
+pop,4000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,0.08059784034678386
+score on contour,0.08834234335873395
+min,0.0020691989902791
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,shade,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07642932842898499
+score on contour,0.06705814375549292
+min,0.222342067791552
+pop,2000
+contour %,0.05509099915230868
+below threshold %,0.077248
+"
+"
+Method:,shade,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.0729499265927138
+score on contour,0.06686601654990675
+min,0.3780323547640393
+pop,4000
+contour %,0.10980155852644695
+below threshold %,0.141101
+"
+"
+Method:,shade,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06910583847402013
+score on contour,0.06581387059713285
+min,0.09268348394607
+pop,10000
+contour %,0.24781183295374465
+below threshold %,0.296484
+"
+"
+Method:,shade,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.15811533303264352
+score on contour,0.14459860817452608
+min,0.0139712440604335
+pop,2000
+contour %,0.45186567164179103
+below threshold %,0.6155464948046824
+"
+"
+Method:,shade,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.1411874670915864
+score on contour,0.13486652818543665
+min,0.0417354357256609
+pop,4000
+contour %,0.6925373134328359
+below threshold %,0.8180981191634881
+"
+"
+Method:,shade,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.11284416167035212
+score on contour,0.1158525452366572
+min,0.0118744859103688
+pop,10000
+contour %,0.9208955223880597
+below threshold %,0.9681046955149283
+"
+"
+Method:,shade,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,1.9727686157923991
+score on contour,1.2506204383887665
+min,0.0061395820103007
+pop,2000
+contour %,1.0
+below threshold %,0.995575221238938
+"
+"
+Method:,shade,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,1.1567082117036003
+score on contour,0.7200894284004498
+min,0.0179976638556888
+pop,4000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,shade,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,0.6743823579572532
+score on contour,0.41137397075466814
+min,0.0077276846438266
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,shade,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.05620463506369771
+score on contour,0.02906599230769241
+min,9.525186416947662e-06
+pop,2000
+contour %,0.09115568086158286
+below threshold %,0.13810000047851698
+"
+"
+Method:,shade,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.058281960039761035
+score on contour,0.028156434249509043
+min,2.545117812191577e-05
+pop,4000
+contour %,0.16164032122289182
+below threshold %,0.22943453648452716
+"
+"
+Method:,shade,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.05859355004241657
+score on contour,0.02877466172435036
+min,6.643900284153403e-05
+pop,10000
+contour %,0.3138604203690589
+below threshold %,0.40905067016303076
+"
+"
+Method:,shade,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.3264008605188944
+score on contour,2.4560378758816745
+min,0.5375860882394523
+pop,2000
+contour %,0.42857142857142855
+below threshold %,0.4361111111111111
+"
+"
+Method:,shade,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.8952607519393914
+score on contour,2.155145681889883
+min,0.3305945040330762
+pop,4000
+contour %,0.6071428571428571
+below threshold %,0.7222222222222222
+"
+"
+Method:,shade,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,1.3091695728463324
+score on contour,1.9634593146789763
+min,0.0798009168496456
+pop,10000
+contour %,0.9642857142857143
+below threshold %,0.9583333333333334
+"
+"
+Method:,shade,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.24269946602311754
+score on contour,0.41616929966611726
+min,0.0015350051037694
+pop,2000
+contour %,0.23711832061068702
+below threshold %,0.37092213436665444
+"
+"
+Method:,shade,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.24386655947693744
+score on contour,0.42158451360880955
+min,0.0007692419397826
+pop,4000
+contour %,0.4083969465648855
+below threshold %,0.5828926009320836
+"
+"
+Method:,shade,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.22697916549461775
+score on contour,0.39509166204521656
+min,0.0002898184258333
+pop,10000
+contour %,0.7247137404580153
+below threshold %,0.8442687333088967
+"
+"
+Method:,random_search,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,0.5974328920894553
+score on contour,0.4622324017023396
+min,0.9855710651386866
+pop,100
+contour %,0.14772727272727273
+below threshold %,0.13194444444444445
+"
+"
+Method:,random_search,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,0.49976839687665714
+score on contour,0.3459595748077302
+min,1.8180202339529965
+pop,100
+contour %,0.22727272727272727
+below threshold %,0.21875
+"
+"
+Method:,random_search,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,0.5149016453752338
+score on contour,0.40531130570444807
+min,0.3814360170555617
+pop,100
+contour %,0.3977272727272727
+below threshold %,0.4166666666666667
+"
+"
+Method:,random_search,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07046069564657735
+score on contour,0.06735826672688007
+min,1.0536757193876585
+pop,100
+contour %,0.09432225547169426
+below threshold %,0.095092
+"
+"
+Method:,random_search,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07002285449170734
+score on contour,0.06693248785508364
+min,1.3928152296331546
+pop,100
+contour %,0.17972077252254554
+below threshold %,0.181016
+"
+"
+Method:,random_search,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06839965864047658
+score on contour,0.06540947704498984
+min,1.206127377877275
+pop,100
+contour %,0.38932521728473235
+below threshold %,0.39239
+"
+"
+Method:,random_search,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.19868719964185488
+score on contour,0.16568899833130582
+min,0.3089965416885421
+pop,100
+contour %,0.09458955223880597
+below threshold %,0.09318689990793108
+"
+"
+Method:,random_search,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.19128771143511716
+score on contour,0.16397110622238248
+min,0.1285047762511733
+pop,100
+contour %,0.1869402985074627
+below threshold %,0.1858476917006445
+"
+"
+Method:,random_search,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.18487320548155015
+score on contour,0.1602478547286157
+min,0.1070593874285281
+pop,100
+contour %,0.40167910447761196
+below threshold %,0.3966855188741286
+"
+"
+Method:,random_search,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,4.786045704983811
+score on contour,3.044886856813969
+min,0.568329724951358
+pop,100
+contour %,0.13513513513513514
+below threshold %,0.10619469026548672
+"
+"
+Method:,random_search,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,5.0785590452513105
+score on contour,2.523552917009056
+min,0.3105931383168693
+pop,100
+contour %,0.2972972972972973
+below threshold %,0.2013274336283186
+"
+"
+Method:,random_search,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,5.41905862239611
+score on contour,3.5057932449435785
+min,0.2423523133745234
+pop,100
+contour %,0.35135135135135137
+below threshold %,0.37389380530973454
+"
+"
+Method:,random_search,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07206744964360244
+score on contour,0.044211551473025704
+min,0.0014557496694069
+pop,100
+contour %,0.09654057376501557
+below threshold %,0.09579670684614243
+"
+"
+Method:,random_search,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07104106383426527
+score on contour,0.04320181048225792
+min,0.001258462608531
+pop,100
+contour %,0.18056093747912186
+below threshold %,0.18286287138899124
+"
+"
+Method:,random_search,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06880295035258194
+score on contour,0.042199774139470216
+min,0.001518924598832
+pop,100
+contour %,0.39665147850719545
+below threshold %,0.3958675273592083
+"
+"
+Method:,random_search,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.4948470634051465
+score on contour,3.8190286313296307
+min,1.351017977863302
+pop,100
+contour %,0.08928571428571429
+below threshold %,0.06111111111111111
+"
+"
+Method:,random_search,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,2.6298626689758584
+score on contour,2.2787058061476486
+min,0.6429175724367635
+pop,100
+contour %,0.19642857142857142
+below threshold %,0.17222222222222222
+"
+"
+Method:,random_search,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,2.4652110181865177
+score on contour,2.874737367730921
+min,1.2073044903901469
+pop,100
+contour %,0.375
+below threshold %,0.4
+"
+"
+Method:,random_search,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.3230173328000017
+score on contour,0.5052589975654173
+min,0.0273132754792873
+pop,100
+contour %,0.09899809160305344
+below threshold %,0.09810441430591192
+"
+"
+Method:,random_search,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.3202518683696531
+score on contour,0.46092248728955426
+min,0.0093602082785327
+pop,100
+contour %,0.19036259541984732
+below threshold %,0.19149604649945018
+"
+"
+Method:,random_search,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.3048255162433432
+score on contour,0.4712131686143833
+min,0.0066040467970501
+pop,100
+contour %,0.39384541984732824
+below threshold %,0.40273341362517673
+"
+"
+Method:,double_shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,15.199780848987528
+score on contour,28.151215170453963
+min,0.0
+pop,100
+contour %,0.6477272727272727
+below threshold %,0.7222222222222222
+"
+"
+Method:,double_shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,11.412615235633673
+score on contour,22.09024337909036
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,8.109242623690212
+score on contour,17.331360601531376
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07232684423640036
+score on contour,0.0678835918631096
+min,-4.440892098500627e-16
+pop,100
+contour %,0.08256181508073494
+below threshold %,0.095377
+"
+"
+Method:,double_shade,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.0715970278649748
+score on contour,0.06719719666360545
+min,-4.440892098500627e-16
+pop,100
+contour %,0.1571969503538856
+below threshold %,0.180836
+"
+"
+Method:,double_shade,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.0693417921097499
+score on contour,0.06572754314180033
+min,-4.440892098500627e-16
+pop,100
+contour %,0.3429639067335287
+below threshold %,0.383899
+"
+"
+Method:,double_shade,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.16818975021525573
+score on contour,0.14954971233671074
+min,0.0008456964689828
+pop,100
+contour %,0.38563432835820893
+below threshold %,0.46310666842036036
+"
+"
+Method:,double_shade,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.13822139668228278
+score on contour,0.12861283506764606
+min,0.0008287904026116
+pop,100
+contour %,0.7261194029850746
+below threshold %,0.8266473760357753
+"
+"
+Method:,double_shade,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.10234590341455696
+score on contour,0.10141285590092568
+min,0.0004130487217259
+pop,100
+contour %,0.9199626865671642
+below threshold %,0.96488228330922
+"
+"
+Method:,double_shade,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,2.5907995386144496
+score on contour,1.155306226913019
+min,0.0009633038756549
+pop,100
+contour %,0.918918918918919
+below threshold %,0.8960176991150443
+"
+"
+Method:,double_shade,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,1.465369085726103
+score on contour,0.8948439993774286
+min,0.0007585377107541
+pop,100
+contour %,0.972972972972973
+below threshold %,0.9601769911504425
+"
+"
+Method:,double_shade,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,1.0311456431339971
+score on contour,0.4097427534232972
+min,0.0005646351535439
+pop,100
+contour %,1.0
+below threshold %,0.9734513274336283
+"
+"
+Method:,double_shade,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.07676820630001857
+score on contour,0.055006215577462624
+min,0.0002041600069571
+pop,100
+contour %,0.08671949117438768
+below threshold %,0.16771302379664943
+"
+"
+Method:,double_shade,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.07440629691435821
+score on contour,0.055228204137007526
+min,0.0002071042141249
+pop,100
+contour %,0.15748473389542886
+below threshold %,0.3119835007345236
+"
+"
+Method:,double_shade,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06898351737725875
+score on contour,0.053178611373219935
+min,9.684911554952436e-05
+pop,100
+contour %,0.30766044442068974
+below threshold %,0.5961436316567693
+"
+"
+Method:,double_shade,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.3727679470632377
+score on contour,3.0183993562045672
+min,0.0
+pop,100
+contour %,0.5178571428571429
+below threshold %,0.4888888888888889
+"
+"
+Method:,double_shade,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.7123118470220875
+score on contour,2.4798091534858147
+min,0.0
+pop,100
+contour %,0.8928571428571429
+below threshold %,0.9277777777777778
+"
+"
+Method:,double_shade,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,0.3557029753853679
+score on contour,0.7336731898220586
+min,0.0
+pop,100
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,double_shade,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.25352352705126746
+score on contour,0.4320229252459299
+min,0.0005031761655051
+pop,100
+contour %,0.3656965648854962
+below threshold %,0.5999371629051683
+"
+"
+Method:,double_shade,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.22204352733095578
+score on contour,0.38704254856449066
+min,0.0003573952784755
+pop,100
+contour %,0.572280534351145
+below threshold %,0.8337958841702885
+"
+"
+Method:,double_shade,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.1702513338846204
+score on contour,0.32845950979509564
+min,0.0007481654358234
+pop,100
+contour %,0.7564408396946565
+below threshold %,0.9254594962559565
+"
+"
+Method:,jderpo,Function:,Rotated_Hyper_Ellipsoid,NFE:,100000.0,Seed:,397285674
+score within threshold,0.1151118300269736
+score on contour,0.14618522177895252
+min,4.477882163762383e-06
+pop,2000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jderpo,Function:,Rotated_Hyper_Ellipsoid,NFE:,200000.0,Seed:,397285674
+score within threshold,0.09505259443041522
+score on contour,0.12133682356147171
+min,2.9196720775407205e-07
+pop,4000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jderpo,Function:,Rotated_Hyper_Ellipsoid,NFE:,500000.0,Seed:,397285674
+score within threshold,0.07352679270506611
+score on contour,0.09384392775023716
+min,1.7329506695363792e-06
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jderpo,Function:,Ackley,NFE:,100000.0,Seed:,397285674
+score within threshold,0.0869204302618744
+score on contour,0.06745546859259795
+min,0.0038729788367419
+pop,2000
+contour %,0.007297294536986917
+below threshold %,0.02327
+"
+"
+Method:,jderpo,Function:,Ackley,NFE:,200000.0,Seed:,397285674
+score within threshold,0.08192523157721797
+score on contour,0.06834817841326292
+min,0.0022149915152075
+pop,4000
+contour %,0.015246953928487536
+below threshold %,0.042654
+"
+"
+Method:,jderpo,Function:,Ackley,NFE:,500000.0,Seed:,397285674
+score within threshold,0.0762088358096366
+score on contour,0.06812404754932976
+min,0.0011151472848779
+pop,10000
+contour %,0.03755502333704411
+below threshold %,0.084505
+"
+"
+Method:,jderpo,Function:,Himmelblau,NFE:,100000.0,Seed:,397285674
+score within threshold,0.1496090091800523
+score on contour,0.15317053870194067
+min,1.3439455319841365e-05
+pop,2000
+contour %,0.26436567164179103
+below threshold %,0.4286465868736025
+"
+"
+Method:,jderpo,Function:,Himmelblau,NFE:,200000.0,Seed:,397285674
+score within threshold,0.13763249920190332
+score on contour,0.14184883399874007
+min,9.411690025551422e-06
+pop,4000
+contour %,0.40615671641791046
+below threshold %,0.5537945547810075
+"
+"
+Method:,jderpo,Function:,Himmelblau,NFE:,500000.0,Seed:,397285674
+score within threshold,0.11704563202700687
+score on contour,0.12508894489781314
+min,9.450662438681425e-06
+pop,10000
+contour %,0.6401119402985075
+below threshold %,0.7471392871235039
+"
+"
+Method:,jderpo,Function:,Rosenbrock,NFE:,100000.0,Seed:,397285674
+score within threshold,1.3903345467583614
+score on contour,1.3644037304668752
+min,0.0006348042268233
+pop,2000
+contour %,0.9459459459459459
+below threshold %,0.8805309734513275
+"
+"
+Method:,jderpo,Function:,Rosenbrock,NFE:,200000.0,Seed:,397285674
+score within threshold,1.4698089723262961
+score on contour,1.2389046901382132
+min,0.000526949347194
+pop,4000
+contour %,0.9459459459459459
+below threshold %,0.9314159292035398
+"
+"
+Method:,jderpo,Function:,Rosenbrock,NFE:,500000.0,Seed:,397285674
+score within threshold,1.3199413942989442
+score on contour,1.2143739121561063
+min,6.325469739639193e-05
+pop,10000
+contour %,0.972972972972973
+below threshold %,0.9513274336283186
+"
+"
+Method:,jderpo,Function:,Hartman_3D,NFE:,100000.0,Seed:,397285674
+score within threshold,0.06442823208827193
+score on contour,0.051114519696816345
+min,-2.142164132301616e-06
+pop,2000
+contour %,0.008565052980397921
+below threshold %,0.047619617282119255
+"
+"
+Method:,jderpo,Function:,Hartman_3D,NFE:,200000.0,Seed:,397285674
+score within threshold,0.06445596472978685
+score on contour,0.04751879060000563
+min,-2.147342639702288e-06
+pop,4000
+contour %,0.01091676799529657
+below threshold %,0.06967446489838693
+"
+"
+Method:,jderpo,Function:,Hartman_3D,NFE:,500000.0,Seed:,397285674
+score within threshold,0.06795483520507865
+score on contour,0.04994543058217863
+min,-2.147538086028078e-06
+pop,10000
+contour %,0.03110677587888668
+below threshold %,0.14499303757793847
+"
+"
+Method:,jderpo,Function:,Rastrigin,NFE:,100000.0,Seed:,397285674
+score within threshold,2.313237887482409
+score on contour,3.0905260180476275
+min,0.7298371354457878
+pop,2000
+contour %,0.6785714285714286
+below threshold %,0.5833333333333334
+"
+"
+Method:,jderpo,Function:,Rastrigin,NFE:,200000.0,Seed:,397285674
+score within threshold,1.9530731970508821
+score on contour,2.5214492803638433
+min,0.5184126053378435
+pop,4000
+contour %,0.8214285714285714
+below threshold %,0.8888888888888888
+"
+"
+Method:,jderpo,Function:,Rastrigin,NFE:,500000.0,Seed:,397285674
+score within threshold,1.202454448297794
+score on contour,1.7313555433792078
+min,0.1201086328789777
+pop,10000
+contour %,1.0
+below threshold %,1.0
+"
+"
+Method:,jderpo,Function:,Levy,NFE:,100000.0,Seed:,397285674
+score within threshold,0.21341476046200275
+score on contour,0.4497318574405738
+min,4.653067208119249e-08
+pop,2000
+contour %,0.09112595419847329
+below threshold %,0.27161334240980256
+"
+"
+Method:,jderpo,Function:,Levy,NFE:,200000.0,Seed:,397285674
+score within threshold,0.22508132898776848
+score on contour,0.4528158644870607
+min,1.2646139802762414e-08
+pop,4000
+contour %,0.16006679389312978
+below threshold %,0.39508823375399277
+"
+"
+Method:,jderpo,Function:,Levy,NFE:,500000.0,Seed:,397285674
+score within threshold,0.22775283118493167
+score on contour,0.4211336968976396
+min,3.9162050663122625e-08
+pop,10000
+contour %,0.39599236641221375
+below threshold %,0.662407708016966
+"
+"

@@ -253,7 +253,7 @@ dim = 3
 n_bin_per_dim = 100
 
 start = time.time()
-func_list   = [ 'Rotated_Hyper_Ellipsoid','Hartman_3D', 'Levy', 'Rastrigin', 'Ackley', 'Rosenbrock', 'Himmelblau' ]#['Eggholder' , 'Michalewicz']
+func_list   =['Ackley']# [ 'Rotated_Hyper_Ellipsoid','Hartman_3D', 'Levy', 'Rastrigin', 'Ackley', 'Rosenbrock', 'Himmelblau' ]#['Eggholder' , 'Michalewicz']
 for f in range(len(func_list)):
     path = 'C:/Users/Lenovo/Documents/Master/Tests/3d_' + func_list[f]  + '.npy' 
     xmin, xmax = conditions(func_list[f])

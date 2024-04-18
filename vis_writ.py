@@ -14,8 +14,8 @@ class Vis:
         self.nfe_max            = nfe_max
         self.method             = method
         self.problem_function   = problem_function
-        self.swarmy = 0
-        self.normysh = 0
+        self.bin_count_cont = 0
+        self.bin_count_sigm = 0
         self.bin_count_cont,self.bin_count_sigm = 0,0
         self.mini = 0
         
@@ -288,9 +288,7 @@ class Vis:
         if self.problem_function == 'Rosenbrock':
             path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_rosenbrock.npy")
         self.validation_likelihood = np.load(bin_path)       
-        self.max_val = np.max(self.validation_likelihood) 
-        print('Max bin value:',self.max_val)
-
+        self.max_val = 1000
         count = 0
         bin_path = r'C:\Users\Lenovo\Documents\Master\Data\binned_data.csv'
         print('Binning')
@@ -338,48 +336,18 @@ class Vis:
         print('Sammenligner')
         #sammenligne alle verdier av 
         arg = 0
-        barg = 0
         ##Bytt til antall bins vi løper over
-        norm = self.nbin_per_dim**(-self.dim)
-        normysh = 0 
-        swarmy = 0
-        path    = (r"C:\Users\Lenovo\Documents\Master\Data\super_data.txt")
-        if self.problem_function == 'Himmelblau':
-            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_himmelblau.npy")
-        if self.problem_function == 'Rosenbrock':
-            path_np = (r"C:\Users\Lenovo\Documents\Master\Tests\3d_validation_rosenbrock.npy")
-
-
               
         self.validation_likelihood = np.load(bin_path)        
-        """
-        ds      = pd.read_csv(path, delimiter=',',header = None)#, on_bad_lines='skip')
-        
-        self.validation = np.zeros_like(self.bin_arr)
-        self.validation_likelihood = np.zeros_like(self.bin_arr)
-        
-        super_arr_occ = np.zeros_like(self.bin_arr)
-        super_arr_occ_thresh = np.zeros_like(self.bin_arr)
-        super_arr_occ_thresh[:] = 'nan'
-        super_arr_val = np.ones_like(self.bin_arr)*1001
-        a,b,c = 0,0,0
-        for index, row in ds.iterrows():
-            self.validation[a,b,c] = row[0]
-            self.validation_likelihood[a,b,c] = row[1]
-            a += 1
-            if a == 100:
-                a = 0
-                b +=1
-            if b == 100:
-                b = 0
-                c +=1
-        """
+
         print('Done loading')
         self.delta_occ = 0
         self.delta_occ_thresh = 0
         self.likelihood_threshold = 3.09
-        bin_count_cont = 0
         bin_count_sigm = 0
+        bin_count_sigm_valid = 0
+        bin_count_cont = 0 
+        bin_count_cont_valid = 0 
         for i in range(self.nbin_per_dim):
             for j in range(self.nbin_per_dim):
                 for k in range(self.nbin_per_dim):
@@ -387,41 +355,35 @@ class Vis:
                     #Row[1] ~ Likelihood
                     
                     #Threshold of contour
-                    eps = .5
+                    eps = .1
                     
                     if self.validation_likelihood[i,j,k] < self.likelihood_threshold:
                         #Number of bins in validation within the threshold
-                        bin_count_sigm +=1 
-                        self.occ += (self.bin_val[i,j,k] - self.validation_likelihood[i,j,k])
                         if self.bin_val[i,j,k] < self.max_val:
+                            self.occ += (self.bin_val[i,j,k] - self.validation_likelihood[i,j,k])
                             #Number of bins of the method within the bins
-                            swarmy +=1
+                            bin_count_sigm +=1 
+                        bin_count_sigm_valid +=1 
                             
                     if (self.validation_likelihood[i,j,k] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k] > self.likelihood_threshold - eps):# or 
-                        #self.bin_val[i,j,k] < self.likelihood_threshold + eps and self.bin_val[i,j,k] > self.likelihood_threshold - eps) :
-                        
-                        #self.delta_occ += abs(self.validation_likelihood[i,j,k] - self.bin_val[i,j,k])
-                        self.delta_occ += self.bin_val[i,j,k] - self.validation_likelihood[i,j,k] 
                         if self.bin_val[i,j,k] < self.max_val:
-                            normysh += 1
-                            #print(-self.validation_likelihood[i,j,k] + self.bin_val[i,j,k])
-                        
-                            # print('Method value:',self.bin_val[i,j,k], 'True value:', self.validation_likelihood[i,j,k])
+                            self.delta_occ += self.bin_val[i,j,k] - self.validation_likelihood[i,j,k] 
                             arg += self.bin_val[i,j,k]
-                        bin_count_cont += 1
+                            bin_count_cont += 1
+                        bin_count_cont_valid += 1
                     
-                        #super_arr_occ_thresh[i,j,k] = row[0] - self.bin_arr[i,j,k]
-        #print(super_arr_occ_thresh)
-        #print(arg )
         self.mini = np.min(self.likelihood)
-        self.swarmy = swarmy; self.normysh = normysh
         self.bin_count_cont = bin_count_cont; self.bin_count_sigm = bin_count_sigm
-        print('Number of bins with data in contour:',normysh, 'out of', bin_count_cont)
-        print('Number of bins with data inside threshold:',swarmy,' out of', bin_count_sigm)
-        self.occ = self.occ*(1/bin_count_sigm)
-        print('Fill Score:', self.occ)
-        self.delta_occ = self.delta_occ*(1/bin_count_cont)
-        print('Score: ',self.delta_occ)
         
+        self.bin_count_cont_valid = bin_count_cont_valid; self.bin_count_sigm_valid = bin_count_sigm_valid
+        
+        print('Number of bins with data in contour:',self.bin_count_cont, 'out of', bin_count_cont_valid)
+        print('Number of bins with data inside threshold:',self.bin_count_sigm,' out of', bin_count_sigm_valid)
         print('Min value:', np.min(self.likelihood))
+        
+        self.occ = self.occ*(1/bin_count_sigm)
+        print('Score inside threshold:', self.occ)
+        
+        self.delta_occ = self.delta_occ*(1/bin_count_cont)
+        print('Score on the contour: ',self.delta_occ)
         

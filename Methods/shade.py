@@ -4,7 +4,6 @@ sys.path.append(r'C:\Users\Lenovo\Documents\Master')
 from problem_func import *
 
 
-
 class SHADE:
     def __init__(self, individual, likelihood, problem_func, xmin, xmax):
         self.dim        = len(individual[0])
@@ -20,17 +19,11 @@ class SHADE:
         self.M_CR       = [0.1 for p in range(self.num_ind)]
         self.M_F        = [0.1 for p in range(self.num_ind)]
         self.Data = Problem_Function(self.dim)
-        
-        # p_i             = np.random.uniform(2/self.num_ind, 0.2)
-        # NP              = int(self.num_ind * p_i)        
-        # H               = self.num_ind
-        # print(self.individual, self.num_ind)
         self.hist_data      = []
 
     def evolve(self):
         self.nfe        = 0   
      
-
         #Reset success parameters
         S_CR       = []
         S_F        = []
@@ -63,16 +56,13 @@ class SHADE:
             # self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
             #current/2/bin -- Best
             self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
-            
             #Current to pbest/2
             # self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[rip]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Crossover
         for i in range(self.num_ind-1):
-            randint = np.random.randint(0,1)
-            if randint < self.CRlist [i]:
-                # self.u[i,j] = self.v[i,j]
-                #har trikset endel her. Fikk null, men tror det er slik det må se ut
-                
+            randint = np.random.uniform(0,1)
+            randu   = np.random.uniform(0,1)
+            if randint < self.CRlist [i] or randu < 0.3:                
                 self.v[i], status = self.check_oob(self.v[i])
                 if status:
                     perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i]) 
@@ -80,7 +70,7 @@ class SHADE:
                     self.hist_data.append(k)
                     self.nfe += 1  
                     if perceived_likelihood <= self.likelihood[i]:
-                        self.individual[i] = self.v[i]
+                        # self.individual[i] = self.v[i]
                         delta_f.append(perceived_likelihood-self.likelihood[i])                
                         S_CR.append(self.CRlist[i])
                         S_F.append(self.Flist[i])
@@ -108,6 +98,8 @@ class SHADE:
             self.M_CR[self.k_arg] = mcr
             self.M_F[self.k_arg] = mf_nom/(mf_denom+tol)
             self.k_arg += 1
+            
+            
     def check_oob(self, candidate):
         candidate_status = True
         for j in range(self.dim):
@@ -127,10 +119,7 @@ class SHADE:
         return candidate, candidate_status
 
       
-    #Metode for å evaluere likelihood til et enkelt individ.
-    #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
     def eval_likelihood_ind(self, individual):
-        # Data = Problem_Function(self.dim)
         Data = self.Data
         return Data.evaluate(individual, self.prob_func)
         
