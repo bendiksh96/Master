@@ -4,32 +4,29 @@ Created on Sat Apr 20 11:03:53 2024
 
 @author: Bendik Selvaag-Hagen
 """
-
-#Forsøk på fysisk problemstilling
 import sys
-sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Physics\Methods')
-#from jde import *
-
-
+sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics\Methods")
+from jde import *
+from scipy.interpolate import LinearNDInterpolator
 import numpy as np
 import math
 import pandas as pd
 
 
-"""
-from bat import *
-from ddms import * 
-from shade import *
-from shabat import *
-from jderpo import *
-from d_shade import *
-from shade_bat import *
-from chaotic_bat import *
-from d_shade_pso import * 
-from d_shade_bat import *
-"""
+path_acc = r"C:\Users\Lenovo\Documents\GitHub\Master\Physics\HEPdata\Sig_acc_1.csv"
+path_eff = r"C:\Users\Lenovo\Documents\GitHub\Master\Physics\HEPdata\Sig_eff_1.csv"
+xa, ya, za = np.loadtxt(path_acc, comments='#', delimiter=',', unpack=True)
+xe, ye, ze = np.loadtxt(path_eff, comments='#', delimiter=',', unpack=True)
+
+def acc_eff(ind):    
+    interp_acc = LinearNDInterpolator(list(zip(xa, ya)), za, fill_value=np.nan)
+    interp_eff = LinearNDInterpolator(list(zip(xe, ye)), ze, fill_value=np.nan)
+    acc = interp_acc.__call__(ind[0], ind[1])
+    eff = interp_eff.__call__(ind[0], ind[1])
+    return acc, eff
+
+
 def eval_likelihood(x):
-    
     func = 0
     #Kriteriers
     if x[0] < x[2]:
@@ -38,81 +35,8 @@ def eval_likelihood(x):
         func += 100
     return func
 
-
-
-num_g   = 25
-num_xi  = 40
-g_distribution = np.linspace(500, 3000, num_g+1)
-xi_distribution = np.linspace(0, 2000, num_xi+1)
-
-def acc_reader():
-    acc_arr = np.ones((num_g+1, num_xi+1))*(-1  )
-    
-    if d1:
-        path_acc = r"C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Physics\HEPdata\Sig_acc_1.csv"
-    if d2:
-        path_acc = r"C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Physics\HEPdata\Sig_acc_1.csv"
-    ds = pd.read_csv(path_acc)
-    for index, row in ds.iterrows():
-        x_axis = np.where(g_distribution == row[0])
-        y_axis = np.where(xi_distribution == row[1])
-        acc_arr[x_axis, y_axis] = row[2]
-    return acc_arr
-
-def eff_reader():
-    """
-    Returns
-    -------
-    eff_arr : Array of type (g, xi) with values of efficiency
-
-    """
-    eff_arr = np.ones((num_g+1, num_xi+1))*(-1)
-    if d1:
-        path_eff = r"C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Physics\HEPdata\Sig_eff_1.csv"
-    if d2:
-        path_eff = r"C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Physcs\HEPdata\Sig_eff_2.csv"
-    ds = pd.read_csv(path_eff)
-    
-    for index, row in ds.iterrows():
-        x_axis = np.where(g_distribution == row[0])
-        y_axis = np.where(xi_distribution == row[1])
-        eff_arr[x_axis, y_axis] = row[2]
-    return eff_arr
-
-
-d1 = 1
-d2 = 0
-acc_arr = acc_reader()
-eff_list = eff_reader()
-
-    
-def acc_eff_extract(individual):
-    acc, eff = -1,-1
-    for i in range(len(g_distribution-1)):
-        for j in range(len(xi_distribution)):
-            if g_distribution[i] < individual[0] < g_distribution[i+1] and g_distribution[i] < individual[1] < g_distribution[i+1]:
-                acc = acc_array[i,j]
-                eff = eff_array[i,j]
-    return acc, eff
-
-def sigma_extract(x):
-    """
-    Parameters
-    ----------
-    x : Individual.
-
-    Returns crossection
-    -------
-    
-    Call on xsec to create a cross section with given parameters. 
-    """
-    return 1
-    
-    
-
 def signal_prediction(x):
     """
-
     Parameters
     ----------
     x : individual 
@@ -122,13 +46,10 @@ def signal_prediction(x):
     -------
     s : signal prediction
 
-    """
-    
-    
-    
+    """    
     L = 139 #fb^-1
 
-    acc, eff = acc_eff_extract(x)
+    acc, eff = acc_eff(x)
     sigma_gg = sigma_extract(x)
     s = L * sigma_gg * acc * eff
     return s
@@ -136,7 +57,6 @@ def signal_prediction(x):
 
 def log_lik(s, b):
     """
-
     Parameters
     ----------
     s : signal prediction
@@ -166,12 +86,9 @@ num_ind = 100
 nfe = 0 ; max_nfe = 1e4
 dim = 3
 
-
 #Observed events,Total bkg post-fit, new estimates
 b_d1 = 30
 b_d2 = 52
-
-
 
 method = 'jde'
 def evolution():
