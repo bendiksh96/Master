@@ -6,10 +6,11 @@ class jDE:
     def __init__(self, num_ind):
         self.num_ind        = num_ind
         self.dim            = 3
-        p_i                 = np.random.uniform(2/self.num_ind, 0.2)
-        self.Flist          = [0.1 for p in range(self.num_ind)]
-        self.CRlist         = [0.1 for p in range(self.num_ind)]
-        self.tau1,self.tau2 = 0.1,0.1
+
+        self.Flist      = [0.1 for p in range(self.num_ind)]
+        self.CRlist     = [0.1 for p in range(self.num_ind)]
+        self.M_CR       = [0.1 for p in range(self.num_ind)]
+        self.M_F        = [0.1 for p in range(self.num_ind)]
         
         self.xs             = XSection()
         self.nfe            = 0
@@ -48,23 +49,37 @@ class jDE:
         return func
 
     def evolve(self):
-        sort_index      = np.argsort(self.likelihood, axis = 0)
-        best_index      = sort_index[0]
-        self.abs_best   = self.likelihood[best_index]
+        S_CR       = []
+        S_F        = []
+        delta_f    = []
+
+        self.v          = np.zeros_like(self.individual)
+        sort            = np.argsort(self.likelihood, axis = 0)
+
+        best_indexes    = sort[0:self.num_ind]
+        self.abs_best   = self.likelihood[best_indexes[0]]
+        self.best_ind   = self.individual[best_indexes][0]
+
         for i in range(self.num_ind):
+            ri = np.random.randint(1,self.num_ind) 
+            self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
+            #Burde være Cauchy-fordeling
+            self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
+            
+            #Current to pbest/1 
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
-            
-            #rand/1 scheme
-            self.v[i] = self.individual[ri1] + self.Flist[i] * (self.individual[ri2] - self.individual[ri3])
+            ri4 = np.random.randint(self.num_ind)
+            #current/2/bin -- Best
+            self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Muter        
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
-            if randint < self.CRlist[i]:
+            randu   = np.random.uniform(0,1)
+            if randint < self.CRlist [i] or randu < 0.3:                
                 self.v[i], candidate_status = self.check_oob(self.v[i])
                 if candidate_status:
-                    # print(self.v[i])
                     temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
                     k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
                     self.hist_data.append(k)
@@ -74,16 +89,29 @@ class jDE:
                         self.likelihood[i] = temp
                         self.likelihood[i] += self.criteria(self.individual[i])
 
-        #Crossover
-        for i in range(self.num_ind):
-            ru1 = np.random.uniform(0,1)
-            ru2 = np.random.uniform(0,1)
-            ru3 = np.random.uniform(0,1)
-            ru4 = np.random.uniform(0,1)
-            if ru1 < self.tau1:
-                self.Flist[i] += ru2 * self.Flist[i]
-            if ru3 < self.tau2:
-                self.CRlist[i] = ru4
+        #Update weights
+        if len(S_CR) != 0:
+            if self.k_arg>=self.num_ind:
+                self.k_arg = 1
+            wk = []
+            mcr = 0
+            
+            mf_nom = 0
+            mf_denom = 0
+            tol = 1e-3
+            for arg in range(len(S_CR)):
+                wk.append(delta_f[arg]/(sum(delta_f)+tol))
+            for arg in range(len(S_CR)):
+                mcr += wk[arg] * S_CR[arg]
+                mf_nom  += wk[arg]*S_F[arg]**2
+                mf_denom += wk[arg]*S_F[arg]
+                
+            
+            self.M_CR[self.k_arg] = mcr
+            self.M_F[self.k_arg] = mf_nom/(mf_denom+tol)
+            self.k_arg += 1
+            
+
 
 
     def check_oob(self, candidate):

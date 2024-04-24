@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = r"C:/Users/Lenovo/Documents/GitHub/Master/Physics/eval_data.csv"
+path = r"C:/Users/Lenovo/Documents/GitHub/Master/Physics/eval_data_init.csv"
 
 ar = pd.read_csv(path)
 ind_g = []

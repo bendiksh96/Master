@@ -29,7 +29,6 @@ class SHADE:
         S_F        = []
         delta_f    = []
 
-        self.u          = np.zeros_like(self.individual)
         self.v          = np.zeros_like(self.individual)
         sort            = np.argsort(self.likelihood, axis = 0)
         
