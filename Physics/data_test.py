@@ -31,19 +31,24 @@ norm = plt.Normalize(lik.min(), lik.max())
 
 
 fig, axs = plt.subplots(3,1, figsize = (15,10), tight_layout = 'True')
+fig.set_facecolor('ivory')
 s1 = axs[0].scatter(ind_g, ind_q, c =lik, cmap = cmap, norm = norm)
 c1 = plt.colorbar(s1, ax=axs[0])    
 axs[0].set_xlabel('gluino_mass')
 axs[0].set_ylabel('quark_mass')
+axs[0].set_facecolor('#36013f')
+
 
 s2 = axs[1].scatter(ind_g, ind_n, c =lik, cmap = cmap, norm = norm)
 c2 = plt.colorbar(s2, ax=axs[1])
 axs[1].set_xlabel('gluino_mass')
 axs[1].set_ylabel('neutralino_mass')
+axs[1].set_facecolor('#36013f')
 
 s3 = axs[2].scatter(ind_n, ind_q, c =lik, cmap = cmap, norm = norm)
 c3 = plt.colorbar(s3, ax=axs[2])
 axs[2].set_xlabel('quark_mass')
 axs[2].set_ylabel('neutralino_mass')
+axs[2].set_facecolor('#36013f')
 
 plt.show()
