@@ -1,31 +1,56 @@
 import numpy as np
-
+import sys 
+sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
+from physical_eval import *
 class jDE:
-    def __init__(self, individual, likelihood):
-        self.problem_func   = problem_func
-        self.individual     = individual
-        self.likelihood     = likelihood
-        self.num_ind        = len(likelihood)
-        self.dim            = len(individual[0])
-        self.u              = np.zeros_like(self.individual)
-        self.v              = np.zeros_like(self.individual)
+    def __init__(self, num_ind):
+        self.num_ind        = num_ind
+        self.dim            = 3
         p_i                 = np.random.uniform(2/self.num_ind, 0.2)
-        NP                  = int(self.num_ind * p_i)        
-        H                   = self.num_ind
         self.Flist          = [0.1 for p in range(self.num_ind)]
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
-        self.Data           = Problem_Function(self.dim)
+        
+        self.xs             = XSection()
         self.nfe            = 0
         self.hist_data      = []
+    
+    def initialize_population(self):
+        #gluino, neutralino, squark
+        self.ind_ind    = ['g', 'n' , 'q']
+        self.individual = np.zeros((self.num_ind, self.dim))
+        self.likelihood = np.zeros(self.num_ind)
+        self.v          = np.zeros_like(self.individual)
+        self.xmin_arr = [500 ,  0 , 500]
+        self.xmax_arr = [3000,2000,3000]
+        
+        #Initialize 
+        for p in range(self.num_ind):
+            for j in range(self.dim):
+                if self.ind_ind[j] == 'g' or self.ind_ind[j] == 'q':
+                    self.individual[p, j] = np.random.uniform(500,3000)
+                if self.ind_ind[j] == 'n':
+                    self.individual[p, j] = np.random.uniform(0  ,2000)
+            # print(self.individual[p])
+            temp, true_likelihood = self.eval_likelihood_ind(self.individual[p])
+            k = [self.individual[p,j] for j in range(self.dim)] + [true_likelihood] + [1]
+            self.hist_data.append(k)    
+            self.likelihood[p] = temp
+        self.nfe = self.num_ind
+        
+
+    def criteria(self, ind):
+        func = 0
+        if ind[0] < ind[2]:
+            func += 100
+        if ind[0] > ind[1]:
+            func += 100
+        return func
 
     def evolve(self):
-        self.nfe        = 0
         sort_index      = np.argsort(self.likelihood, axis = 0)
         best_index      = sort_index[0]
-        best_individual = self.individual[best_index]
         self.abs_best   = self.likelihood[best_index]
-        
         for i in range(self.num_ind):
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
@@ -33,18 +58,23 @@ class jDE:
             
             #rand/1 scheme
             self.v[i] = self.individual[ri1] + self.Flist[i] * (self.individual[ri2] - self.individual[ri3])
-        
         #Muter        
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
             if randint < self.CRlist[i]:
-                temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                self.hist_data.append(k)
-                self.nfe += 1
-                if temp < self.likelihood[i]:
-                    self.individual[i] = self.v[i]
-                    self.likelihood[i] = temp
+                self.v[i], candidate_status = self.check_oob(self.v[i])
+                if candidate_status:
+                    # print(self.v[i])
+                    temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
+                    # print(temp)
+                    # print()
+                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    self.hist_data.append(k)
+                    self.nfe += 1
+                    if temp < self.likelihood[i]:
+                        self.individual[i] = self.v[i]
+                        self.likelihood[i] = temp
+                        self.likelihood[i] += self.criteria(self.individual[i])
 
         #Crossover
         for i in range(self.num_ind):
@@ -56,8 +86,28 @@ class jDE:
                 self.Flist[i] += ru2 * self.Flist[i]
             if ru3 < self.tau2:
                 self.CRlist[i] = ru4
-    #Metode for å evaluere likelihood til et enkelt individ.
-    #Liker ikke helt å måtte kalle på den her også, men det er hittil det beste jeg har.
+
+
+    def check_oob(self, candidate):
+        candidate_status = True
+        for j in range(self.dim):
+            xmin, xmax = self.xmin_arr[j], self.xmax_arr[j]
+            if candidate[j] < xmin:
+                var = xmin - (candidate[j] - xmin)
+                if var > xmax or var < xmin:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+                    
+            if  candidate[j] > xmax:
+                var  = xmax - (candidate[j] - xmax)
+                if var < xmin or var > xmax:
+                    candidate_status = False
+                else:
+                    candidate[j] = var
+        return candidate, candidate_status
+    
+    
     def eval_likelihood_ind(self, individual):
-        Data = self.Data
-        return Data.evaluate(individual, self.problem_func)
+        percieved_val, true_val = self.xs.evaluate(individual)
+        return percieved_val, true_val
