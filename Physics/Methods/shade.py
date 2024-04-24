@@ -2,7 +2,7 @@ import numpy as np
 import sys 
 sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
 from physical_eval import *
-class jDE:
+class SHADE:
     def __init__(self, num_ind):
         self.num_ind        = num_ind
         self.dim            = 3

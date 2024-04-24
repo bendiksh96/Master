@@ -44,8 +44,21 @@ class Physics:
                 
                 
         if self.method == 'shade':
-            while nfe < max_nfe:
-                arg = 0
+            mod = SHADE(self.num_ind)   
+            mod.initialize_population()  
+            self.open_data(mod.hist_data)
+            mod.hist_data = []
+                       
+            while self.nfe < self.max_nfe:
+                mod.evolve()
+                self.nfe  = mod.nfe
+                print('nfe:',self.nfe)
+
+                if len(mod.hist_data)>int(1e5):
+                    self.write_data(mod.hist_data)
+                    mod.hist_data       = []
+            self.write_data(mod.hist_data)
+                
                 
                 
         if self.method == 'double_shade':
@@ -68,7 +81,10 @@ class Physics:
             csvfile = csv.writer(csvfile, delimiter=',')
             csvfile.writerows(data)
 
-a = Physics('jde')
+
+method_list = ['jde', 'shade']
+
+a = Physics(method_list[0])
 a.evolution()
 
 
