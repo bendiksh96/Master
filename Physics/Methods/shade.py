@@ -59,6 +59,9 @@ class SHADE:
         best_indexes    = sort[0:self.num_ind]
         self.abs_best   = self.likelihood[best_indexes[0]]
         self.best_ind   = self.individual[best_indexes][0]
+        sort            = np.argsort(self.likelihood, axis = 0)
+        best_indexes    = sort[0:self.num_ind]
+        xpbest          = self.individual[best_indexes]
 
         for i in range(self.num_ind):
             ri = np.random.randint(1,self.num_ind) 
@@ -66,12 +69,11 @@ class SHADE:
             #Burde være Cauchy-fordeling
             self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
             
-            #Current to pbest/1 
+            #current/2/bin -- Best
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind)
             ri4 = np.random.randint(self.num_ind)
-            #current/2/bin -- Best
             self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Muter        
         for i in range(self.num_ind):
@@ -110,9 +112,6 @@ class SHADE:
             self.M_CR[self.k_arg] = mcr
             self.M_F[self.k_arg] = mf_nom/(mf_denom+tol)
             self.k_arg += 1
-            
-
-
 
     def check_oob(self, candidate):
         candidate_status = True

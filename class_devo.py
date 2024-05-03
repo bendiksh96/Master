@@ -65,6 +65,7 @@ class DEVO_class:
         self.best           = 10
         self.log_thresh     = log_thresh
         self.nu_pop         = 0
+        self.init_pso       = 0.8
         self.open_data()
 
     #Initialize population(s)
@@ -307,7 +308,6 @@ class DEVO_class:
                 self.best   = mod.abs_best
                 best        = mod.abs_best
 
-                #nfe: 1e5 -- x10; nfe: 2e5 -- x100 ;nfe: 3e5 -- 100
                 self.num_ind = self.num_ind*100
                 print('Starting Exploration, NFE:', self.nfe)
                 print()
@@ -341,7 +341,6 @@ class DEVO_class:
 
             while self.nfe < self.max_nfe and conv == False:
                 mod.evolve_converge()
-                # self.check_oob()
 
                 self.nfe  += mod.nfe
                 iter_likelihood.append(np.mean(mod.likelihood))
@@ -371,7 +370,6 @@ class DEVO_class:
                 self.best   = mod.abs_best
                 best        = mod.abs_best
 
-                #1e5: *10 ; 2e5: *100
                 self.num_ind = self.num_ind*100
                 print('Starting Exploration, NFE:', self.nfe)
                 print()
@@ -392,7 +390,7 @@ class DEVO_class:
                     if len(mod.hist_data)>int(1e5):
                         self.write_data(mod.hist_data)
                         mod.hist_data = []
-                    if self.nfe/self.max_nfe >= 0.8:# or self.nfe >conv_iter + int(conv_iter/2):
+                    if self.nfe/self.max_nfe >= self.init_pso:
                         print('Partikkelisering. NFE: ', self.nfe)
                         print()
                         print('Kriterier:',self.nfe/self.max_nfe, 'og', conv_iter + 3*int(conv_iter/2))
@@ -498,7 +496,7 @@ class DEVO_class:
                         self.write_data(mod.hist_data)
                         mod.hist_data = []
 
-                    if self.nfe/self.max_nfe >= 0.8:# or self.nfe >conv_iter + int(conv_iter/2):
+                    if self.nfe/self.max_nfe >= self.init_pso:
                         print('Flaggermusisering. NFE: ', self.nfe)
                         print()
                         print('Kriterier:',self.nfe/self.max_nfe, 'og', conv_iter + 3*int(conv_iter/2))
@@ -712,19 +710,17 @@ dim                 = 4
 sigma               = 2
 def collector():
     method_list = ['double_shade_pso', 'double_shade_bat','jde','shade','random_search','double_shade','jderpo']
-    func_list  = ['Himmelblau']
-    # func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #['Ackley']'Eggholder',  'Michalewicz', 
-    
-    """    
-    Potensielt trenger Eggholdolder og Mik modifisering.
-    Ackley er kanskje ikke så gæren, da det er nyttig å se på hvilke score når alt fylles. 
-    RHE er logget.
-    MIK er for flat -- Hva med exp?
-        Kan dog være spennende for å se på antall evaluerte punkter 
-            
-    Eggholder,Hartman og Mik trenger teknisk sett en ny sigma utregning.
-    """    
-    nfe_list    = [1e5, 2e5, 5e5]
+    func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock', 'Hartman_3D', 'Rastrigin', 'Levy']  
+    if dim == 3:
+        nfe_list    = [1e5, 2e5, 5e5]
+    elif dim == 4: 
+        nfe_list    = [1e6, 2e6, 5e6]
+    elif dim == 5:
+        nfe_list    = [1e7, 2e7, 5e7]
+    else:
+        print('Not designed for this dimension')
+        exit()
+                
     path = (r"C:\Users\Lenovo\Documents\Master\result.csv")
     with open(path, 'w', newline='') as csvfile:
         csvfile = csv.writer(csvfile, delimiter=',')
@@ -749,7 +745,7 @@ def collector():
                 if dim == 4:
                     bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_4D_100_result.npy" 
                 if dim == 5:
-                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_5D_100_result.npy" 
+                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_5D_40_result.npy" 
 
 
                 dw                  = Vis(dim, xmin,xmax,nfe_list[nf],method_list[met],func_list[fun])

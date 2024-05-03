@@ -6,7 +6,6 @@ class jDE:
     def __init__(self, num_ind):
         self.num_ind        = num_ind
         self.dim            = 3
-        p_i                 = np.random.uniform(2/self.num_ind, 0.2)
         self.Flist          = [0.1 for p in range(self.num_ind)]
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
@@ -32,21 +31,12 @@ class jDE:
                 if self.ind_ind[j] == 'n':
                     self.individual[p, j] = np.random.uniform(0  ,2000)
             # print(self.individual[p])
-            temp, true_likelihood = self.eval_likelihood_ind(self.individual[p])
-            k = [self.individual[p,j] for j in range(self.dim)] + [true_likelihood] + [1]
+            temp, true_likelihood, signal, section = self.eval_likelihood_ind(self.individual[p])
+            k = [self.individual[p,j] for j in range(self.dim)] + [true_likelihood] + [signal] + [section]
             self.hist_data.append(k)    
             self.likelihood[p] = temp
         self.nfe = self.num_ind
         
-
-    def criteria(self, ind):
-        func = 0
-        if ind[0] < ind[2]:
-            func += 100
-        if ind[0] > ind[1]:
-            func += 100
-        return func
-
     def evolve(self):
         sort_index      = np.argsort(self.likelihood, axis = 0)
         best_index      = sort_index[0]
@@ -65,14 +55,13 @@ class jDE:
                 self.v[i], candidate_status = self.check_oob(self.v[i])
                 if candidate_status:
                     # print(self.v[i])
-                    temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    temp, true_likelihood, signal, section = self.eval_likelihood_ind(self.individual[i])
+                    k = [self.individual[i,j] for j in range(self.dim)] + [true_likelihood] + [signal] + [section]
                     self.hist_data.append(k)
                     self.nfe += 1
                     if temp < self.likelihood[i]:
                         self.individual[i] = self.v[i]
                         self.likelihood[i] = temp
-                        self.likelihood[i] += self.criteria(self.individual[i])
 
         #Crossover
         for i in range(self.num_ind):
@@ -107,5 +96,5 @@ class jDE:
     
     
     def eval_likelihood_ind(self, individual):
-        percieved_val, true_val = self.xs.evaluate(individual)
-        return percieved_val, true_val
+        percieved_val, true_val, signal, section = self.xs.evaluate(individual)
+        return percieved_val, true_val, signal, section
