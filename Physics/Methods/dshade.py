@@ -27,8 +27,8 @@ class dSHADE:
         self.individual = np.zeros((self.num_ind, self.dim))
         self.likelihood = np.zeros(self.num_ind)
         self.v          = np.zeros_like(self.individual)
-        self.xmin_arr = [500 ,  0 , 500]
-        self.xmax_arr = [3000,2000,3000]
+        self.xmin_arr   = [500 ,  0 , 500]
+        self.xmax_arr   = [3000,2000,3000]
         
         #Initialize 
         for p in range(self.num_ind):
@@ -37,11 +37,11 @@ class dSHADE:
                     self.individual[p, j] = np.random.uniform(500,3000)
                 if self.ind_ind[j] == 'n':
                     self.individual[p, j] = np.random.uniform(0  ,2000)
-            pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.individual[p])
-            true = tv_1 + tv_2 + tv_3 + tv_4
-            k = [self.individual[p,j] for j in range(self.dim)] + [true] +[pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3] + [s3] + [pv_4] + [tv_4] + [s4] +[section]
+            pred,true, pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.individual[p])
+            k = [self.individual[p,j] for j in range(self.dim)] + [pred] + [true] +[pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3] + [s3] + [pv_4] + [tv_4] + [s4] +[section]
             self.hist_data.append(k)
             self.nfe += 1
+            self.likelihood[p] = pred
         self.nfe = self.num_ind
 
     def evolve_converge(self):
@@ -75,10 +75,9 @@ class dSHADE:
             if randint < self.CRlist [i] or randu < 0.3:                
                 self.v[i], candidate_status = self.check_oob(self.v[i])
                 if candidate_status:
-                    pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.v[i])
-                    true = tv_1 + tv_2 + tv_3 + tv_4
+                    pred, true, pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.v[i])
 
-                    k = [self.v[i,j] for j in range(self.dim)] +[true]+ [pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3]+ [s3] + [pv_4] + [tv_4] + [s4] +[section]
+                    k = [self.v[i,j] for j in range(self.dim)] +[pred] + [true]+ [pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3]+ [s3] + [pv_4] + [tv_4] + [s4] +[section]
                     self.hist_data.append(k)
                     self.nfe += 1
                     temp = pv_1 + pv_2 + pv_3 + pv_4
@@ -136,9 +135,8 @@ class dSHADE:
             if randint < self.CRlist[i]:                
                 self.v[i], candidate_status = self.check_oob(self.v[i])
                 if candidate_status:
-                    pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.v[i])
-                    true = tv_1 + tv_2 +  tv_3 + tv_4 
-                    k = [self.v[i,j] for j in range(self.dim)] + [true]+ [pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3]+ [s3] + [pv_4] + [tv_4] + [s4] +[section]
+                    pred,true,pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.eval_likelihood_ind(self.v[i])
+                    k = [self.v[i,j] for j in range(self.dim)] +[pred] + [true]+ [pv_1] + [tv_1] + [s1]  + [pv_2] + [tv_2] + [s2] + [pv_3] + [tv_3]+ [s3] + [pv_4] + [tv_4] + [s4] +[section]
                     self.hist_data.append(k)
                     self.nfe += 1
                     temp = pv_1 + pv_2 + pv_3 + pv_4
@@ -197,5 +195,5 @@ class dSHADE:
             percieved_val, true_val, signal, section = self.xs.evaluate(individual)
             return percieved_val, true_val, signal, section
         if len(self.ggd_list) == 4:
-            pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.xs.evaluate(individual)
-            return pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section
+            pred, true,pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.xs.evaluate(individual)
+            return pred,true, pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section

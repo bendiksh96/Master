@@ -1,13 +1,3 @@
-#: table_doi: 10.17182/hepdata.95664.v2/t28
-#: name: Signal efficiency 2
-#: description: Signal region efficiency for simplified model with gluino pair production and decays to two quarks and neutralino in SR BDT-GGd2. Efficiencies on signal points with low statistics are not reported. The efficiency value -1.0 in the table corresponds to the case where efficiency cannot be calculated due to the null acceptance of the model point.
-#: data_file: signal_efficiency_2.yaml
-#: keyword reactions: PP --> SQUARK SQUARK | PP --> GLUINO GLUINO | PP --> SQUARK GLUINO
-#: keyword observables: N
-#: keyword cmenergies: 13000
-#: keyword phrases: SUSY | Supersymmetry | Proton-Proton Scattering
-#: SQRT(S)=13TeV,SIGNAL
-M(Gluino) [GeV],M(LSP) [GeV],Efficiency  [%]
 2200.0,800.0,94.31
 2200.0,1000.0,94.09
 2400.0,200.0,99.84

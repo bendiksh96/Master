@@ -44,7 +44,6 @@ class d_SHADE_bat:
         self.A_bat      = np.zeros_like(likelihood)
         self.gen        = 0
         if standard == True:
-            # self.rj          = .02
             self.rj0         = .2
             self.A_fac       = .7
             self.eps         = .01
@@ -83,8 +82,8 @@ class d_SHADE_bat:
                                             
         #Crossover
         for i in range(self.num_ind):
-            randint = np.random.randint(0,1)
-            if randint < self.CRlist [i]:
+            rand = np.random.uniform(0,1)
+            if rand < self.CRlist [i]:
                 self.v[i], status = self.check_oob(self.v[i])
                 if status:
                     perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])     
@@ -172,7 +171,7 @@ class d_SHADE_bat:
         for i in range(self.num_ind):
             randu = np.random.uniform(0,1)
             randi = np.random.uniform(0,1)
-            if randu < self.CRlist [i] or randi < 0.3:
+            if randu < self.CRlist [i]:
                 self.v[i], status = self.check_oob(self.v[i])
                 #Check if the new crossover individual is superior to the prior
                 if status:
@@ -181,7 +180,7 @@ class d_SHADE_bat:
                     self.hist_data.append(k)
                     self.nfe += 1
                     
-                    if perceived_likelihood <= self.likelihood[i]:
+                    if perceived_likelihood <= self.likelihood[i] or randi < 0.3:
                         self.individual[i] = self.v[i]
                         self.A.append(self.individual[i])        
                         delta_f.append(perceived_likelihood-self.likelihood[i])                

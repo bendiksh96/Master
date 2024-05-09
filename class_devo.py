@@ -2,12 +2,14 @@ import sys
 import numpy as np
 import random as rd
 import csv
+import time
+sys.path.append(r'C:\Users\Lenovo\Documents\GitHub\Master\Methods')
+# sys.path.append(r'C:\Users\Lenovo\Documents\Master\Methods')
 # sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master')
-sys.path.append(r'C:\Users\Lenovo\Documents\Master\Methods')
 
 from vis_writ import *
 # sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\OneDrive - Universitetet i Oslo\Documents\GitHub\Master\Methods')
-sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\Desktop\Skole\Master\Methods')
+# sys.path.append(r'C:\Users\Bendik Selvaag-Hagen\Desktop\Skole\Master\Methods')
 from problem_func import *
 from jde import *
 from bat import *
@@ -39,7 +41,7 @@ def conditions(problem_function):
     if problem_function == 'Eggholder':
         xmin, xmax = -512,512
     if problem_function == 'Rosenbrock':
-        xmin, xmax = -5,5
+        xmin, xmax = -5,10
     if problem_function == 'Michalewicz':
         xmin, xmax = 0, np.pi
     if problem_function == 'Rotated_Hyper_Ellipsoid':
@@ -52,7 +54,6 @@ def conditions(problem_function):
         xmin, xmax = -5,5 
     if problem_function == 'Ackley':
         xmin, xmax = -32, 32
-        # xmin, xmax = -5, 5
     return xmin, xmax
 
 class DEVO_class:
@@ -79,7 +80,6 @@ class DEVO_class:
 
         #Initialize every individuals position and likelihood
         Data    = Problem_Function(self.dim)
-        # Data.param_change(0, 1.15)
         for i in range(self.num_ind):
             var     = []
             for j in range(self.dim):
@@ -126,7 +126,6 @@ class DEVO_class:
             mod = jDE(self.individual, self.likelihood, self.problem_func, self.xmin, self.xmax)
             while self.nfe < self.max_nfe and conv == False:
                 mod.evolve()
-                #self.check_oob()
                 self.nfe  += mod.nfe
                 if int(b*1e4)<self.nfe:
                     print('nfe:',self.nfe)
@@ -333,15 +332,12 @@ class DEVO_class:
                 mod.hist_data = []
 
         if self.method == 'double_shade_pso':
-
             iter_likelihood = []; tol = 1e-3; conv = False
             mod = d_SHADE_pso(self.individual, self.likelihood, self.problem_func, self.xmin, self.xmax)
-
             b = 1
-
+            # print(self.likelihood)
             while self.nfe < self.max_nfe and conv == False:
                 mod.evolve_converge()
-
                 self.nfe  += mod.nfe
                 iter_likelihood.append(np.mean(mod.likelihood))
                 if mod.abs_best < self.best:
@@ -414,6 +410,7 @@ class DEVO_class:
                         for i in range(self.num_ind):
                             arg = int(clusters[i])
                             mod.optimal_individual[i] = centroids[arg]
+
                 else: 
                     centroids, clusters = mod.cluster(loglike_tol, k)
                     mod.Data.param_change(best=self.best, delta_log = self.log_thresh)
@@ -527,7 +524,6 @@ class DEVO_class:
                     for i in range(self.num_ind):
                         arg = int(clusters[i])
                         mod.optimal_individual[i] = centroids[arg]
-
 
 
                 mod.init_bat()
@@ -705,12 +701,14 @@ def log_thresh(sigma):
     if sigma == 3:
         return 5.915
 
-
-dim                 = 4
+start = time.time()
+dim                 = 3
 sigma               = 2
+
 def collector():
-    method_list = ['double_shade_pso', 'double_shade_bat','jde','shade','random_search','double_shade','jderpo']
-    func_list   = ['Rotated_Hyper_Ellipsoid','Ackley','Himmelblau', 'Rosenbrock', 'Hartman_3D', 'Rastrigin', 'Levy']  
+    method_list = ['shade']#['jde','shade','random_search','jderpo']#,'double_shade_pso','double_shade', 'double_shade_bat']
+    func_list   = ['Himmelblau', 'Rosenbrock', 'Rastrigin', 'Levy']  
+    func_writ   = ['himmelblau', 'rosenbrock', 'rastrigin', 'levy'] 
     if dim == 3:
         nfe_list    = [1e5, 2e5, 5e5]
     elif dim == 4: 
@@ -731,7 +729,7 @@ def collector():
                 if method_list[met] == 'shade' or method_list[met] == 'jde' or method_list[met] == 'jderpo':
                     population_size = int(nfe_list[nf]/50)
                 else:
-                    population_size = 100
+                    population_size = 5**(dim)
                 
                 xmin, xmax          = conditions(func_list[fun])
                 log_threshold       = log_thresh(sigma)
@@ -741,11 +739,11 @@ def collector():
                 cl.evolve(nfe_list[nf])
                 
                 if dim == 3:
-                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/3d_" + func_list[fun] + ".npy" 
+                    bin_path = "C:/Users/Lenovo/Documents/GitHub/Master/Data/" + func_writ[fun]+"_3D_100_result.npy" 
                 if dim == 4:
-                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_4D_100_result.npy" 
+                    bin_path = "C:/Users/Lenovo/Documents/GitHub/Master/Data/" + func_writ[fun]+"_4D_100_result.npy" 
                 if dim == 5:
-                    bin_path = "C:/Users/Lenovo/Documents/Master/Tests/" + func_list[fun]+"_5D_40_result.npy" 
+                    bin_path = "C:/Users/Lenovo/Documents/GitHub/Master/Data/" + func_writ[fun]+"_5D_40_result.npy" 
 
 
                 dw                  = Vis(dim, xmin,xmax,nfe_list[nf],method_list[met],func_list[fun])
@@ -766,6 +764,8 @@ def collector():
                     w.writerows(data)
 
 collector()         
+end = time.time()
+print('Total elapsed time:', end-start)
 
 """
             

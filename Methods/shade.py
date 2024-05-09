@@ -61,7 +61,7 @@ class SHADE:
         for i in range(self.num_ind-1):
             randint = np.random.uniform(0,1)
             randu   = np.random.uniform(0,1)
-            if randint < self.CRlist [i] or randu < 0.3:                
+            if randint < self.CRlist [i]:                
                 self.v[i], status = self.check_oob(self.v[i])
                 if status:
                     perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i]) 

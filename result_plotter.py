@@ -2,14 +2,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-path = r"C:/Users/Lenovo/Documents/Master/result_3d.csv"
+path = r"C:/Users/Lenovo/Documents/Master/result_simple_3D.csv"
+dim = 4
 
 dat = pd.read_csv(path,delimiter=',', header=0)
-
-method_list = ['double_shade_pso','double_shade_bat','shade','random_search','double_shade','jderpo', 'jde']
-func_list   = ['Rotated_Hyper_Ellipsoid','Himmelblau','Rosenbrock',   'Hartman_3D', 'Rastrigin', 'Levy'] #'Eggholder', 'Ackley', 'Michalewicz', 
-nfe_list    = ['1e5', '2e5', '5e5']
-
+method_list = [ 'jde','double_shade_pso','double_shade_bat','shade','random_search','double_shade','jderpo']
+func_list   = ['Himmelblau','Rosenbrock', 'Rastrigin', 'Levy']  
+if dim ==3:
+    nfe_list    = ['1e5', '2e5', '5e5']
+if dim ==4:
+    nfe_list    = ['1e6', '2e6', '5e6']
 #Finn max random search val
 max_dict = {}
 correct = False
@@ -35,7 +37,7 @@ minima              = 'nan'
 contour_            = 'nan'
 below_thresh_       = 'nan'
 count = 0
-
+color_list = ['#95d0fc', '#96f97b', '#fdaa48']
 marker_styles = ['o', 's', '^', 'v', 'D', 'x', '+']
 def contour_plot():
     method = method_list[0]; function = func_list[0]; nfe = nfe_list[0]
@@ -49,10 +51,13 @@ def contour_plot():
             nfe     = row[5]
             if nfe == 1e5:
                 nfe = '1e5'
+                c = color_list[0]
             elif nfe == 2e5:
                 nfe = '2e5'
+                c = color_list[1]
             elif nfe == 5e5:
                 nfe = '5e5'
+                c = color_list[2]
 
         if method == 'jde':
             mark = marker_styles[0]
@@ -84,7 +89,7 @@ def contour_plot():
             if function == func_list[0]:
                 lab = method + nfe
                 lab_list.append(lab)
-                axs[0,0].scatter(1-score_on_contour/norm, contour_, label = lab, marker = mark)
+                axs[0,0].scatter(1-score_on_contour/norm, contour_, c= c, label = lab, marker = mark)
                 axs[0,0].set_xlim(-0.2,1.5)
                 axs[0,0].set_ylim(0,1.1)
                 axs[0,0].set_title(function)
@@ -129,7 +134,7 @@ def contour_plot():
     
 def threshold_plot():
     
-    fig, axs = plt.subplots(3,2, figsize = (10,10), sharey=True, sharex=True)
+    fig, axs = plt.subplots(2,2, figsize = (10,10), sharey=True, sharex=True)
     lab_list = []
     method = method_list[0]; function = func_list[0]; nfe = nfe_list[0]
     for index, row in dat.iterrows():     
@@ -188,33 +193,35 @@ def threshold_plot():
                 axs[1,0].set_ylim(0,1.1)
                 axs[1,0].set_title(function)
                 axs[1,0].set_ylabel('contour fill %')
+                axs[1,0].set_xlabel('1 - score in threshold/worst score')
             if function == func_list[2]:
                 lab = method + nfe
-                axs[2,0].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
-                axs[2,0].set_xlim(-0.2,1.5)
-                axs[2,0].set_ylim(0,1.1)
-                axs[2,0].set_title(function)
-                axs[2,0].set_xlabel('1 - score in threshold/worst score')
-                axs[2,0].set_ylabel('contour fill %')
-            if function == func_list[3]:
-                lab = method + nfe
                 axs[0,1].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
-                axs[0,1].set_xlim(-0.2, 1.5)
+                axs[0,1].set_xlim(-0.2,1.5)
                 axs[0,1].set_ylim(0,1.1)
                 axs[0,1].set_title(function)
-            if function == func_list[4]:
+                axs[0,1].set_ylabel('contour fill %')
+            if function == func_list[3]:
                 lab = method + nfe
                 axs[1,1].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
-                axs[1,1].set_xlim(-0.2,1.5)
+                axs[1,1].set_ylabel('contour fill %')
+                axs[1,1].set_xlim(-0.2, 1.5)
                 axs[1,1].set_ylim(0,1.1)
                 axs[1,1].set_title(function)
-            if function == func_list[5]:
-                lab = method + nfe
-                axs[2,1].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
-                axs[2,1].set_xlim(-0.2,1.5)
-                axs[2,1].set_ylim(0,1.1)
-                axs[2,1].set_title(function)
-                axs[2,1].set_xlabel('1 - score in_threshold/worst score')
+                axs[1,1].set_xlabel('1 - score in threshold/worst score')
+            # if function == func_list[4]:
+            #     lab = method + nfe
+            #     axs[1,1].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
+            #     axs[1,1].set_xlim(-0.2,1.5)
+            #     axs[1,1].set_ylim(0,1.1)
+            #     axs[1,1].set_title(function)
+            # if function == func_list[5]:
+            #     lab = method + nfe
+            #     axs[2,1].scatter(1-score_in_threshold/norm, below_thresh_, label = lab, marker = mark)
+            #     axs[2,1].set_xlim(-0.2,1.5)
+            #     axs[2,1].set_ylim(0,1.1)
+            #     axs[2,1].set_title(function)
+            #     axs[2,1].set_xlabel('1 - score in_threshold/worst score')
     fig.subplots_adjust(right=0.7)
     fig.legend(lab_list, loc = 'upper right', bbox_to_anchor=(0.95, 0.8))
     plt.show()

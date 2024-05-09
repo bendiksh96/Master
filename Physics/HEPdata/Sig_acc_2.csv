@@ -1,13 +1,3 @@
-#: table_doi: 10.17182/hepdata.95664.v2/t10
-#: name: Signal acceptance 2
-#: description: Signal region acceptance for simplified model with gluino pair production and decays to two quarks and neutralino in SR BDT-GGd2
-#: data_file: signal_acceptance_2.yaml
-#: keyword reactions: PP --> SQUARK SQUARK | PP --> GLUINO GLUINO | PP --> SQUARK GLUINO
-#: keyword observables: N
-#: keyword cmenergies: 13000
-#: keyword phrases: SUSY | Supersymmetry | Proton-Proton Scattering
-#: SQRT(S)=13TeV,SIGNAL
-M(Gluino) [GeV],M(LSP) [GeV],Acceptance  [%]
 2200.0,800.0,29.06
 2200.0,1000.0,24.51
 2400.0,200.0,27.45

@@ -70,8 +70,8 @@ class jDErpo:
                     k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
                     self.hist_data.append(k)
                     self.nfe += 1
+                    self.nfe_tot += 1
                     if  temp_likelihood < self.likelihood[i]:
-                        
                         self.individual[i] = self.v[i]
                         self.likelihood[i] = temp_likelihood
                         self.true_likelihood[i] = true_likelihood
@@ -84,7 +84,6 @@ class jDErpo:
                 self.Flist[i] =Flow + ru2*(self.Fupp - Flow)
             if ru3 < self.tau2:
                 self.CRlist[i] = CRlow + ru4*(self.CRupp - CRlow)
-
 
     def check_oob(self, candidate):
         candidate_status = True

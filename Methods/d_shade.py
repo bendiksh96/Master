@@ -1,9 +1,7 @@
 import numpy as np
 import sys
-sys.path.append(r'C:\Users\Lenovo\Documents\Master')
+sys.path.append(r'C:\Users\Lenovo\Documents\GitHub\Master')
 from problem_func import *
-
-
 
 class d_SHADE:   
     def __init__(self, individual, likelihood, problem_func, xmin, xmax):
@@ -15,16 +13,13 @@ class d_SHADE:
         self.hist_data  = []
         self.nfe        = 0
         
-        
         self.num_ind    = len(likelihood)
         self.prob_func  = problem_func
         self.k_arg      = 0 
         
-        self.velocity   = np.zeros_like(self.individual)
         self.optimum    = 10
         
         self.optimal_individual    = np.zeros_like(self.individual)
-        self.force    = np.zeros_like(self.individual)
         
         self.A          = []
         self.Flist      = [0.1 for p in range(self.num_ind)]
@@ -48,17 +43,14 @@ class d_SHADE:
         self.abs_best   = self.likelihood[best_indexes[0]]
         self.best_ind   = self.individual[best_indexes][0]
         #Mutant vector
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             ri = np.random.randint(1,self.num_ind) 
 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
-
-            #Burde være Cauchy-fordeling
-            # self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
             cauchy = np.random.standard_cauchy()
             self.Flist[i]  = self.M_F[ri] + 0.1*cauchy 
             
-            #Current to pbest/1 
+            #Current to pbest/2 
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
             ri3 = np.random.randint(self.num_ind/4)
@@ -66,7 +58,6 @@ class d_SHADE:
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
                                             
         #Crossover
-        #Dette er egentlig 
         for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
             if randint < self.CRlist[i]:
@@ -74,7 +65,6 @@ class d_SHADE:
                 if status:
                     perceived_likelihood, true_likelihood  = self.eval_likelihood_ind(self.v[i])    
                     k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
-                    
                     self.hist_data.append(k)
                     self.nfe += 1
  
@@ -112,7 +102,6 @@ class d_SHADE:
         delta_f    = []
 
         #Initialize temporary variables
-        self.u          = np.zeros_like(self.individual)
         self.v          = np.zeros_like(self.individual)
         
         #Previous best indices
@@ -123,38 +112,23 @@ class d_SHADE:
         self.best_ind   = self.individual[best_indexes][0]
 
         #Evolve individuals
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
-            if self.CRlist[i] < 1:
-                self.CRlist[i] = 0.1
-            #Burde være Cauchy-fordeling
-            # self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
             
             #Cauchy gir hittil best FILL, men dårligere CONT
             cauchy = np.random.standard_cauchy()
             self.Flist[i]  = self.M_F[ri] + 0.1*cauchy 
             
-            
-            #Current to pbest/1 
-            ri1 = np.random.randint(self.num_ind)
-            ri2 = np.random.randint(self.num_ind)
-            ri4 = np.random.randint(self.num_ind)
-            ri5 = np.random.randint(self.num_ind)
-            ri6 = np.random.randint(self.num_ind)
-            
             #pbest-to-pbest/1:
-            #2/2
+            ri1 = np.random.randint(self.num_ind)
             rii = np.random.randint(self.num_ind/2)
             ri3 = np.random.randint(self.num_ind/2)
-            # self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
-            # self.v[i] = self.individual[ri1] + self.Flist[i]*(self.individual[ri2]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri5]- self.individual[ri6])
-            # self.v[i] = self.individual[ri1] + self.Flist[i]*(self.individual[ri2]-self.individual[ri4])
             self.v[i] = xpbest[rii] + self.Flist[i]*(xpbest[ri3]-self.individual[ri1])
                                 
         #Crossover
-        count = 0
+        
         for i in range(self.num_ind):
             randu = np.random.uniform(0,1)
             randi = np.random.uniform(0,1)
@@ -166,7 +140,6 @@ class d_SHADE:
                     k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [2]
                     self.hist_data.append(k)
                     self.nfe += 1
-                    count += 1
                     
                     if perceived_likelihood <= self.likelihood[i]:
                         self.individual[i] = self.v[i]
@@ -180,7 +153,6 @@ class d_SHADE:
                         #If archive exceeds number of individuals, delete a random archived log.
                         if len(self.A) > self.num_ind :
                             del self.A[np.random.randint(0, self.num_ind)]
-        # print(count)
     
         #Update weights
         if len(S_CR) != 0:

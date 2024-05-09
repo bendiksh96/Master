@@ -75,7 +75,7 @@ class Physics:
                     mod.hist_data       = []
                     print('nfe:',self.nfe)
                     
-                if mod.abs_best < -3.24:
+                if mod.abs_best < -4.9:
                     conv = True
                     break
             self.write_data(mod.hist_data)
@@ -83,9 +83,9 @@ class Physics:
             
             print('Converged -- Exploring')
             mod.modifier    = 3.09  #2sigma
-            mod.alter_likelihood()
             self.num_ind = self.num_ind*100
             mod.__init__(self.num_ind, self.ggd_list)
+            mod.alter_likelihood()
             mod.initialize_population()
             
             while self.nfe < self.max_nfe:

@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
+import matplotlib as mpl
 import xsec
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 li =[1464.9863337865384,689.8915458869388,2233.4387540595844,-3.1356248208122253,11.922317356513918,8.617579239858578]
 
@@ -15,15 +17,24 @@ xe, ye, ze = np.loadtxt(path_eff, comments='#', delimiter=',', unpack=True)
 interp_acc = LinearNDInterpolator(list(zip(xa, ya)), za, fill_value=np.nan)
 interp_eff = LinearNDInterpolator(list(zip(xe, ye)), ze, fill_value=np.nan)
 
-# x = np.linspace(500,3000,30)
-# y = np.linspace(0,2000,20)
-# X, Y = np.meshgrid(x,y)
-# Z = interp_eff(X,Y)
-# plt.pcolormesh(X,Y,Z)
-# plt.colorbar()
-# plt.show()
+x = np.linspace(500,3000,100)
+y = np.linspace(0,2000,100)
+X, Y = np.meshgrid(x,y)
+Z_e = interp_eff(X,Y)
+Z_a = interp_acc(X,Y)
+norm = mpl.colors.Normalize(vmin = 0,vmax =120) 
 
 
+fig = plt.figure(figsize=(12,10))
+scat1 = plt.pcolormesh(X,Y,Z_e,shading='auto')
+# axins = inset_axes(axs[0], width="3%", height="100%", loc='right', borderpad=1.2)
+cbar = fig.colorbar(scat1)
+cbar.set_label('% Eff')
+plt.xlabel('gluino mass [GeV]')
+plt.ylabel('neutralino mass [GeV]')
+plt.title('% Efficiency of process')
+plt.savefig('efficiency.png')
+exit()
 xsec.init(data_dir="gprocs")
 xsec.set_energy(13000)
 processes = [(1000021, 1000021)]
