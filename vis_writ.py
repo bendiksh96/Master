@@ -352,6 +352,7 @@ class Vis:
         if self.dim == 5:
             self.validation_likelihood = np.reshape(self.validation_likelihood, (40,40,40,40,40))
         
+        
         print('Done loading')
         self.delta_occ = 0
         self.delta_occ_thresh = 0
@@ -433,14 +434,15 @@ class Vis:
 
                                 if (self.validation_likelihood[i,j,k,h,l] < self.likelihood_threshold + eps and self.validation_likelihood[i,j,k,h,l] > self.likelihood_threshold - eps):# or
                                     if self.bin_val[i,j,k,h,l] < self.max_val:
+                                        # print(self.bin_val[i,j,k,h,l], self.validation_likelihood[i,j,k,h,l], (i, j ,k, h ,l ))
+                                        
+                                        
                                         self.delta_occ += self.bin_val[i,j,k,h,l] - self.validation_likelihood[i,j,k,h,l]
-                                        arg += self.bin_val[i,j,k,h,l]
+                                        #arg += self.bin_val[i,j,k,h,l]
                                         bin_count_cont += 1
                                     bin_count_cont_valid += 1
-
         self.mini = np.min(self.likelihood)
         self.bin_count_cont = bin_count_cont; self.bin_count_sigm = bin_count_sigm
-
         self.bin_count_cont_valid = bin_count_cont_valid; self.bin_count_sigm_valid = bin_count_sigm_valid
 
         print('Number of bins with data in contour:',self.bin_count_cont, 'out of', bin_count_cont_valid)

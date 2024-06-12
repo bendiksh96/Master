@@ -143,12 +143,12 @@ class XSection:
         if len(self.ggd_list) == 4:        
             func_crit, crit_status = self.criteria(ind)
             if crit_status == False:
-                return func_crit, func_crit, np.nan,func_crit, func_crit, np.nan,func_crit, func_crit, np.nan,func_crit, func_crit, np.nan, np.nan
+                return func_crit, func_crit, func_crit, func_crit, np.nan,func_crit, func_crit, np.nan,func_crit, func_crit, np.nan,func_crit, func_crit, np.nan, np.nan
             
             signal_1, signal_2, signal_3, signal_4, signal_status, section = self.signal_prediction(ind)
             if signal_status == False:
-                tramp = 1e4
-                return tramp, tramp, np.nan, tramp, tramp, np.nan, tramp, tramp, np.nan, tramp, tramp, np.nan,np.nan
+                tramp = 1e6
+                return tramp, tramp, tramp,tramp, np.nan, tramp, tramp, np.nan, tramp, tramp, np.nan, tramp, tramp, np.nan,np.nan
             pred_1    = self.n_1*np.log(signal_1+self.b_1) - (signal_1 + self.b_1) - np.log(self.fac_n_1)
             pred_2    = self.n_2*np.log(signal_2+self.b_2) - (signal_2 + self.b_2) - np.log(self.fac_n_2)
             pred_3    = self.n_3*np.log(signal_3+self.b_3) - (signal_3 + self.b_3) - np.log(self.fac_n_3)
@@ -159,14 +159,16 @@ class XSection:
             pred_true_3 = pred_3 
             pred_true_4 = pred_4
             
-            if pred_1 < self.abs_best + self.modifier and self.conv_ == True:
-                pred_1 = self.modifier + (self.modifier- self.abs_best)
-            if pred_2 < self.abs_best + self.modifier and self.conv_ == True:
-                pred_2 = self.modifier + (self.modifier- self.abs_best)
-            if pred_3 < self.abs_best + self.modifier and self.conv_ == True:
-                pred_3 = self.modifier + (self.modifier- self.abs_best)
-            if pred_4 < self.abs_best + self.modifier and self.conv_ == True:
-                pred_4 = self.modifier + (self.modifier- self.abs_best)
+            pred = pred_1 + pred_2 + pred_3 + pred_4
+            true = pred
+            if pred < self.abs_best + self.modifier and self.conv_ == True:
+                pred = self.modifier + (self.modifier- self.abs_best)
+            # if pred_2 < self.abs_best + self.modifier and self.conv_ == True:
+            #     pred_2 = self.modifier + (self.modifier- self.abs_best)
+            # if pred_3 < self.abs_best + self.modifier and self.conv_ == True:
+            #     pred_3 = self.modifier + (self.modifier- self.abs_best)
+            # if pred_4 < self.abs_best + self.modifier and self.conv_ == True:
+            #     pred_4 = self.modifier + (self.modifier- self.abs_best)
             
             target_true_1  = -( pred_true_1 - self.background_1)
             target_true_2  = -( pred_true_2 - self.background_2)
@@ -176,7 +178,9 @@ class XSection:
             target_2  = -( pred_2 - self.background_2)
             target_3  = -( pred_3 - self.background_3)
             target_4  = -( pred_4 - self.background_4)
-            return target_1, target_true_1, signal_1, target_2 ,target_true_2, signal_2, target_3,target_true_3, signal_3, target_4, target_true_4,  signal_4, section
+            target_true = - (true - self.background_1 -self.background_2 - self.background_3 - self.background_4)
+            target_pred = - (pred - self.background_1 -self.background_2 - self.background_3 - self.background_4)
+            return target_pred, target_true, target_1, target_true_1, signal_1, target_2 ,target_true_2, signal_2, target_3,target_true_3, signal_3, target_4, target_true_4,  signal_4, section
     
     def criteria(self, ind):
         """_summary_
@@ -193,12 +197,12 @@ class XSection:
         status = True
         #Gluino mass must be smaller than squark mass
         if ind[0] > ind[2]:
-            func = 100 * ( ind[0] - ind[2])
+            func = 1000 * ( ind[0] - ind[2])
             status = False
             
         #Gluino mass must be larger than neutralino mass
         if ind[0] < ind[1]:
-            func = 100 * (ind[1] - ind[0])
+            func = 1000 * (ind[1] - ind[0])
             status = False
             
         return func, status

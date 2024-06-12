@@ -38,12 +38,12 @@ class SHADE:
         self.best_ind   = self.individual[best_indexes][0]
 
         #Mutant vector
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
             #Burde være Cauchy-fordeling
             self.Flist[i]  = np.random.normal(self.M_F[ri], 0.1)
-            
+            p = np.random.randint(1, self.num_ind)
             #Current to pbest/1 
             ri1 = np.random.randint(self.num_ind)
             ri2 = np.random.randint(self.num_ind)
@@ -51,16 +51,16 @@ class SHADE:
             ri4 = np.random.randint(self.num_ind)
             ri5 = np.random.randint(self.num_ind)
             rip = np.random.randint(self.num_ind/4)
+            
             #Current to random/2
             # self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
             #current/2/bin -- Best
-            self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[ri3]-self.individual[ri4]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
+            self.v[i] = self.individual[i] + self.Flist[i]*(self.individual[p]-self.individual[ri4]) 
             #Current to pbest/2
             # self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[rip]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Crossover
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
-            randu   = np.random.uniform(0,1)
             if randint < self.CRlist [i]:                
                 self.v[i], status = self.check_oob(self.v[i])
                 if status:
@@ -69,7 +69,6 @@ class SHADE:
                     self.hist_data.append(k)
                     self.nfe += 1  
                     if perceived_likelihood <= self.likelihood[i]:
-                        # self.individual[i] = self.v[i]
                         delta_f.append(perceived_likelihood-self.likelihood[i])                
                         S_CR.append(self.CRlist[i])
                         S_F.append(self.Flist[i])

@@ -4,7 +4,7 @@ sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
 from physical_eval import *
 
 class dSHADEpso:
-    def __init__(self, num_ind):
+    def __init__(self, num_ind, ggd_list):
         self.num_ind        = num_ind
         self.dim            = 3
 
@@ -15,8 +15,8 @@ class dSHADEpso:
         self.M_F        = [0.1 for p in range(self.num_ind)]
 
         self.k_arg      = 0 
-
-        self.xs             = XSection()
+        self.ggd_list   = ggd_list
+        self.xs             = XSection(ggd_list)
         self.nfe            = 0
         self.hist_data      = []
         self.modifier       = 0
@@ -26,6 +26,9 @@ class dSHADEpso:
         self.ind_ind    = ['g', 'n' , 'q']
         self.individual = np.zeros((self.num_ind, self.dim))
         self.likelihood = np.zeros(self.num_ind)
+        self.optimal_individual = np.zeros_like(self.individual)
+        self.velocity = np.zeros_like(self.individual)
+        self.force = np.zeros_like(self.individual)
         self.v          = np.zeros_like(self.individual)
         self.xmin_arr = [500 ,  0 , 500]
         self.xmax_arr = [3000,2000,3000]
@@ -289,6 +292,36 @@ class dSHADEpso:
             perceived_likelihood, true_likelihood, _, _  = self.eval_likelihood_ind(self.super_centroids[i])
             #Noen av centroids suger.            
         return self.super_centroids, self.super_labels
+    
+    def init_particles(self):
+        #Velocity initialization
+        for i in range(self.num_ind):            
+            for j in range(self.dim):
+                #ru = np.random.uniform(int(-1e-3),int(1e-3))
+                ru = np.random.uniform(0,1) 
+                ru = ru*0.0001
+                self.velocity[i,j] = (self.individual[i,j] - self.optimal_individual[i,j]) * ru 
+        print('Particles Initialized')
+    
+    def evolve_particle(self):
+        self.nfe = 0
+        for i in range(self.num_ind):
+            k = .01
+            for j in range(self.dim):
+                self.force[i,j]         = -k * (self.likelihood[i] - self.optimum) * (self.individual[i,j] - self.optimal_individual[i,j])#/abs(self.individual[i,j] - self.optimal_individual[i,j])
+                self.velocity[i,j]      = self.velocity[i,j] + self.force[i,j]
+                self.individual[i,j]    = self.individual[i,j] + self.velocity[i,j]
+            
+            self.individual[i,:], candidate_status = self.check_oob(self.individual[i])
+            
+            if candidate_status:
+                self.likelihood[i], true_likelihood = self.eval_likelihood_ind(self.individual[i])
+                k = [self.individual[i,j] for j in range(self.dim)] + [true_likelihood] + [3]
+                self.hist_data.append(k)
+                # print(self.likelihood[i], true_likelihood)
+                self.true_likelihood[i] = true_likelihood
+                self.nfe += 1        
+      
 
     def check_oob(self, candidate):
         candidate_status = True
@@ -317,3 +350,5 @@ class dSHADEpso:
     def eval_likelihood_ind(self, individual):
         percieved_val, true_val, signal, section = self.xs.evaluate(individual)
         return percieved_val, true_val, signal, section
+    
+    

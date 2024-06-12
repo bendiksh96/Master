@@ -64,7 +64,7 @@ class d_SHADE_pso:
             self.v[i] = self.individual[i] + self.Flist[i]*(xpbest[ri3]-self.individual[i]) + self.Flist[i]*(self.individual[ri1]- self.individual[ri2])
         #Crossover
         #Dette er egentlig 
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             randint = np.random.uniform(0,1)
             if randint < self.CRlist[i]:
                 self.v[i], status = self.check_oob(self.v[i])
@@ -135,15 +135,14 @@ class d_SHADE_pso:
             #Current to pbest/1 
             ri1 = np.random.randint(self.num_ind)
             rii = np.random.randint(self.num_ind/2)
-            ri3 = np.random.randint(self.num_ind/3)
+            ri3 = np.random.randint(self.num_ind/2)
             
             self.v[i] = xpbest[rii] + self.Flist[i]*(xpbest[ri3]-self.individual[ri1])
         #Crossover
         count = 0
         for i in range(self.num_ind):
             randu = np.random.uniform(0,1)
-            randi = np.random.uniform(0,1)
-            if randu < self.CRlist [i] or randi <0.3:
+            if randu < self.CRlist [i] :
                 self.v[i], status = self.check_oob(self.v[i])
                 #Check if the new crossover individual is superior to the prior
                 if status:
@@ -152,9 +151,8 @@ class d_SHADE_pso:
                     self.hist_data.append(k)
                     self.nfe += 1
                     count += 1
-                    randulf = np.random.uniform(0,1)
 
-                    if perceived_likelihood <= self.likelihood[i] or randulf < 0.1:
+                    if perceived_likelihood <= self.likelihood[i]:
                         self.individual[i] = self.v[i]
                         self.A.append(self.individual[i])        
                         delta_f.append(perceived_likelihood-self.likelihood[i])                

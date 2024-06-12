@@ -3,7 +3,7 @@ import sys
 sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
 from physical_eval import *
 class SHADE:
-    def __init__(self, num_ind):
+    def __init__(self, num_ind, ggd_list):
         self.num_ind        = num_ind
         self.dim            = 3
 
@@ -11,8 +11,9 @@ class SHADE:
         self.CRlist     = [0.1 for p in range(self.num_ind)]
         self.M_CR       = [0.1 for p in range(self.num_ind)]
         self.M_F        = [0.1 for p in range(self.num_ind)]
-        
-        self.xs             = XSection()
+        self.ggd_list       = ggd_list
+
+        self.xs             = XSection(ggd_list)
         self.nfe            = 0
         self.hist_data      = []
     
@@ -33,10 +34,11 @@ class SHADE:
                 if self.ind_ind[j] == 'n':
                     self.individual[p, j] = np.random.uniform(0  ,2000)
             # print(self.individual[p])
-            temp, true_likelihood = self.eval_likelihood_ind(self.individual[p])
-            k = [self.individual[p,j] for j in range(self.dim)] + [true_likelihood] + [1]
-            self.hist_data.append(k)    
-            self.likelihood[p] = temp
+            percieved_val, true_val, signal, section = self.eval_likelihood_ind(self.individual[p])
+            k = [self.individual[p,j] for j in range(self.dim)] + [percieved_val] + [true_val] +[signal] +[section]
+            self.hist_data.append(k)
+            self.nfe += 1
+            self.likelihood[p] = percieved_val
         self.nfe = self.num_ind
         
 
@@ -82,14 +84,14 @@ class SHADE:
             if randint < self.CRlist [i] or randu < 0.3:                
                 self.v[i], candidate_status = self.check_oob(self.v[i])
                 if candidate_status:
-                    temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    percieved_val, true_val, signal, section = self.eval_likelihood_ind(self.individual[i])
+                    k = [self.individual[i,j] for j in range(self.dim)] + [percieved_val] + [true_val] +[signal] +[section]
                     self.hist_data.append(k)
                     self.nfe += 1
-                    if temp < self.likelihood[i]:
+                    temp = percieved_val
+                    if temp < self.likelihood[i]or randu < 0.3:
                         self.individual[i] = self.v[i]
                         self.likelihood[i] = temp
-                        self.likelihood[i] += self.criteria(self.individual[i])
 
         #Update weights
         if len(S_CR) != 0:
@@ -134,5 +136,9 @@ class SHADE:
     
     
     def eval_likelihood_ind(self, individual):
-        percieved_val, true_val = self.xs.evaluate(individual)
-        return percieved_val, true_val
+        if len(self.ggd_list) == 1:
+            percieved_val, true_val, signal, section = self.xs.evaluate(individual)
+            return percieved_val, true_val, signal, section
+        if len(self.ggd_list) == 4:
+            pred, true,pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section = self.xs.evaluate(individual)
+            return pred,true, pv_1, tv_1, s1,pv_2, tv_2, s2, pv_3, tv_3, s3, pv_4, tv_4, s4, section

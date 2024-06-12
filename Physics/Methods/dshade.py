@@ -1,7 +1,7 @@
 import numpy as np
 import sys 
 sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
-from physical_eval_multiggd import *
+from physical_eval   import *
 class dSHADE:
     def __init__(self, num_ind, ggd_list):
         self.num_ind        = num_ind

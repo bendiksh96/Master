@@ -13,8 +13,9 @@ class jDE:
         self.dim            = len(individual[0])
         self.u              = np.zeros_like(self.individual)
         self.v              = np.zeros_like(self.individual)
-        self.Flist          = [0.1 for p in range(self.num_ind)]
-        self.CRlist         = [0.1 for p in range(self.num_ind)]
+        self.F_l, self.F_u  = 0.1, 0.9 
+        self.Flist          = [np.random.uniform(0.1,1) for p in range(self.num_ind)]
+        self.CRlist         = [np.random.uniform(0,0.99) for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
         self.Data           = Problem_Function(self.dim)
         self.nfe            = 0
@@ -36,19 +37,23 @@ class jDE:
         
         #Muter        
         for i in range(self.num_ind):
-            randint = np.random.uniform(0,1)
-            if randint < self.CRlist[i]:
-                self.v[i], status = self.check_oob(self.v[i])
+            rn = np.random.randint(0, self.dim)
+            for j in range(self.dim):
+                randint = np.random.uniform(0,1)
+                if randint < self.CRlist[i] or rn == j:
+                    self.u[i,j] = self.v[i,j]
+                else:
+                    self.u[i,j] = self.individual[i,j]
+                
+                self.u[i], status = self.check_oob(self.u[i])
                 if status:
-                    temp, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    temp, true_likelihood = self.eval_likelihood_ind(self.u[i])
+                    k = [self.u[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
                     self.hist_data.append(k)    
                     self.nfe += 1
                     if temp < self.likelihood[i]:
-                        self.individual[i] = self.v[i]
+                        self.individual[i] = self.u[i]
                         self.likelihood[i] = temp
-                else:
-                    self.Flist[i] = 0.1
                     
         #Adaptation
         for i in range(self.num_ind):
@@ -57,7 +62,7 @@ class jDE:
             ru3 = np.random.uniform(0,1)
             ru4 = np.random.uniform(0,1)
             if ru1 < self.tau1:
-                self.Flist[i] += ru2 * self.Flist[i]
+                self.Flist[i] += self.F_l + ru2 * self.F_u
             if ru3 < self.tau2:
                 self.CRlist[i] = ru4
                 

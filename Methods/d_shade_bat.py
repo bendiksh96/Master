@@ -63,7 +63,7 @@ class d_SHADE_bat:
         self.abs_best   = self.likelihood[best_indexes[0]]
         self.best_ind   = self.individual[best_indexes][0]
         #Mutant vector
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             ri = np.random.randint(1,self.num_ind) 
             
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
@@ -139,7 +139,7 @@ class d_SHADE_bat:
         self.best_ind   = self.individual[best_indexes][0]
 
         #Evolve individuals
-        for i in range(self.num_ind-1):
+        for i in range(self.num_ind):
             
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
@@ -170,7 +170,6 @@ class d_SHADE_bat:
         #Crossover
         for i in range(self.num_ind):
             randu = np.random.uniform(0,1)
-            randi = np.random.uniform(0,1)
             if randu < self.CRlist [i]:
                 self.v[i], status = self.check_oob(self.v[i])
                 #Check if the new crossover individual is superior to the prior
@@ -180,7 +179,7 @@ class d_SHADE_bat:
                     self.hist_data.append(k)
                     self.nfe += 1
                     
-                    if perceived_likelihood <= self.likelihood[i] or randi < 0.3:
+                    if perceived_likelihood <= self.likelihood[i]:
                         self.individual[i] = self.v[i]
                         self.A.append(self.individual[i])        
                         delta_f.append(perceived_likelihood-self.likelihood[i])                

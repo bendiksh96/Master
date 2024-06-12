@@ -112,12 +112,9 @@ class d_SHADE:
         self.best_ind   = self.individual[best_indexes][0]
 
         #Evolve individuals
-        for i in range(self.num_ind):
-            
+        for i in range(self.num_ind):            
             ri = np.random.randint(1,self.num_ind) 
             self.CRlist[i] = np.random.normal(self.M_CR[ri], 0.1)
-            
-            #Cauchy gir hittil best FILL, men dårligere CONT
             cauchy = np.random.standard_cauchy()
             self.Flist[i]  = self.M_F[ri] + 0.1*cauchy 
             
@@ -131,8 +128,7 @@ class d_SHADE:
         
         for i in range(self.num_ind):
             randu = np.random.uniform(0,1)
-            randi = np.random.uniform(0,1)
-            if randu < self.CRlist [i] or randi < 0.3:
+            if randu < self.CRlist[i]:
                 self.v[i], status = self.check_oob(self.v[i])
                 #Check if the new crossover individual is superior to the prior
                 if status:

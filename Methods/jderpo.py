@@ -16,9 +16,9 @@ class jDErpo:
         self.u              = np.zeros_like(self.individual)
         self.v              = np.zeros_like(self.individual)
         p_i                 = np.random.uniform(2/self.num_ind, 0.2)
-        self.Flist          = [0.1 for p in range(self.num_ind)]
+        self.Flist          = [np.random.uniform(0.1,1) for p in range(self.num_ind)]
         self.Fupp           = 1
-        self.CRlist         = [0.1 for p in range(self.num_ind)]
+        self.CRlist         = [np.random.uniform(0,0.99) for p in range(self.num_ind)]
         self.CRupp          = 1
         self.tau1,self.tau2 = 0.1,0.1
         self.nfe            = 0 
@@ -60,21 +60,26 @@ class jDErpo:
         
                 
         for i in range(self.num_ind):
-            randint = np.random.uniform(0,1)
-            
-            if randint < self.CRlist[i]:
+            rn = np.random.randint(0, self.dim)
+            for j in range(self.dim):
+                randint = np.random.uniform(0,1)
+                if randint < self.CRlist[i] or rn ==j:
+                    self.u[i,j] = self.v[i,j]
+                else: 
+                    self.u[i,j] = self.individual[i,j]
                 
-                self.v[i], status = self.check_oob(self.v[i])
+                self.u[i], status = self.check_oob(self.u[i])
                 if status:
-                    temp_likelihood, true_likelihood = self.eval_likelihood_ind(self.v[i])
-                    k = [self.v[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
+                    temp_likelihood, true_likelihood = self.eval_likelihood_ind(self.u[i])
+                    k = [self.u[i,j] for j in range(self.dim)] + [true_likelihood] + [1]
                     self.hist_data.append(k)
                     self.nfe += 1
                     self.nfe_tot += 1
                     if  temp_likelihood < self.likelihood[i]:
-                        self.individual[i] = self.v[i]
+                        self.individual[i] = self.u[i]
                         self.likelihood[i] = temp_likelihood
                         self.true_likelihood[i] = true_likelihood
+                        
         for i in range(self.num_ind):
             ru1 = np.random.uniform(0,1)
             ru2 = np.random.uniform(0,1)

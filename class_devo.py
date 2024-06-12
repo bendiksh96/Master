@@ -23,17 +23,6 @@ from chaotic_bat import *
 from d_shade_pso import *
 from d_shade_bat import *
 
-def loading_bar():
-    toolbar_width = 40  # adjust the width of the loading bar
-    total_time = 5  # specify the total time for the process completion
-
-    elapsed_time = time.time() - start_time
-    completed = int(elapsed_time / total_time * toolbar_width)
-    remaining = toolbar_width - completed
-
-    loading_bar = '[' + '=' * completed + '.' * remaining + ']'
-
-    print(f'\rLoading: {loading_bar} {int(elapsed_time/total_time*100)}%', end='')
 
 def conditions(problem_function):
     if problem_function == 'Himmelblau':
@@ -179,98 +168,6 @@ class DEVO_class:
                     mod.hist_data = []
             self.write_data(mod.hist_data)
 
-        if self.method == 'shabat':
-            iter_likelihood = []; tol = 1e-3; conv = False
-            mod = shabat(self.individual, self.likelihood, self.problem_func)
-            mod.set_limits(self.xmin, self.xmax)
-            while self.nfe < self.max_nfe and conv == False:
-                mod.evolve()
-                self.check_oob()
-
-                self.nfe  += self.num_ind
-                iter_likelihood.append(np.mean(mod.likelihood))
-
-                for i in range(self.num_ind):
-                    var = []
-                    for j in range(self.dim):
-                        var.append(self.individual[i,j])
-                    var.append(self.likelihood[i])
-                    self.hist_data.append(var)
-                if len(self.hist_data)>int(1e5):
-                    self.write_data()
-                    self.hist_data       = []
-            self.write_data()
-
-        if self.method == 'ddms':
-            iter_likelihood = []; tol = 1e-3; conv = False
-            mod = DDMS(self.individual, self.likelihood, self.problem_func)
-            mod.nfe_max = maxiter*self.num_ind
-            while self.iter < maxiter and conv == False:
-                mod.evolve()
-                self.check_oob()
-
-                self.nfe  += self.num_ind
-                mod.nfe   += self.nfe
-                self.iter += 1
-                mod.gen   += 1
-
-                iter_likelihood.append(np.mean(mod.likelihood))
-                for i in range(self.num_ind):
-                    self.hist_ind[self.iter] = self.individual[i]
-                    self.hist_lik[self.iter] = self.likelihood[i]
-
-        if self.method == 'bat':
-            iter_likelihood = []; tol = 1e-5; conv = False
-            mod = Bat(self.individual, self.likelihood, self.problem_func)
-            mod.set_limits(self.xmin, self.xmax)
-            self.iter_likelihood_mean = []
-            self.iter_likelihood_best = []
-            self.iter_likelihood_median = []
-
-            while self.nfe < self.max_nfe and conv == False:
-                mod.evolve()
-                self.check_oob()
-
-                self.nfe  += self.num_ind
-                iter_likelihood.append(np.mean(mod.likelihood))
-
-                for i in range(self.num_ind):
-                    var = []
-                    for j in range(self.dim):
-                        var.append(self.individual[i,j])
-                    var.append(self.likelihood[i])
-                    self.hist_data.append(var)
-                if len(mod.hist_data)>int(1e5):
-                    self.write_data(mod.hist_data)
-                    mod.hist_data = []
-            self.write_data(mod.hist_data)
-
-        if self.method == 'chaotic_bat':
-            iter_likelihood = []; tol = 1e-5; conv = False
-            mod = cbat(self.individual, self.likelihood, self.problem_func)
-            mod.set_limits(self.xmin, self.xmax)
-
-            while self.nfe < self.max_nfe and conv == False:
-                mod.evolve()
-                #self.check_oob()
-
-                self.nfe  += mod.nfe
-
-                # for i in range(self.num_ind):
-                #     var = []
-                #     #     var.append(self.individual[i,j])
-                #     # var.append(self.likelihood[i])
-                #     for j in range(self.dim):
-                #         var.append(mod.BM[i,j])
-                #     var.append(mod.BM_val[i])
-                #     self.hist_data.append(var)
-
-                if len(mod.hist_data)>int(1e5):
-                    self.write_data(mod.hist_data)
-                    mod.hist_data = []
-            self.write_data(mod.hist_data)
-
-
         if self.method == 'double_shade':
             iter_likelihood = []; tol = 1e-3; conv = False
             mod = d_SHADE(self.individual, self.likelihood, self.problem_func, self.xmin, self.xmax)
@@ -296,16 +193,18 @@ class DEVO_class:
 
                 if len(mod.hist_data)>int(3e4):
                     self.write_data(mod.hist_data)
+                    mod.hist_data = []
 
             self.write_data(mod.hist_data)
             print(len(mod.hist_data))
+            """
+            mod.hist_data = []
             print('Best value:', mod.abs_best)
             print('In: ', mod.best_ind)
             if conv:
                 #Change function to modified version
                 mod.prob_func = 'mod_' + self.problem_func
                 self.best   = mod.abs_best
-                best        = mod.abs_best
 
                 self.num_ind = self.num_ind*100
                 print('Starting Exploration, NFE:', self.nfe)
@@ -330,7 +229,7 @@ class DEVO_class:
                         mod.hist_data = []
                 self.write_data(mod.hist_data)
                 mod.hist_data = []
-
+                """
         if self.method == 'double_shade_pso':
             iter_likelihood = []; tol = 1e-3; conv = False
             mod = d_SHADE_pso(self.individual, self.likelihood, self.problem_func, self.xmin, self.xmax)
@@ -541,75 +440,6 @@ class DEVO_class:
                 self.write_data(mod.hist_data)
                 mod.hist_data = []
 
-        if self.method == 'shade_bat':
-            iter_likelihood = []; tol = 1e-3; conv = False
-            mod = shade_bat(self.individual, self.likelihood, self.problem_func)
-
-            while self.nfe < self.max_nfe and conv == False:
-                mod.evolve_converge()
-                self.check_oob()
-
-                self.nfe  += self.num_ind
-                iter_likelihood.append(np.mean(mod.true_likelihood))
-
-                if int(self.nfe/self.num_ind) > 10:
-                    if (np.mean(iter_likelihood)-iter_likelihood[-1]) < tol or any(self.likelihood) == 0:
-                        print('Conv')
-
-                        conv = True
-                    del iter_likelihood[0]
-
-
-                for i in range(self.num_ind):
-                    var = []
-                    for j in range(self.dim):
-                        var.append(self.individual[i,j])
-                    var.append(self.likelihood[i])
-                    self.hist_data.append(var)
-                if len(self.hist_data)>int(1e5):
-                    self.write_data()
-                    self.hist_data       = []
-            self.write_data()
-
-            if conv:
-
-                #Change function to modified version
-                mod.prob_func = 'mod_' + self.problem_func
-                self.best   = mod.abs_best
-                best        = mod.abs_best
-
-                #Here we need to calculate the delta_log, ie.  the boundary of likelihood and how many sigma we are interested in.
-                #delta_log =
-                #HB:
-                #1sig :: 1.15
-                #2sig :: 3.09
-                #3sig :: 5.915
-
-                #Initialize population anew
-                self.num_ind = self.num_ind*100
-                self.initialize_population(self.xmin, self.xmax, self.num_ind)
-                mod.__init__(self.individual, self.likelihood, mod.prob_func)
-                mod.Data.param_change(best=best, delta_log = 1.15)
-                mod.initialize_bat(True)
-                self.bat_memory_individual = mod.BM
-                self.bat_memory_likelihood = mod.BM_val
-
-                mod.set_limits(self.xmin, self.xmax)
-                #Start the evolution
-
-                while self.nfe < self.max_nfe:
-                    mod.evolve_bat()
-                    self.nfe  += mod.nfe
-                    self.bat_memory_individual = mod.BM
-                    self.bat_memory_likelihood = mod.BM_val
-
-                    if len(self.hist_data)>int(1e6):
-                        self.write_data()
-                        self.hist_data       = []
-                    if self.nfe > self.max_nfe:
-                        break
-                self.write_data()
-
 
     # Legg til at oob kandidater må telle opp nfe og legg til nytt individ
 
@@ -702,19 +532,19 @@ def log_thresh(sigma):
         return 5.915
 
 start = time.time()
-dim                 = 3
+dim                 = 5
 sigma               = 2
 
 def collector():
-    method_list = ['shade']#['jde','shade','random_search','jderpo']#,'double_shade_pso','double_shade', 'double_shade_bat']
+    method_list =['double_shade']#['jde']# ['double_shade','double_shade_pso','double_shade_pso', 'double_shade_bat']#['jde', 'jderpo', 'shade','random_search','double_shade','double_shade_pso', 'double_shade_bat']
     func_list   = ['Himmelblau', 'Rosenbrock', 'Rastrigin', 'Levy']  
     func_writ   = ['himmelblau', 'rosenbrock', 'rastrigin', 'levy'] 
     if dim == 3:
-        nfe_list    = [1e5, 2e5, 5e5]
+        nfe_list    = [1e5]#, 2e5, 5e5]
     elif dim == 4: 
-        nfe_list    = [1e6, 2e6, 5e6]
+        nfe_list    = [1e6]#, 2e6, 5e6]
     elif dim == 5:
-        nfe_list    = [1e7, 2e7, 5e7]
+        nfe_list    = [1e7]#, 2e7, 5e7]
     else:
         print('Not designed for this dimension')
         exit()
@@ -725,16 +555,16 @@ def collector():
 
     for met in range(len(method_list)):
         for fun in range(len(func_list)):
+            time_elapse = time.time()
             for nf in range(len(nfe_list)):
                 if method_list[met] == 'shade' or method_list[met] == 'jde' or method_list[met] == 'jderpo':
                     population_size = int(nfe_list[nf]/50)
                 else:
-                    population_size = 5**(dim)
-                
+                    population_size = 243#5**(dim)
+                    #Bruker 243 for dshade i 5D, det er 3**5
                 xmin, xmax          = conditions(func_list[fun])
                 log_threshold       = log_thresh(sigma)
                 cl                  = DEVO_class(dim, func_list[fun], method_list[met], log_threshold)
-                
                 cl.initialize_population(xmin,xmax, population_size)
                 cl.evolve(nfe_list[nf])
                 
@@ -751,7 +581,7 @@ def collector():
                 dw.bin_parameter_space(bin_path)
                 dw.compare_bins(bin_path)
                 data = [
-                    ['Method:', method_list[met] , 'Function:' , func_list[fun] , 'NFE:', nfe_list[nf], 'Seed:', seed],
+                    ['Method:', method_list[met] , 'Function:' , func_list[fun] , 'NFE:', nfe_list[nf]],
                     ['score within threshold', dw.occ],
                     ['score on contour', dw.delta_occ],
                     ['min', dw.mini],
@@ -762,6 +592,8 @@ def collector():
                 with open(path, 'a', newline='') as csvfile:
                     w = csv.writer(csvfile,delimiter= ',')
                     w.writerows(data)
+            time_durian = time.time()
+            print('This took', time_durian-time_elapse, 'seconds')
 
 collector()         
 end = time.time()

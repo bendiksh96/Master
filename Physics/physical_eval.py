@@ -25,27 +25,29 @@ class XSection:
         self.interp_eff_1 = LinearNDInterpolator(list(zip(xe, ye)), ze, fill_value=np.nan)
         
         
+        if len(ggd_list) == 1:
+            self.n_1 = 45 
+            self.b_1 = 30
+            self.fac_n_1 = float(math.factorial(self.n_1))
+            self.background_1 = self.n_1 * np.log(self.b_1) - self.b_1 - np.log(self.fac_n_1)
         
-        self.n_1 = 45 
-        self.b_1 = 30
+        elif len(ggd_list) == 2:
+            self.n_2 = 68 
+            self.b_2 = 52
+            self.fac_n_2 = float(math.factorial(self.n_2))
+            self.background_2 = self.n_2 * np.log(self.b_2) - self.b_2 - np.log(self.fac_n_2)
         
-        self.n_2 = 68 
-        self.b_2 = 52
+        elif len(ggd_list) == 3:
+            self.n_3 = 227 
+            self.b_3 = 223
+            self.fac_n_3 = float(math.factorial(self.n_3))
+            self.background_3 = self.n_3 * np.log(self.b_3) - self.b_3 - np.log(self.fac_n_3)
         
-        self.n_3 = 227 
-        self.b_3 = 223
-        
-        self.n_4 = 291
-        self.b_4 = 298
-        
-        self.fac_n_1 = float(math.factorial(self.n_1))
-        self.background_1 = self.n_1 * np.log(self.b_1) - self.b_1 - np.log(self.fac_n_1)
-        self.fac_n_2 = float(math.factorial(self.n_2))
-        self.background_2 = self.n_2 * np.log(self.b_2) - self.b_2 - np.log(self.fac_n_2)
-        self.fac_n_3 = float(math.factorial(self.n_3))
-        self.background_3 = self.n_3 * np.log(self.b_3) - self.b_3 - np.log(self.fac_n_3)
-        self.fac_n_4 = float(math.factorial(self.n_4))
-        self.background_4 = self.n_4 * np.log(self.b_4) - self.b_4 - np.log(self.fac_n_4)
+        elif len(ggd_list) == 4:
+            self.n_4 = 291
+            self.b_4 = 298
+            self.fac_n_4 = float(math.factorial(self.n_4))
+            self.background_4 = self.n_4 * np.log(self.b_4) - self.b_4 - np.log(self.fac_n_4)
         
         self.modifier = 0
         self.abs_best = 0
@@ -113,12 +115,12 @@ class XSection:
             tramp = 1e4
             return tramp, tramp, np.nan, np.nan
         
-        pred    = self.n*np.log(signal+self.b) - (signal + self.b) - np.log(self.fac_n)
+        pred    = self.n_1*np.log(signal+self.b_1) - (signal + self.b_1) - np.log(self.fac_n_1)
         pred_true = pred
         if pred < self.abs_best + self.modifier and self.conv_ == True:
             pred = self.modifier + (self.modifier- self.abs_best)
-        target_true = -(pred_true - self.background)
-        target  = -( pred - self.background)
+        target_true = -(pred_true - self.background_1)
+        target  = -( pred - self.background_1)
         return target, target_true, signal, section
     
     def criteria(self, ind):

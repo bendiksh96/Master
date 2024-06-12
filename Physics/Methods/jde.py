@@ -3,14 +3,15 @@ import sys
 sys.path.append(r"C:\Users\Lenovo\Documents\GitHub\Master\Physics")
 from physical_eval import *
 class jDE:
-    def __init__(self, num_ind):
+    def __init__(self, num_ind, ggd_list):
         self.num_ind        = num_ind
         self.dim            = 3
         self.Flist          = [0.1 for p in range(self.num_ind)]
         self.CRlist         = [0.1 for p in range(self.num_ind)]
         self.tau1,self.tau2 = 0.1,0.1
-        
-        self.xs             = XSection()
+        self.ggd_list       = ggd_list
+
+        self.xs             = XSection(ggd_list)
         self.nfe            = 0
         self.hist_data      = []
     
