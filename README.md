@@ -1,6 +1,6 @@
 # Master
 
-Execute er samlefilen der instillinger tweakes, som kaller på følgende moduler:
+Følgende struktur:
 
 class_DEVO - Inneholder Evolusjonen og kaller på forskjellige metoder fra mappen metoder
 
