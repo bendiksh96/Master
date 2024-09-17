@@ -2,13 +2,16 @@
 
 Følgende struktur:
 
-##class_DEVO - Inneholder Evolusjonen og kaller på forskjellige metoder fra mappen metoder
+class_DEVO - Inneholder Evolusjonen og kaller på forskjellige metoder fra mappen metoder
 
 
-##problem_func - Inneholder de forskjellige testfunksjonene
+problem_func - Inneholder de forskjellige testfunksjonene
 
 
-##vis_writ - Inneholder kode for data-lagring og plotting
+vis_writ - Inneholder kode for data-lagring og plotting
+
+
+
 
 Alle metodene ligger i /Methods, og kalles på av class_DEVO.
 
